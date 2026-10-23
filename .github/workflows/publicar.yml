@@ -2,6 +2,7 @@
 # Se lanza solo cuando cambia la versión en package.json (rama main) o a mano desde la pestaña Actions.
 # No hace falta ningún token personal: usa el token automático de GitHub.
 name: Publicar Rutero
+# (la clave del modo online se guarda en Settings > Secrets and variables > Actions > Variables)
 
 on:
   push:
