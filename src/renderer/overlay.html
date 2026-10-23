@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'">
+<style>
+  :root { --acc: #4C8DFF; --bg: rgba(11,14,24,.88); --fg: #E9EDF5; --mut: #8C97AD; --line: rgba(255,255,255,.08); --chip: rgba(255,255,255,.06); }
+  body.light { --bg: rgba(245,247,251,.92); --fg: #121826; --mut: #5B6579; --line: rgba(0,0,0,.08); --chip: rgba(0,0,0,.05); }
+  body.glass { --bg: rgba(20,26,44,.45); }
+  html, body { margin: 0; background: transparent; font-family: 'Bahnschrift', 'Segoe UI', sans-serif; color: var(--fg); overflow: hidden; user-select: none; }
+  #box { display: inline-block; margin: 6px; min-width: 250px; max-width: 380px; border-radius: 16px; background: var(--bg); border: 1px solid var(--line); padding: 12px 14px;
+    -webkit-app-region: drag; transform-origin: top left; box-shadow: 0 10px 30px rgba(0,0,0,.25); border-top: 3px solid var(--acc); }
+  body.glass #box { backdrop-filter: blur(10px); }
+  body.locked #box { -webkit-app-region: no-drag; }
+  .top { display: flex; align-items: center; gap: 12px; }
+  .speed { font-size: 52px; font-weight: 700; line-height: .9; font-variant-numeric: tabular-nums; }
+  .unit { font-size: 11px; color: var(--mut); letter-spacing: .14em; }
+  .limit { width: 42px; height: 42px; border-radius: 50%; background: #fff; border: 5px solid #E2231A; color: #111; display: grid; place-items: center; font-weight: 800; font-size: 16px; margin-left: auto; }
+  .limit.over { box-shadow: 0 0 0 5px rgba(226,35,26,.5); }
+  .gear { min-width: 40px; height: 40px; border-radius: 10px; background: var(--chip); display: grid; place-items: center; font-weight: 700; font-size: 20px; padding: 0 4px; }
+  .rpm { height: 4px; background: var(--chip); border-radius: 4px; margin-top: 8px; overflow: hidden; }
+  .rpm i { display: block; height: 100%; background: linear-gradient(90deg, #19C3B1, var(--acc), #FF5A5F); }
+  .job { margin-top: 8px; font-size: 13px; color: var(--acc); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 600; }
+  .rows { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 14px; margin-top: 6px; }
+  .row { display: flex; justify-content: space-between; gap: 8px; font-size: 13px; color: var(--mut); }
+  .row b { color: var(--fg); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .bar { height: 5px; background: var(--chip); border-radius: 5px; margin-top: 6px; overflow: hidden; }
+  .bar i { display: block; height: 100%; background: #19C3B1; }
+  .toast { margin-top: 8px; font-size: 12px; padding: 6px 8px; border-radius: 8px; background: color-mix(in srgb, var(--acc) 18%, transparent); display: none; }
+  .brand { font-size: 9px; letter-spacing: .3em; color: var(--mut); margin-top: 6px; opacity: .7; }
+  body.compact .speed { font-size: 38px; }
+  body.compact .rows { grid-template-columns: 1fr; }
+  body.compact .brand { display: none; }
+  .hide { display: none !important; }
+</style>
+</head>
+<body>
+  <div id="box">
+    <div class="top">
+      <div data-w="speed"><div class="speed" id="s">0</div><div class="unit" id="u">KM/H</div></div>
+      <div class="gear" id="g" data-w="gear">N</div>
+      <div class="gear" id="cc" data-w="cruise" title="Crucero">—</div>
+      <div class="limit" id="l" data-w="limit">—</div>
+    </div>
+    <div class="rpm" data-w="rpm"><i id="rpm" style="width:0"></i></div>
+    <div class="job" id="j" data-w="job">Sin carga</div>
+    <div class="rows">
+      <div class="row" data-w="remaining"><span>Restante</span><b id="r">—</b></div>
+      <div class="row" data-w="eta"><span>Llegada</span><b id="e">—</b></div>
+      <div class="row" data-w="score"><span>Puntos</span><b id="sc">—</b></div>
+      <div class="row" data-w="damage"><span>Daño</span><b id="dm">—</b></div>
+      <div class="row" data-w="clock"><span>Hora</span><b id="ck">—</b></div>
+      <div class="row" data-w="rest"><span>Descanso</span><b id="rs">—</b></div>
+      <div class="row" data-w="earnings"><span>Hoy</span><b id="ea">—</b></div>
+    </div>
+    <div data-w="fuel"><div class="row" style="margin-top:6px"><span>Combustible</span><b id="fl">—</b></div><div class="bar"><i id="f" style="width:0"></i></div></div>
+    <div class="toast" id="t"></div>
+    <div class="brand">RUTERO</div>
+  </div>
+  <script src="i18n.js"></script>
+  <script src="overlay.js"></script>
+</body>

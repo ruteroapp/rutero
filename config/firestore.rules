@@ -1,0 +1,89 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{db}/documents {
+    function signed() { return request.auth != null; }
+    function me() { return request.auth.uid; }
+    function company(cid) { return get(/databases/$(db)/documents/companies/$(cid)).data; }
+    function isOwner(cid) { return signed() && company(cid).ownerUid == me(); }
+    function isManager(cid) {
+      return isOwner(cid) || (signed() && exists(/databases/$(db)/documents/companies/$(cid)/members/$(me()))
+        && get(/databases/$(db)/documents/companies/$(cid)/members/$(me())).data.role == 'admin');
+    }
+    // existsAfter: cuenta los cambios del mismo lote (al fundar o unirse)
+    function isMember(cid) { return signed() && existsAfter(/databases/$(db)/documents/companies/$(cid)/members/$(me())); }
+
+    // ---------- conductores ----------
+    match /users/{uid} {
+      allow read: if signed();
+      allow create, update: if signed() && me() == uid;
+      match /jobs/{job} { allow read: if signed(); allow create: if signed() && me() == uid; }
+      match /fines/{f} { allow read: if signed(); allow create: if signed() && me() == uid; }
+      match /transfers/{t} { allow read, create: if signed() && me() == uid; }
+      // dinero recibido de otros conductores: lo crea quien envía, lo cobra el dueño
+      match /inbox/{i} {
+        allow create: if signed() && request.resource.data.fromUid == me() && request.resource.data.amount > 0;
+        allow read, delete: if signed() && me() == uid;
+      }
+    }
+
+    // ---------- empresas ----------
+    match /companies/{cid} {
+      allow read: if signed();
+      allow create: if signed() && request.resource.data.ownerUid == me();
+      allow update: if isManager(cid)
+        || (signed() && request.resource.data.diff(resource.data).affectedKeys()
+              .hasOnly(['km', 'jobs', 'balance', 'membersCount', 'lastActivity', 'ratingSum', 'ratingCount']));
+      allow delete: if isOwner(cid);
+
+      match /members/{uid} {
+        allow read: if signed();
+        allow create: if signed() && me() == uid;
+        allow update: if (signed() && me() == uid) || isManager(cid);
+        allow delete: if (signed() && me() == uid) || isManager(cid);
+      }
+      match /requests/{uid} {
+        allow read: if signed();
+        allow create, update: if (signed() && me() == uid) || isManager(cid);
+        allow delete: if (signed() && me() == uid) || isManager(cid);
+      }
+      // valoraciones: una por conductor (1 a 5 estrellas), nunca del dueño
+      match /ratings/{uid} {
+        allow read: if signed();
+        allow create, update: if signed() && me() == uid && company(cid).ownerUid != me()
+          && request.resource.data.stars is int && request.resource.data.stars >= 1 && request.resource.data.stars <= 5;
+        allow delete: if signed() && me() == uid;
+      }
+      match /jobs/{job} { allow read: if signed(); allow create: if isMember(cid); }
+      match /fines/{f} { allow read: if signed(); allow create: if isMember(cid); }
+      match /bank/{mov} { allow read: if signed(); allow create: if isMember(cid); }
+      match /accounts/{a} {
+        allow read: if signed();
+        allow write: if isManager(cid);
+        allow update: if isMember(cid) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['balance']);
+      }
+      match /fleet/{v} {
+        allow read: if signed();
+        allow write: if isManager(cid);
+        // el conductor asignado solo puede actualizar el desgaste y los km
+        allow update: if isMember(cid) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['condition', 'km', 'lastDriver']);
+      }
+      match /garages/{g} { allow read: if signed(); allow write: if isManager(cid); }
+      match /news/{n} { allow read: if signed(); allow write: if isManager(cid); }
+      match /events/{e} {
+        allow read: if signed();
+        allow create, delete: if isManager(cid);
+        allow update: if isManager(cid) || (isMember(cid) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['attendees']));
+      }
+    }
+
+    // ---------- rankings semanales ----------
+    match /weekly/{week}/drivers/{uid} {
+      allow read: if signed();
+      allow write: if signed() && me() == uid;
+    }
+    match /weekly/{week}/companies/{cid} {
+      allow read: if signed();
+      allow write: if isMember(cid);
+    }
+  }
+}

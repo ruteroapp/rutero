@@ -1,0 +1,748 @@
+es | en | fr | de | it | pt | pl
+# km | # km | # km | # km | # km | # km | # km
+# / # vehículos aparcados | # / # vehicles parked | # / # véhicules garés | # / # Fahrzeuge geparkt | # / # veicoli parcheggiati | # / # veículos estacionados | # / # pojazdów zaparkowanych
+# XP · siguiente nivel en # XP | # XP · next level at # XP | # XP · niveau suivant à # XP | # XP · nächstes Level bei # XP | # XP · livello successivo a # XP | # XP · próximo nível em # XP | # XP · następny poziom przy # XP
+# conductores en la empresa | # drivers in the company | # chauffeurs dans l'entreprise | # Fahrer in der Firma | # autisti nell'azienda | # motoristas na empresa | # kierowców w firmie
+# de # logros desbloqueados | # of # achievements unlocked | # sur # succès débloqués | # von # Erfolgen freigeschaltet | # di # obiettivi sbloccati | # de # conquistas desbloqueadas | # z # osiągnięć odblokowanych
+# entregas | # deliveries | # livraisons | # Lieferungen | # consegne | # entregas | # dostaw
+# esta semana | # this week | # cette semaine | # diese Woche | # questa settimana | # esta semana | # w tym tygodniu
+# h # min | # h # min | # h # min | # Std. # Min. | # h # min | # h # min | # godz. # min
+# miembros | # members | # membres | # Mitglieder | # membri | # membros | # członków
+# modelos | # models | # modèles | # Modelle | # modelli | # modelos | # modeli
+# pts | # pts | # pts | # Pkt. | # pt | # pts | # pkt
+# vehículos · #/# plazas ocupadas | # vehicles · #/# slots used | # véhicules · #/# places occupées | # Fahrzeuge · #/# Plätze belegt | # veicoli · #/# posti occupati | # veículos · #/# vagas ocupadas | # pojazdów · #/# miejsc zajętych
+#/km | #/km | #/km | #/km | #/km | #/km | #/km
+#/km + # € | #/km + # € | #/km + # € | #/km + # € | #/km + # € | #/km + # € | #/km + # €
++ # bus | + # bus | + # bus | + # Bus | + # bus | + # ônibus | + # autobus
+hace # min | # min ago | il y a # min | vor # Min. | # min fa | há # min | # min temu
+hace # h | # h ago | il y a # h | vor # Std. | # h fa | há # h | # godz. temu
+hace # d | # d ago | il y a # j | vor # T. | # g fa | há # d | # dni temu
+ahora | now | maintenant | jetzt | ora | agora | teraz
+Abajo a la derecha | Bottom right | En bas à droite | Unten rechts | In basso a destra | Inferior direito | Na dole po prawej
+Abajo a la izquierda | Bottom left | En bas à gauche | Unten links | In basso a sinistra | Inferior esquerdo | Na dole po lewej
+Abre el juego y Rutero se conectará solo | Open the game and Rutero will connect by itself | Lance le jeu et Rutero se connectera tout seul | Starte das Spiel und Rutero verbindet sich von selbst | Apri il gioco e Rutero si collegherà da solo | Abra o jogo e o Rutero vai se conectar sozinho | Uruchom grę, a Rutero połączy się sam
+Abre el juego. Si ya está abierto, instala el plugin de telemetría en Ajustes. | Open the game. If it is already open, install the telemetry plugin in Settings. | Lance le jeu. S'il est déjà ouvert, installe le plugin de télémétrie dans Paramètres. | Starte das Spiel. Falls es schon läuft, installiere das Telemetrie-Plugin in den Einstellungen. | Apri il gioco. Se è già aperto, installa il plugin di telemetria in Impostazioni. | Abra o jogo. Se já estiver aberto, instale o plugin de telemetria em Configurações. | Uruchom grę. Jeśli już działa, zainstaluj wtyczkę telemetrii w Ustawieniach.
+Aceptando solicitudes de conductores | Accepting driver applications | Accepte les candidatures de chauffeurs | Nimmt Fahrerbewerbungen an | Accetta richieste di autisti | Aceitando pedidos de motoristas | Przyjmuje zgłoszenia kierowców
+Aceptar | Accept | Accepter | Annehmen | Accetta | Aceitar | Akceptuj
+Actualizaciones | Updates | Mises à jour | Updates | Aggiornamenti | Atualizações | Aktualizacje
+Actualización descargada. Reinicia para instalarla. | Update downloaded. Restart to install it. | Mise à jour téléchargée. Redémarre pour l'installer. | Update heruntergeladen. Neu starten zum Installieren. | Aggiornamento scaricato. Riavvia per installarlo. | Atualização baixada. Reinicie para instalar. | Aktualizacja pobrana. Uruchom ponownie, aby zainstalować.
+Agranda o achica toda la app | Makes the whole app bigger or smaller | Agrandit ou réduit toute l'appli | Vergrößert oder verkleinert die ganze App | Ingrandisce o rimpicciolisce tutta l'app | Aumenta ou diminui todo o app | Powiększa lub pomniejsza całą aplikację
+Ajustes | Settings | Paramètres | Einstellungen | Impostazioni | Configurações | Ustawienia
+Ajustes de compañía | Company settings | Paramètres de l'entreprise | Firmeneinstellungen | Impostazioni azienda | Configurações da empresa | Ustawienia firmy
+Al aceptar, el conductor entra la próxima vez que abra Rutero y la empresa recibe # €. | Once accepted, the driver joins next time they open Rutero and the company receives # €. | Une fois accepté, le chauffeur rejoint la prochaine fois qu'il ouvre Rutero et l'entreprise reçoit # €. | Nach der Annahme tritt der Fahrer beim nächsten Start von Rutero bei und die Firma erhält # €. | Una volta accettato, l'autista entra alla prossima apertura di Rutero e l'azienda riceve # €. | Ao aceitar, o motorista entra na próxima vez que abrir o Rutero e a empresa recebe # €. | Po akceptacji kierowca dołączy przy następnym uruchomieniu Rutero, a firma otrzyma # €.
+América · ATS | America · ATS | Amérique · ATS | Amerika · ATS | America · ATS | América · ATS | Ameryka · ATS
+Aparcar | Park | Garer | Parken | Parcheggia | Estacionar | Zaparkuj
+Aparcar en un garaje | Park in a garage | Garer dans un garage | In einer Garage parken | Parcheggia in un garage | Estacionar em uma garagem | Zaparkuj w garażu
+Aportado | Contributed | Apporté | Beigetragen | Contribuito | Contribuído | Wniesiono
+Aporte | Contribution | Apport | Beitrag | Contributo | Contribuição | Wkład
+Aprendiz | Apprentice | Apprenti | Lehrling | Apprendista | Aprendiz | Praktykant
+Arriba a la derecha | Top right | En haut à droite | Oben rechts | In alto a destra | Superior direito | Na górze po prawej
+Arriba a la izquierda | Top left | En haut à gauche | Oben links | In alto a sinistra | Superior esquerdo | Na górze po lewej
+Arriba en el centro | Top center | En haut au centre | Oben mittig | In alto al centro | Superior central | Na górze na środku
+Asignar | Assign | Attribuer | Zuweisen | Assegna | Atribuir | Przypisz
+Asignar vehículo | Assign vehicle | Attribuer un véhicule | Fahrzeug zuweisen | Assegna veicolo | Atribuir veículo | Przypisz pojazd
+Autoaparcado | Auto-parked | Garé automatiquement | Automatisch geparkt | Parcheggiato in automatico | Estacionado automaticamente | Zaparkowany automatycznie
+Autobuses | Buses | Bus | Busse | Autobus | Ônibus | Autobusy
+Autobús | Bus | Bus | Bus | Autobus | Ônibus | Autobus
+Autobús urbano | City bus | Bus urbain | Stadtbus | Autobus urbano | Ônibus urbano | Autobus miejski
+Autocar | Coach | Autocar | Reisebus | Pullman | Rodoviário | Autokar
+Automático | Automatic | Automatique | Automatisch | Automatico | Automático | Automatycznie
+Automático: km/h en ETS# y mph en ATS | Automatic: km/h in ETS# and mph in ATS | Automatique : km/h dans ETS# et mph dans ATS | Automatisch: km/h in ETS# und mph in ATS | Automatico: km/h in ETS# e mph in ATS | Automático: km/h no ETS# e mph no ATS | Automatycznie: km/h w ETS# i mph w ATS
+Avisos de Windows al entregar, recibir multas o desbloquear logros | Windows alerts when you deliver, get fines or unlock achievements | Alertes Windows lors d'une livraison, d'une amende ou d'un succès | Windows-Hinweise bei Lieferungen, Strafen oder Erfolgen | Avvisi di Windows a consegne, multe o obiettivi sbloccati | Avisos do Windows ao entregar, levar multas ou desbloquear conquistas | Powiadomienia Windows przy dostawie, mandacie lub osiągnięciu
+Avisos y novedades para los conductores | Announcements and news for drivers | Annonces et nouveautés pour les chauffeurs | Ankündigungen und Neuigkeiten für die Fahrer | Avvisi e novità per gli autisti | Avisos e novidades para os motoristas | Ogłoszenia i nowości dla kierowców
+Banco principal | Main bank | Banque principale | Hauptkonto | Banca principale | Banco principal | Bank główny
+Banco principal, cuentas y movimientos | Main bank, accounts and transactions | Banque principale, comptes et mouvements | Hauptkonto, Konten und Buchungen | Banca principale, conti e movimenti | Banco principal, contas e movimentações | Bank główny, konta i operacje
+Barra de RPM | RPM bar | Barre de régime | Drehzahlbalken | Barra dei giri | Barra de RPM | Pasek obrotów
+Bloquear (los clics pasan al juego) | Lock (clicks go through to the game) | Verrouiller (les clics passent au jeu) | Sperren (Klicks gehen ans Spiel) | Blocca (i clic passano al gioco) | Travar (os cliques vão para o jogo) | Zablokuj (kliknięcia trafiają do gry)
+Borrar | Delete | Supprimer | Löschen | Elimina | Apagar | Usuń
+Botones, menú y detalles | Buttons, menu and details | Boutons, menu et détails | Schaltflächen, Menü und Details | Pulsanti, menu e dettagli | Botões, menu e detalhes | Przyciski, menu i detale
+Buscar VTC | Find a VTC | Trouver une VTC | VTC suchen | Cerca VTC | Buscar VTC | Szukaj VTC
+Buscar por nombre o siglas… | Search by name or tag… | Rechercher par nom ou sigle… | Nach Name oder Kürzel suchen… | Cerca per nome o sigla… | Buscar por nome ou sigla… | Szukaj po nazwie lub skrócie…
+Cabina | Cabin | Cabine | Kabine | Cabina | Cabine | Kabina
+Cabina con litera | Sleeper cab | Cabine couchette | Schlafkabine | Cabina con cuccetta | Cabine leito | Kabina sypialna
+Cabina corta | Day cab | Cabine courte | Kurze Kabine | Cabina corta | Cabine curta | Kabina dzienna
+distribución | distribution | distribution | Verteiler | distribuzione | distribuição | dystrybucja
+Cada garaje da plazas para camiones y autobuses | Each garage gives slots for trucks and buses | Chaque garage offre des places pour camions et bus | Jede Garage bietet Plätze für Lkw und Busse | Ogni garage dà posti per camion e autobus | Cada garagem dá vagas para caminhões e ônibus | Każdy garaż daje miejsca na ciężarówki i autobusy
+Calendario | Calendar | Calendrier | Kalender | Calendario | Calendário | Kalendarz
+Cambiar foto | Change photo | Changer la photo | Foto ändern | Cambia foto | Trocar foto | Zmień zdjęcie
+Cambiar logo | Change logo | Changer le logo | Logo ändern | Cambia logo | Trocar logo | Zmień logo
+Camiones | Trucks | Camions | Lkw | Camion | Caminhões | Ciężarówki
+Camión | Truck | Camion | Lkw | Camion | Caminhão | Ciężarówka
+Cancelado | Cancelled | Annulé | Abgebrochen | Annullato | Cancelado | Anulowano
+Cancelados | Cancelled | Annulés | Abgebrochen | Annullati | Cancelados | Anulowane
+Cantidad | Amount | Montant | Betrag | Importo | Quantia | Kwota
+Cantidad no válida | Invalid amount | Montant invalide | Ungültiger Betrag | Importo non valido | Quantia inválida | Nieprawidłowa kwota
+Carga | Cargo | Cargaison | Fracht | Carico | Carga | Ładunek
+Carga tu perfil y empieza a conducir. | Load your profile and start driving. | Charge ton profil et commence à rouler. | Lade dein Profil und fahr los. | Carica il tuo profilo e inizia a guidare. | Carregue seu perfil e comece a dirigir. | Wczytaj profil i zacznij jechać.
+Carga y destino | Cargo and destination | Cargaison et destination | Fracht und Ziel | Carico e destinazione | Carga e destino | Ładunek i cel
+Carga entregada ✅ | Cargo delivered ✅ | Cargaison livrée ✅ | Fracht geliefert ✅ | Carico consegnato ✅ | Carga entregue ✅ | Ładunek dostarczony ✅
+Cargas | Cargo | Cargaisons | Frachten | Carichi | Cargas | Ładunki
+Cargas favoritas | Favourite cargo | Cargaisons préférées | Lieblingsfrachten | Carichi preferiti | Cargas favoritas | Ulubione ładunki
+Cargas más transportadas | Most hauled cargo | Cargaisons les plus transportées | Meisttransportierte Frachten | Carichi più trasportati | Cargas mais transportadas | Najczęściej przewożone ładunki
+Cartera | Wallet | Portefeuille | Geldbörse | Portafoglio | Carteira | Portfel
+Cerrar | Close | Fermer | Schließen | Chiudi | Fechar | Zamknij
+Cerrar (sigue en la bandeja) | Close (stays in the tray) | Fermer (reste dans la barre) | Schließen (bleibt im Infobereich) | Chiudi (resta nella barra) | Fechar (continua na bandeja) | Zamknij (zostaje w zasobniku)
+Cerrar sesión | Log out | Se déconnecter | Abmelden | Esci | Sair | Wyloguj
+Chasis | Chassis | Châssis | Fahrgestell | Telaio | Chassi | Podwozie
+Cierra el juego antes de instalar el plugin | Close the game before installing the plugin | Ferme le jeu avant d'installer le plugin | Schließe das Spiel vor der Plugin-Installation | Chiudi il gioco prima di installare il plugin | Feche o jogo antes de instalar o plugin | Zamknij grę przed instalacją wtyczki
+Cierra el juego antes de instalarlo. | Close the game before installing it. | Ferme le jeu avant de l'installer. | Schließe das Spiel vor der Installation. | Chiudi il gioco prima di installarlo. | Feche o jogo antes de instalar. | Zamknij grę przed instalacją.
+Circular en sentido contrario | Driving the wrong way | Circuler à contresens | Falschfahren | Contromano | Dirigir na contramão | Jazda pod prąd
+Circular por el arcén | Driving on the hard shoulder | Rouler sur la bande d'arrêt | Fahren auf dem Seitenstreifen | Guida sulla corsia d'emergenza | Dirigir no acostamento | Jazda poboczem
+Circular sin luces | Driving without lights | Rouler sans feux | Fahren ohne Licht | Guida senza luci | Dirigir sem faróis | Jazda bez świateł
+Ciudad | City | Ville | Stadt | Città | Cidade | Miasto
+Ciudades de destino | Destination cities | Villes de destination | Zielstädte | Città di destinazione | Cidades de destino | Miasta docelowe
+Claro | Light | Clair | Hell | Chiaro | Claro | Jasny
+Cobrado de sueldos | Salary earned | Salaire perçu | Erhaltenes Gehalt | Stipendio incassato | Salário recebido | Otrzymana pensja
+Color | Colour | Couleur | Farbe | Colore | Cor | Kolor
+Color de la app | App colour | Couleur de l'appli | App-Farbe | Colore dell'app | Cor do app | Kolor aplikacji
+Combustible | Fuel | Carburant | Kraftstoff | Carburante | Combustível | Paliwo
+Combustible bajo: busca una gasolinera | Low fuel: find a gas station | Carburant bas : cherche une station | Wenig Kraftstoff: such eine Tankstelle | Carburante basso: cerca un distributore | Combustível baixo: procure um posto | Mało paliwa: znajdź stację
+Comisión empresa | Company commission | Commission entreprise | Firmenprovision | Commissione azienda | Comissão da empresa | Prowizja firmy
+Comisión por entrega (%) | Commission per delivery (%) | Commission par livraison (%) | Provision pro Lieferung (%) | Commissione per consegna (%) | Comissão por entrega (%) | Prowizja od dostawy (%)
+Compañía | Company | Entreprise | Firma | Azienda | Empresa | Firma
+Completa una ruta de autobús | Complete a bus route | Termine une ligne de bus | Beende eine Buslinie | Completa una linea di autobus | Complete uma rota de ônibus | Ukończ trasę autobusu
+Comprar | Buy | Acheter | Kaufen | Compra | Comprar | Kup
+Comprar garaje | Buy garage | Acheter un garage | Garage kaufen | Compra garage | Comprar garagem | Kup garaż
+Comunidad | Community | Communauté | Community | Comunità | Comunidade | Społeczność
+Con crucero | On cruise control | Avec régulateur | Mit Tempomat | Con cruise control | Com piloto automático | Na tempomacie
+Concesionario | Dealer | Concession | Händler | Concessionario | Concessionária | Salon
+Conduce # km | Drive # km | Roule # km | Fahre # km | Guida # km | Dirija # km | Przejedź # km
+Conductor | Driver | Chauffeur | Fahrer | Autista | Motorista | Kierowca
+Conductores | Drivers | Chauffeurs | Fahrer | Autisti | Motoristas | Kierowcy
+Conductores por rango | Drivers by rank | Chauffeurs par grade | Fahrer nach Rang | Autisti per grado | Motoristas por patente | Kierowcy według rangi
+Conductores que quieren entrar en la empresa | Drivers who want to join the company | Chauffeurs qui veulent rejoindre l'entreprise | Fahrer, die der Firma beitreten möchten | Autisti che vogliono entrare nell'azienda | Motoristas que querem entrar na empresa | Kierowcy chcący dołączyć do firmy
+Conectado a la API pública de TruckersMP | Connected to the public TruckersMP API | Connecté à l'API publique de TruckersMP | Mit der öffentlichen TruckersMP-API verbunden | Collegato all'API pubblica di TruckersMP | Conectado à API pública do TruckersMP | Połączono z publicznym API TruckersMP
+Conectado al juego | Connected to the game | Connecté au jeu | Mit dem Spiel verbunden | Collegato al gioco | Conectado ao jogo | Połączono z grą
+Conseguido # oct | Earned # Oct | Obtenu # oct. | Erhalten # Okt. | Ottenuto # ott | Conquistado # out | Zdobyto # paź
+Consigue una entrega con #+ puntos | Get a delivery with #+ points | Réussis une livraison avec #+ points | Schaffe eine Lieferung mit #+ Punkten | Fai una consegna con #+ punti | Faça uma entrega com #+ pontos | Zrób dostawę z #+ punktami
+Construcción | Construction | Construction | Baustelle | Costruzione | Construção | Budowlany
+Consumo medio | Average consumption | Consommation moyenne | Durchschnittsverbrauch | Consumo medio | Consumo médio | Średnie spalanie
+Contenido | Content | Contenu | Inhalte | Contenuti | Conteúdo | Treści
+Contraseña | Password | Mot de passe | Passwort | Password | Senha | Hasło
+Contraseña incorrecta | Wrong password | Mot de passe incorrect | Falsches Passwort | Password errata | Senha incorreta | Nieprawidłowe hasło
+Control de crucero | Cruise control | Régulateur de vitesse | Tempomat | Cruise control | Piloto automático | Tempomat
+Convoy online | Online convoy | Convoi en ligne | Online-Konvoi | Convoglio online | Comboio online | Konwój online
+Convoyes de la empresa en TruckersMP o en solitario | Company convoys on TruckersMP or solo | Convois de l'entreprise sur TruckersMP ou en solo | Firmenkonvois auf TruckersMP oder solo | Convogli aziendali su TruckersMP o in singolo | Comboios da empresa no TruckersMP ou sozinho | Konwoje firmy w TruckersMP lub solo
+Convoyes y eventos de la empresa | Company convoys and events | Convois et événements de l'entreprise | Konvois und Events der Firma | Convogli ed eventi dell'azienda | Comboios e eventos da empresa | Konwoje i wydarzenia firmy
+Copiar | Copy | Copier | Kopieren | Copia | Copiar | Kopiuj
+Correo | Email | E-mail | E-Mail | Email | E-mail | E-mail
+Correo no válido | Invalid email | E-mail invalide | Ungültige E-Mail | Email non valida | E-mail inválido | Nieprawidłowy e-mail
+Correo o contraseña incorrectos | Wrong email or password | E-mail ou mot de passe incorrect | E-Mail oder Passwort falsch | Email o password errati | E-mail ou senha incorretos | Błędny e-mail lub hasło
+Correo enviado 📧 | Email sent 📧 | E-mail envoyé 📧 | E-Mail gesendet 📧 | Email inviata 📧 | E-mail enviado 📧 | E-mail wysłany 📧
+Cortas | Low beam | Codes | Abblendlicht | Anabbaglianti | Baixo | Mijania
+Coste de reparar todo | Cost to repair everything | Coût pour tout réparer | Kosten für alle Reparaturen | Costo per riparare tutto | Custo para reparar tudo | Koszt naprawy wszystkiego
+Crear cuenta | Create account | Créer un compte | Konto erstellen | Crea account | Criar conta | Utwórz konto
+Crea tu cuenta o entra | Create your account or log in | Crée ton compte ou connecte-toi | Erstelle ein Konto oder melde dich an | Crea il tuo account o accedi | Crie sua conta ou entre | Utwórz konto lub zaloguj się
+Continuar sin cuenta | Continue without an account | Continuer sans compte | Ohne Konto fortfahren | Continua senza account | Continuar sem conta | Kontynuuj bez konta
+Bienvenido a Rutero | Welcome to Rutero | Bienvenue sur Rutero | Willkommen bei Rutero | Benvenuto in Rutero | Bem-vindo ao Rutero | Witaj w Rutero
+Tu compañero de ruta para ETS# y ATS, conectado con TruckersMP. | Your road companion for ETS# and ATS, connected to TruckersMP. | Ton compagnon de route pour ETS# et ATS, connecté à TruckersMP. | Dein Begleiter für ETS# und ATS, verbunden mit TruckersMP. | Il tuo compagno di viaggio per ETS# e ATS, collegato a TruckersMP. | Seu companheiro de estrada para ETS# e ATS, conectado ao TruckersMP. | Twój towarzysz trasy w ETS# i ATS, połączony z TruckersMP.
+Después instala el plugin en Ajustes (solo la primera vez). | Then install the plugin in Settings (first time only). | Installe ensuite le plugin dans Paramètres (la première fois). | Installiere danach das Plugin in den Einstellungen (nur beim ersten Mal). | Poi installa il plugin in Impostazioni (solo la prima volta). | Depois instale o plugin em Configurações (só na primeira vez). | Potem zainstaluj wtyczkę w Ustawieniach (tylko za pierwszym razem).
+Cristal (transparente) | Glass (transparent) | Verre (transparent) | Glas (transparent) | Vetro (trasparente) | Vidro (transparente) | Szkło (przezroczyste)
+Cruce ilegal de frontera | Illegal border crossing | Passage illégal de frontière | Illegaler Grenzübertritt | Attraversamento illegale del confine | Travessia ilegal de fronteira | Nielegalne przekroczenie granicy
+Crucero | Cruise | Régulateur | Tempomat | Cruise | Piloto | Tempomat
+Cuenta online | Online account | Compte en ligne | Online-Konto | Account online | Conta online | Konto online
+Código copiado | Code copied | Code copié | Code kopiert | Codice copiato | Código copiado | Kod skopiowany
+Código de invitación | Invite code | Code d'invitation | Einladungscode | Codice d'invito | Código de convite | Kod zaproszenia
+Código no válido | Invalid code | Code invalide | Ungültiger Code | Codice non valido | Código inválido | Nieprawidłowy kod
+Cómo entra el dinero | How money comes in | Comment l'argent arrive | Wie Geld reinkommt | Come entrano i soldi | Como o dinheiro entra | Skąd przychodzą pieniądze
+Datos en directo desde el juego | Live data from the game | Données en direct du jeu | Live-Daten aus dem Spiel | Dati in diretta dal gioco | Dados ao vivo do jogo | Dane na żywo z gry
+Daño | Damage | Dégâts | Schaden | Danni | Dano | Uszkodzenia
+Daño carga | Cargo damage | Dégâts cargaison | Frachtschaden | Danni al carico | Dano à carga | Uszkodzenie ładunku
+Daño de la carga | Cargo damage | Dégâts de la cargaison | Frachtschaden | Danni al carico | Dano à carga | Uszkodzenie ładunku
+Demasiados intentos, espera un poco | Too many attempts, wait a bit | Trop de tentatives, patiente un peu | Zu viele Versuche, warte kurz | Troppi tentativi, aspetta un po' | Muitas tentativas, espere um pouco | Za dużo prób, poczekaj chwilę
+Descanso | Rest | Repos | Pause | Riposo | Descanso | Odpoczynek
+Descanso en | Rest in | Repos dans | Pause in | Riposo tra | Descanso em | Odpoczynek za
+Descargando plugin de telemetría… | Downloading telemetry plugin… | Téléchargement du plugin de télémétrie… | Telemetrie-Plugin wird geladen… | Download del plugin di telemetria… | Baixando plugin de telemetria… | Pobieranie wtyczki telemetrii…
+Descripción | Description | Description | Beschreibung | Descrizione | Descrição | Opis
+Desde | From | De | Von | Da | De | Z
+Desde la cuenta | From account | Depuis le compte | Vom Konto | Dal conto | Da conta | Z konta
+Desgaste | Wear | Usure | Verschleiß | Usura | Desgaste | Zużycie
+Destino | Destination | Destination | Ziel | Destinazione | Destino | Cel
+Detalles | Details | Détails | Details | Dettagli | Detalhes | Szczegóły
+Dinero | Money | Argent | Geld | Soldi | Dinheiro | Pieniądze
+Dinero ganado · últimos # días | Money earned · last # days | Argent gagné · # derniers jours | Verdientes Geld · letzte # Tage | Soldi guadagnati · ultimi # giorni | Dinheiro ganho · últimos # dias | Zarobione · ostatnie # dni
+Distancia | Distance | Distance | Strecke | Distanza | Distância | Dystans
+Distancia por conductor | Distance per driver | Distance par chauffeur | Strecke pro Fahrer | Distanza per autista | Distância por motorista | Dystans na kierowcę
+Distancia restante | Remaining distance | Distance restante | Reststrecke | Distanza rimanente | Distância restante | Pozostały dystans
+Distancia total | Total distance | Distance totale | Gesamtstrecke | Distanza totale | Distância total | Całkowity dystans
+Lun | Mon | Lun | Mo | Lun | Seg | Pon
+Mar | Tue | Mar | Di | Mar | Ter | Wt
+Mié | Wed | Mer | Mi | Mer | Qua | Śr
+Jue | Thu | Jeu | Do | Gio | Qui | Czw
+Vie | Fri | Ven | Fr | Ven | Sex | Pt
+Sáb | Sat | Sam | Sa | Sab | Sáb | Sob
+Dom | Sun | Dim | So | Dom | Dom | Nd
+Duración | Duration | Durée | Dauer | Durata | Duração | Czas
+Economía realista | Realistic economy | Économie réaliste | Realistische Wirtschaft | Economia realistica | Economia realista | Realistyczna ekonomia
+El juego está en el menú | The game is in the menu | Le jeu est dans le menu | Das Spiel ist im Menü | Il gioco è nel menu | O jogo está no menu | Gra jest w menu
+El modo online no está configurado | Online mode is not set up | Le mode en ligne n'est pas configuré | Der Online-Modus ist nicht eingerichtet | La modalità online non è configurata | O modo online não está configurado | Tryb online nie jest skonfigurowany
+El modo online aún no está configurado. Pega aquí la clave del servidor (Firebase → Configuración del proyecto → apiKey, empieza por | Online mode is not set up yet. Paste the server key here (Firebase → Project settings → apiKey, starts with | Le mode en ligne n'est pas encore configuré. Colle ici la clé du serveur (Firebase → Paramètres du projet → apiKey, commence par | Der Online-Modus ist noch nicht eingerichtet. Füge hier den Server-Schlüssel ein (Firebase → Projekteinstellungen → apiKey, beginnt mit | La modalità online non è ancora configurata. Incolla qui la chiave del server (Firebase → Impostazioni progetto → apiKey, inizia con | O modo online ainda não está configurado. Cole aqui a chave do servidor (Firebase → Configurações do projeto → apiKey, começa com | Tryb online nie jest jeszcze skonfigurowany. Wklej tu klucz serwera (Firebase → Ustawienia projektu → apiKey, zaczyna się od
+Elegir carpeta… | Choose folder… | Choisir un dossier… | Ordner wählen… | Scegli cartella… | Escolher pasta… | Wybierz folder…
+Elige un modelo | Choose a model | Choisis un modèle | Wähle ein Modell | Scegli un modello | Escolha um modelo | Wybierz model
+Elige una marca | Choose a brand | Choisis une marque | Wähle eine Marke | Scegli una marca | Escolha uma marca | Wybierz markę
+Empresa | Company | Entreprise | Firma | Azienda | Empresa | Firma
+Empresas | Companies | Entreprises | Firmen | Aziende | Empresas | Firmy
+En TruckersMP | On TruckersMP | Sur TruckersMP | Auf TruckersMP | Su TruckersMP | No TruckersMP | W TruckersMP
+En el menú del juego | In the game menu | Dans le menu du jeu | Im Spielmenü | Nel menu del gioco | No menu do jogo | W menu gry
+En la sede | At headquarters | Au siège | Im Hauptsitz | In sede | Na sede | W siedzibie
+Entrar | Log in | Se connecter | Anmelden | Accedi | Entrar | Zaloguj
+Entrará al abrir Rutero | Will join when opening Rutero | Rejoindra à l'ouverture de Rutero | Tritt beim Öffnen von Rutero bei | Entrerà all'apertura di Rutero | Entrará ao abrir o Rutero | Dołączy po otwarciu Rutero
+Entrega # cargas | Deliver # loads | Livre # cargaisons | Liefere # Frachten | Consegna # carichi | Entregue # cargas | Dostarcz # ładunki
+Entrega más de # t | Deliver more than # t | Livre plus de # t | Liefere mehr als # t | Consegna più di # t | Entregue mais de # t | Dostarcz ponad # t
+Entrega tu primera carga | Deliver your first load | Livre ta première cargaison | Liefere deine erste Fracht | Consegna il tuo primo carico | Entregue sua primeira carga | Dostarcz pierwszy ładunek
+Entrega una carga en TruckersMP | Deliver a load on TruckersMP | Livre une cargaison sur TruckersMP | Liefere eine Fracht auf TruckersMP | Consegna un carico su TruckersMP | Entregue uma carga no TruckersMP | Dostarcz ładunek w TruckersMP
+Entregada | Delivered | Livrée | Geliefert | Consegnato | Entregue | Dostarczono
+Entregas | Deliveries | Livraisons | Lieferungen | Consegne | Entregas | Dostawy
+entregas | deliveries | livraisons | Lieferungen | consegne | entregas | dostaw
+Entregas (# d) | Deliveries (# d) | Livraisons (# j) | Lieferungen (# T.) | Consegne (# g) | Entregas (# d) | Dostawy (# dni)
+Entregas perfectas | Perfect deliveries | Livraisons parfaites | Perfekte Lieferungen | Consegne perfette | Entregas perfeitas | Idealne dostawy
+Enviar dinero | Send money | Envoyer de l'argent | Geld senden | Invia soldi | Enviar dinheiro | Wyślij pieniądze
+Enviar dinero de tu cartera | Send money from your wallet | Envoyer de l'argent de ton portefeuille | Geld aus deiner Geldbörse senden | Invia soldi dal tuo portafoglio | Enviar dinheiro da sua carteira | Wyślij pieniądze z portfela
+Error de conexión | Connection error | Erreur de connexion | Verbindungsfehler | Errore di connessione | Erro de conexão | Błąd połączenia
+Esa clave no parece correcta: debe empezar por AIza | That key doesn't look right: it must start with AIza | Cette clé semble incorrecte : elle doit commencer par AIza | Der Schlüssel sieht falsch aus: er muss mit AIza beginnen | Quella chiave non sembra corretta: deve iniziare con AIza | Essa chave não parece correta: deve começar com AIza | Ten klucz wygląda na błędny: musi zaczynać się od AIza
+Escribe la ciudad del garaje | Type the garage city | Indique la ville du garage | Gib die Stadt der Garage ein | Scrivi la città del garage | Digite a cidade da garagem | Wpisz miasto garażu
+Escribe tu correo | Type your email | Saisis ton e-mail | Gib deine E-Mail ein | Scrivi la tua email | Digite seu e-mail | Wpisz swój e-mail
+Escribe una contraseña | Type a password | Saisis un mot de passe | Gib ein Passwort ein | Scrivi una password | Digite uma senha | Wpisz hasło
+Ese correo ya tiene cuenta | That email already has an account | Cet e-mail a déjà un compte | Diese E-Mail hat schon ein Konto | Quell'email ha già un account | Esse e-mail já tem conta | Ten e-mail ma już konto
+Ese garaje está lleno | That garage is full | Ce garage est plein | Diese Garage ist voll | Quel garage è pieno | Essa garagem está cheia | Ten garaż jest pełny
+Esperando al juego | Waiting for the game | En attente du jeu | Warte auf das Spiel | In attesa del gioco | Aguardando o jogo | Czekam na grę
+Esta semana (se reinicia el lunes) | This week (resets on Monday) | Cette semaine (remise à zéro le lundi) | Diese Woche (Reset am Montag) | Questa settimana (si azzera il lunedì) | Esta semana (reinicia na segunda) | Ten tydzień (reset w poniedziałek)
+Estado | Condition | État | Zustand | Stato | Estado | Stan
+Estado medio | Average condition | État moyen | Durchschnittszustand | Stato medio | Estado médio | Średni stan
+Estadísticas | Statistics | Statistiques | Statistiken | Statistiche | Estatísticas | Statystyki
+Este vehículo no necesita reparación | This vehicle doesn't need repairs | Ce véhicule n'a pas besoin de réparation | Dieses Fahrzeug braucht keine Reparatur | Questo veicolo non ha bisogno di riparazioni | Este veículo não precisa de reparo | Ten pojazd nie wymaga naprawy
+Estilo | Style | Style | Stil | Stile | Estilo | Styl
+Etiquetas | Tags | Étiquettes | Tags | Etichette | Etiquetas | Tagi
+Europa · ETS# | Europe · ETS# | Europe · ETS# | Europa · ETS# | Europa · ETS# | Europa · ETS# | Europa · ETS#
+Eventos | Events | Événements | Events | Eventi | Eventos | Wydarzenia
+Evitar la báscula | Avoiding the weigh station | Éviter la pesée | Waage umfahren | Evitare la pesa | Evitar a balança | Ominięcie wagi
+Evitar una inspección | Avoiding an inspection | Éviter un contrôle | Kontrolle umgehen | Evitare un'ispezione | Evitar uma inspeção | Uniknięcie kontroli
+Exceso de velocidad | Speeding | Excès de vitesse | Geschwindigkeitsüberschreitung | Eccesso di velocità | Excesso de velocidade | Przekroczenie prędkości
+Exceso velocidad | Speeding | Excès de vitesse | Zu schnell | Eccesso velocità | Excesso de velocidade | Przekroczenie prędkości
+Falta el módulo de actualizaciones | The update module is missing | Le module de mise à jour est manquant | Das Update-Modul fehlt | Manca il modulo degli aggiornamenti | Falta o módulo de atualizações | Brak modułu aktualizacji
+Fecha | Date | Date | Datum | Data | Data | Data
+Flota | Fleet | Flotte | Flotte | Flotta | Frota | Flota
+Flota y finanzas | Fleet and finances | Flotte et finances | Flotte und Finanzen | Flotta e finanze | Frota e finanças | Flota i finanse
+Fotos de internet en el concesionario | Internet photos in the dealer | Photos d'internet dans la concession | Internetfotos beim Händler | Foto da internet nel concessionario | Fotos da internet na concessionária | Zdjęcia z internetu w salonie
+Freno mano | Handbrake | Frein à main | Handbremse | Freno a mano | Freio de mão | Hamulec ręczny
+Funciona con cualquier mod de autobús o con un camión. | Works with any bus mod or with a truck. | Fonctionne avec n'importe quel mod de bus ou avec un camion. | Funktioniert mit jedem Bus-Mod oder mit einem Lkw. | Funziona con qualsiasi mod di autobus o con un camion. | Funciona com qualquer mod de ônibus ou com um caminhão. | Działa z każdym modem autobusu lub z ciężarówką.
+Funciona con el juego en | Works with the game in | Fonctionne avec le jeu en | Funktioniert mit dem Spiel im | Funziona con il gioco in | Funciona com o jogo em | Działa z grą w trybie
+ventana sin bordes | borderless window | fenêtre sans bordure | randlosen Fenster | finestra senza bordi | janela sem bordas | okna bez ramki
+. Atajo: | . Shortcut: | . Raccourci : | . Tastenkürzel: | . Scorciatoia: | . Atalho: | . Skrót:
+. Los cambios se ven al momento. | . Changes show instantly. | . Les changements sont immédiats. | . Änderungen sind sofort sichtbar. | . Le modifiche si vedono subito. | . As mudanças aparecem na hora. | . Zmiany widać od razu.
+Ctrl + Mayús + K | Ctrl + Shift + K | Ctrl + Maj + K | Strg + Umschalt + K | Ctrl + Maiusc + K | Ctrl + Shift + K | Ctrl + Shift + K
+Fundador | Founder | Fondateur | Gründer | Fondatore | Fundador | Założyciel
+Ganado | Earned | Gagné | Verdient | Guadagnato | Ganho | Zarobiono
+Ganado (neto) | Earned (net) | Gagné (net) | Verdient (netto) | Guadagnato (netto) | Ganho (líquido) | Zarobiono (netto)
+Ganado con entregas (neto) | Earned from deliveries (net) | Gagné en livraisons (net) | Mit Lieferungen verdient (netto) | Guadagnato con consegne (netto) | Ganho com entregas (líquido) | Zarobiono na dostawach (netto)
+Ganado hoy | Earned today | Gagné aujourd'hui | Heute verdient | Guadagnato oggi | Ganho hoje | Zarobiono dziś
+Ganas XP con la experiencia del juego, # XP por cada # km, +# por puntuación ≥# y +# por parada de autobús. | You earn XP from in-game experience, # XP every # km, +# for a score ≥# and +# per bus stop. | Tu gagnes de l'XP avec l'expérience du jeu, # XP tous les # km, +# pour un score ≥# et +# par arrêt de bus. | Du bekommst XP aus der Spielerfahrung, # XP pro # km, +# für Punkte ≥# und +# pro Bushaltestelle. | Guadagni XP con l'esperienza del gioco, # XP ogni # km, +# per punteggio ≥# e +# per fermata dell'autobus. | Você ganha XP com a experiência do jogo, # XP a cada # km, +# por pontuação ≥# e +# por parada de ônibus. | Zdobywasz XP z doświadczenia w grze, # XP co # km, +# za wynik ≥# i +# za przystanek.
+Garajes | Garages | Garages | Garagen | Garage | Garagens | Garaże
+Gasolinera de la salida | Gas station at the start | Station au départ | Tankstelle am Start | Distributore alla partenza | Posto na saída | Stacja na starcie
+Gastos en ruta | Road expenses | Frais de route | Unterwegskosten | Spese di viaggio | Gastos na estrada | Wydatki w trasie
+Generación anterior | Previous generation | Génération précédente | Vorherige Generation | Generazione precedente | Geração anterior | Poprzednia generacja
+Generar otro | Generate another | En générer un autre | Neuen erzeugen | Generane un altro | Gerar outro | Wygeneruj nowy
+Gerente | Manager | Gérant | Manager | Manager | Gerente | Menedżer
+Gestionar ▾ | Manage ▾ | Gérer ▾ | Verwalten ▾ | Gestisci ▾ | Gerenciar ▾ | Zarządzaj ▾
+Grande | Large | Grand | Groß | Grande | Grande | Duży
+Grande · # plazas · # € | Large · # slots · # € | Grand · # places · # € | Groß · # Plätze · # € | Grande · # posti · # € | Grande · # vagas · # € | Duży · # miejsc · # €
+Guardar | Save | Enregistrer | Speichern | Salva | Salvar | Zapisz
+Guardar cambios | Save changes | Enregistrer | Änderungen speichern | Salva modifiche | Salvar alterações | Zapisz zmiany
+Ha ganado | Has earned | A gagné | Hat verdient | Ha guadagnato | Ganhou | Zarobił
+Hacia | To | Vers | Nach | Verso | Para | Do
+Has recibido un bonus 💸 | You got a bonus 💸 | Tu as reçu un bonus 💸 | Du hast einen Bonus erhalten 💸 | Hai ricevuto un bonus 💸 | Você recebeu um bônus 💸 | Otrzymałeś premię 💸
+Has recibido dinero 💸 | You received money 💸 | Tu as reçu de l'argent 💸 | Du hast Geld erhalten 💸 | Hai ricevuto soldi 💸 | Você recebeu dinheiro 💸 | Otrzymałeś pieniądze 💸
+Historial de rutas | Route history | Historique des trajets | Routenverlauf | Cronologia percorsi | Histórico de rotas | Historia tras
+Hora | Time | Heure | Zeit | Ora | Hora | Godzina
+Hora del juego | Game time | Heure du jeu | Spielzeit | Ora del gioco | Hora do jogo | Czas w grze
+Hora en el juego | In-game time | Heure dans le jeu | Uhrzeit im Spiel | Ora nel gioco | Hora no jogo | Czas w grze
+Hoy | Today | Aujourd'hui | Heute | Oggi | Hoje | Dziś
+Identidad | Identity | Identité | Identität | Identità | Identidade | Tożsamość
+Imagen añadida ✓ | Image added ✓ | Image ajoutée ✓ | Bild hinzugefügt ✓ | Immagine aggiunta ✓ | Imagem adicionada ✓ | Obraz dodany ✓
+Imagen, datos, comisión e invitaciones | Image, details, commission and invites | Image, infos, commission et invitations | Bild, Daten, Provision und Einladungen | Immagine, dati, commissione e inviti | Imagem, dados, comissão e convites | Obraz, dane, prowizja i zaproszenia
+Importe | Amount | Montant | Betrag | Importo | Valor | Kwota
+Infracción | Offence | Infraction | Verstoß | Infrazione | Infração | Wykroczenie
+Ingresar | Deposit | Déposer | Einzahlen | Deposita | Depositar | Wpłać
+Ingresar de mi cartera | Deposit from my wallet | Déposer depuis mon portefeuille | Aus meiner Geldbörse einzahlen | Deposita dal mio portafoglio | Depositar da minha carteira | Wpłać z mojego portfela
+Ingresos para la empresa | Income for the company | Revenus pour l'entreprise | Einnahmen für die Firma | Entrate per l'azienda | Receita para a empresa | Przychody firmy
+Inicia sesión para crear o unirte a una empresa | Log in to create or join a company | Connecte-toi pour créer ou rejoindre une entreprise | Melde dich an, um eine Firma zu gründen oder beizutreten | Accedi per creare o unirti a un'azienda | Entre para criar ou entrar em uma empresa | Zaloguj się, aby założyć firmę lub dołączyć
+Inicia sesión para enviar y recibir dinero. | Log in to send and receive money. | Connecte-toi pour envoyer et recevoir de l'argent. | Melde dich an, um Geld zu senden und zu empfangen. | Accedi per inviare e ricevere soldi. | Entre para enviar e receber dinheiro. | Zaloguj się, aby wysyłać i odbierać pieniądze.
+Inicia sesión para ver el ranking | Log in to see the ranking | Connecte-toi pour voir le classement | Melde dich an, um die Rangliste zu sehen | Accedi per vedere la classifica | Entre para ver o ranking | Zaloguj się, aby zobaczyć ranking
+Inicia sesión primero | Log in first | Connecte-toi d'abord | Melde dich zuerst an | Accedi prima | Entre primeiro | Najpierw się zaloguj
+Inicia sesión primero en Ajustes → Cuenta online | Log in first in Settings → Online account | Connecte-toi d'abord dans Paramètres → Compte en ligne | Melde dich zuerst an unter Einstellungen → Online-Konto | Accedi prima in Impostazioni → Account online | Entre primeiro em Configurações → Conta online | Najpierw zaloguj się w Ustawienia → Konto online
+Iniciar con Windows | Start with Windows | Lancer avec Windows | Mit Windows starten | Avvia con Windows | Iniciar com o Windows | Uruchamiaj z Windows
+Instalar plugin | Install plugin | Installer le plugin | Plugin installieren | Installa plugin | Instalar plugin | Zainstaluj wtyczkę
+Plugin instalado ✅ | Plugin installed ✅ | Plugin installé ✅ | Plugin installiert ✅ | Plugin installato ✅ | Plugin instalado ✅ | Wtyczka zainstalowana ✅
+Ir a mi cuenta | Go to my account | Aller à mon compte | Zu meinem Konto | Vai al mio account | Ir para minha conta | Przejdź do konta
+Juego en pausa | Game paused | Jeu en pause | Spiel pausiert | Gioco in pausa | Jogo pausado | Gra wstrzymana
+Kilómetros por día | Kilometres per day | Kilomètres par jour | Kilometer pro Tag | Chilometri al giorno | Quilômetros por dia | Kilometry dziennie
+Kilómetros · últimos # días | Kilometres · last # days | Kilomètres · # derniers jours | Kilometer · letzte # Tage | Chilometri · ultimi # giorni | Quilômetros · últimos # dias | Kilometry · ostatnie # dni
+La contraseña debe tener al menos # caracteres | Password must be at least # characters | Le mot de passe doit faire au moins # caractères | Das Passwort braucht mindestens # Zeichen | La password deve avere almeno # caratteri | A senha deve ter pelo menos # caracteres | Hasło musi mieć co najmniej # znaków
+La empresa no ha aceptado tu solicitud | The company didn't accept your application | L'entreprise n'a pas accepté ta candidature | Die Firma hat deine Bewerbung nicht angenommen | L'azienda non ha accettato la tua richiesta | A empresa não aceitou seu pedido | Firma nie przyjęła twojego zgłoszenia
+La empresa tiene # plazas gratis en la sede. Los remolques no ocupan plaza. | The company has # free slots at HQ. Trailers don't use a slot. | L'entreprise a # places gratuites au siège. Les remorques n'occupent pas de place. | Die Firma hat # freie Plätze im Hauptsitz. Anhänger brauchen keinen Platz. | L'azienda ha # posti gratis in sede. I rimorchi non occupano posto. | A empresa tem # vagas grátis na sede. Reboques não ocupam vaga. | Firma ma # darmowe miejsca w siedzibie. Naczepy nie zajmują miejsca.
+La sesión se queda guardada: no tendrás que volver a entrar. | Your session is saved: you won't need to log in again. | Ta session reste enregistrée : pas besoin de te reconnecter. | Deine Sitzung bleibt gespeichert: du musst dich nicht erneut anmelden. | La sessione resta salvata: non dovrai accedere di nuovo. | A sessão fica salva: você não precisa entrar de novo. | Sesja jest zapamiętana: nie musisz logować się ponownie.
+Largas | High beam | Pleins phares | Fernlicht | Abbaglianti | Alto | Drogowe
+Las empresas, el dinero compartido y el ranking funcionan con tu cuenta de Rutero. | Companies, shared money and the ranking work with your Rutero account. | Les entreprises, l'argent partagé et le classement fonctionnent avec ton compte Rutero. | Firmen, gemeinsames Geld und die Rangliste laufen über dein Rutero-Konto. | Aziende, soldi condivisi e classifica funzionano con il tuo account Rutero. | Empresas, dinheiro compartilhado e o ranking funcionam com sua conta Rutero. | Firmy, wspólne pieniądze i ranking działają z kontem Rutero.
+Las multas de los miembros también aparecen en tu empresa, en la pestaña | Members' fines also show up in your company, in the tab | Les amendes des membres apparaissent aussi dans ton entreprise, dans l'onglet | Strafen der Mitglieder erscheinen auch in deiner Firma, im Tab | Le multe dei membri compaiono anche nella tua azienda, nella scheda | As multas dos membros também aparecem na sua empresa, na aba | Mandaty członków widać też w firmie, w zakładce
+Las multas, peajes, ferris y trenes se descuentan de tu cartera | Fines, tolls, ferries and trains are taken from your wallet | Amendes, péages, ferries et trains sont déduits de ton portefeuille | Strafen, Maut, Fähren und Züge werden von deiner Geldbörse abgezogen | Multe, pedaggi, traghetti e treni si scalano dal portafoglio | Multas, pedágios, balsas e trens são descontados da carteira | Mandaty, opłaty, promy i pociągi są pobierane z portfela
+Leyenda | Legend | Légende | Legende | Leggenda | Lenda | Legenda
+Libre (arrástralo) | Free (drag it) | Libre (fais-le glisser) | Frei (ziehen) | Libera (trascinalo) | Livre (arraste) | Dowolnie (przeciągnij)
+Llegada | Arrival | Arrivée | Ankunft | Arrivo | Chegada | Przyjazd
+Lo fija el fundador o un gerente de | Set by the founder or a manager of | Fixé par le fondateur ou un gérant de | Festgelegt vom Gründer oder einem Manager von | Lo decide il fondatore o un manager di | Definido pelo fundador ou um gerente de | Ustala założyciel lub menedżer firmy
+Lo primero que ves al abrir Rutero | The first thing you see when opening Rutero | Ce que tu vois en ouvrant Rutero | Das Erste, was du beim Öffnen von Rutero siehst | La prima cosa che vedi aprendo Rutero | A primeira coisa que você vê ao abrir o Rutero | Pierwsze, co widzisz po otwarciu Rutero
+Logros y nivel | Achievements and level | Succès et niveau | Erfolge und Level | Obiettivi e livello | Conquistas e nível | Osiągnięcia i poziom
+Logro desbloqueado | Achievement unlocked | Succès débloqué | Erfolg freigeschaltet | Obiettivo sbloccato | Conquista desbloqueada | Osiągnięcie odblokowane
+Los permisos los dan los niveles fijos: | Permissions come from the fixed levels: | Les permissions viennent des niveaux fixes : | Rechte kommen von den festen Stufen: | I permessi dipendono dai livelli fissi: | As permissões vêm dos níveis fixos: | Uprawnienia dają stałe poziomy:
+(gestiona miembros, dinero y flota) y | (manages members, money and fleet) and | (gère membres, argent et flotte) et | (verwaltet Mitglieder, Geld und Flotte) und | (gestisce membri, soldi e flotta) e | (gerencia membros, dinheiro e frota) e | (zarządza członkami, pieniędzmi i flotą) i
+(todo), | (everything), | (tout), | (alles), | (tutto), | (tudo), | (wszystko),
+. Los roles personalizados son el puesto que se muestra en la empresa. | . Custom roles are the position shown in the company. | . Les rôles personnalisés sont le poste affiché dans l'entreprise. | . Eigene Rollen sind die Position, die in der Firma angezeigt wird. | . I ruoli personalizzati sono la posizione mostrata nell'azienda. | . Os cargos personalizados são a função mostrada na empresa. | . Własne role to stanowisko widoczne w firmie.
+. Para mandar dinero a un compañero pulsa | . To send money to a teammate press | . Pour envoyer de l'argent à un coéquipier, appuie sur | . Um einem Kollegen Geld zu senden, drücke | . Per inviare soldi a un compagno premi | . Para enviar dinheiro a um colega toque em | . Aby wysłać pieniądze koledze, naciśnij
+en la lista de miembros o en el ranking. | in the members list or in the ranking. | dans la liste des membres ou dans le classement. | in der Mitgliederliste oder in der Rangliste. | nella lista membri o nella classifica. | na lista de membros ou no ranking. | na liście członków lub w rankingu.
+Los vehículos se desgastan con los kilómetros de su conductor asignado | Vehicles wear with the kilometres of their assigned driver | Les véhicules s'usent avec les kilomètres de leur chauffeur | Fahrzeuge verschleißen mit den Kilometern ihres Fahrers | I veicoli si usurano con i km del loro autista | Os veículos se desgastam com os km do motorista atribuído | Pojazdy zużywają się wraz z kilometrami przypisanego kierowcy
+Límite | Limit | Limite | Limit | Limite | Limite | Limit
+Límite de velocidad | Speed limit | Limitation de vitesse | Tempolimit | Limite di velocità | Limite de velocidade | Ograniczenie prędkości
+Línea | Line | Ligne | Linie | Linea | Linha | Linia
+Línea # | Line # | Ligne # | Linie # | Linea # | Linha # | Linia #
+Maestro de la ruta | Master of the road | Maître de la route | Meister der Straße | Maestro della strada | Mestre da estrada | Mistrz trasy
+Mantenimiento | Maintenance | Entretien | Wartung | Manutenzione | Manutenção | Serwis
+Marca a tus conductores: Convoy, Bus, Nocturno, ProMods… | Tag your drivers: Convoy, Bus, Night, ProMods… | Étiquette tes chauffeurs : Convoi, Bus, Nuit, ProMods… | Markiere deine Fahrer: Konvoi, Bus, Nacht, ProMods… | Etichetta i tuoi autisti: Convoglio, Bus, Notte, ProMods… | Marque seus motoristas: Comboio, Ônibus, Noturno, ProMods… | Oznacz kierowców: Konwój, Bus, Nocny, ProMods…
+Marcha | Gear | Rapport | Gang | Marcia | Marcha | Bieg
+Maximizar | Maximize | Agrandir | Maximieren | Ingrandisci | Maximizar | Maksymalizuj
+Mediano · # plazas · # € | Medium · # slots · # € | Moyen · # places · # € | Mittel · # Plätze · # € | Medio · # posti · # € | Médio · # vagas · # € | Średni · # miejsc · # €
+Mercado de cargas | Cargo market | Marché des cargaisons | Frachtmarkt | Mercato dei carichi | Mercado de cargas | Giełda ładunków
+Mercado de fletes | Freight market | Marché du fret | Speditionsmarkt | Mercato dei noli | Mercado de fretes | Rynek frachtów
+Mi empresa | My company | Mon entreprise | Meine Firma | La mia azienda | Minha empresa | Moja firma
+Mi empresa → Banco | My company → Bank | Mon entreprise → Banque | Meine Firma → Bank | La mia azienda → Banca | Minha empresa → Banco | Moja firma → Bank
+Mi perfil | My profile | Mon profil | Mein Profil | Il mio profilo | Meu perfil | Mój profil
+Mi sueldo en la empresa | My salary in the company | Mon salaire dans l'entreprise | Mein Gehalt in der Firma | Il mio stipendio nell'azienda | Meu salário na empresa | Moja pensja w firmie
+Miembros | Members | Membres | Mitglieder | Membri | Membros | Członkowie
+Minimizar | Minimize | Réduire | Minimieren | Riduci | Minimizar | Minimalizuj
+Modo autobús | Bus mode | Mode bus | Busmodus | Modalità autobus | Modo ônibus | Tryb autobusu
+Modo compacto | Compact mode | Mode compact | Kompaktmodus | Modalità compatta | Modo compacto | Tryb kompaktowy
+Mostrar | Show | Afficher | Anzeigen | Mostra | Mostrar | Pokaż
+Mostrar overlay | Show overlay | Afficher l'overlay | Overlay anzeigen | Mostra overlay | Mostrar overlay | Pokaż nakładkę
+Ocultar overlay | Hide overlay | Masquer l'overlay | Overlay ausblenden | Nascondi overlay | Ocultar overlay | Ukryj nakładkę
+Mostrar/ocultar overlay (Ctrl+Mayús+K) | Show/hide overlay (Ctrl+Shift+K) | Afficher/masquer l'overlay (Ctrl+Maj+K) | Overlay ein/aus (Strg+Umschalt+K) | Mostra/nascondi overlay (Ctrl+Maiusc+K) | Mostrar/ocultar overlay (Ctrl+Shift+K) | Pokaż/ukryj nakładkę (Ctrl+Shift+K)
+Abrir Rutero | Open Rutero | Ouvrir Rutero | Rutero öffnen | Apri Rutero | Abrir Rutero | Otwórz Rutero
+Salir | Quit | Quitter | Beenden | Esci | Sair | Zakończ
+Motor | Engine | Moteur | Motor | Motore | Motor | Silnik
+Mover | Move | Déplacer | Verschieben | Sposta | Mover | Przenieś
+Mover dinero entre cuentas | Move money between accounts | Déplacer de l'argent entre comptes | Geld zwischen Konten verschieben | Sposta soldi tra conti | Mover dinheiro entre contas | Przenieś pieniądze między kontami
+Movimientos | Transactions | Mouvements | Buchungen | Movimenti | Movimentações | Operacje
+Multas | Fines | Amendes | Strafen | Multe | Multas | Mandaty
+Multas (#) | Fines (#) | Amendes (#) | Strafen (#) | Multe (#) | Multas (#) | Mandaty (#)
+Multas (recientes) | Fines (recent) | Amendes (récentes) | Strafen (aktuell) | Multe (recenti) | Multas (recentes) | Mandaty (ostatnie)
+Multas recientes | Recent fines | Amendes récentes | Aktuelle Strafen | Multe recenti | Multas recentes | Ostatnie mandaty
+Multas y gastos del viaje | Trip fines and expenses | Amendes et frais du trajet | Strafen und Kosten der Fahrt | Multe e spese del viaggio | Multas e gastos da viagem | Mandaty i wydatki trasy
+Multas y peajes | Fines and tolls | Amendes et péages | Strafen und Maut | Multe e pedaggi | Multas e pedágios | Mandaty i opłaty
+Multas, peajes y transportes | Fines, tolls and transport | Amendes, péages et transports | Strafen, Maut und Transporte | Multe, pedaggi e trasporti | Multas, pedágios e transportes | Mandaty, opłaty i przeprawy
+Muy grande | Very large | Très grand | Sehr groß | Molto grande | Muito grande | Bardzo duży
+Más común | Most common | Plus fréquente | Am häufigsten | Più comune | Mais comum | Najczęstsze
+Más multado | Most fined | Le plus verbalisé | Meiste Strafen | Più multato | Mais multado | Najwięcej mandatów
+Mínimo # caracteres | Minimum # characters | Minimum # caractères | Mindestens # Zeichen | Minimo # caratteri | Mínimo # caracteres | Minimum # znaków
+Nadie | Nobody | Personne | Niemand | Nessuno | Ninguém | Nikt
+Necesitan taller | Need repairs | À réparer | Brauchen Werkstatt | Da riparare | Precisam de oficina | Do naprawy
+Neto | Net | Net | Netto | Netto | Líquido | Netto
+Neto para ti | Net for you | Net pour toi | Netto für dich | Netto per te | Líquido para você | Netto dla ciebie
+Ninguna multa. ¡Conductor ejemplar! | No fines. Model driver! | Aucune amende. Chauffeur exemplaire ! | Keine Strafen. Vorbildlicher Fahrer! | Nessuna multa. Autista esemplare! | Nenhuma multa. Motorista exemplar! | Brak mandatów. Wzorowy kierowca!
+Nivel # · Conductor | Level # · Driver | Niveau # · Chauffeur | Level # · Fahrer | Livello # · Autista | Nível # · Motorista | Poziom # · Kierowca
+Nivel # · Novato | Level # · Rookie | Niveau # · Débutant | Level # · Neuling | Livello # · Novellino | Nível # · Novato | Poziom # · Nowicjusz
+Novato | Rookie | Débutant | Neuling | Novellino | Novato | Nowicjusz
+No | No | Non | Nein | No | Não | Nie
+Sí | Yes | Oui | Ja | Sì | Sim | Tak
+No encontrado en Steam | Not found in Steam | Introuvable dans Steam | Nicht in Steam gefunden | Non trovato su Steam | Não encontrado na Steam | Nie znaleziono w Steam
+No existe una cuenta con ese correo | No account with that email | Aucun compte avec cet e-mail | Kein Konto mit dieser E-Mail | Nessun account con quell'email | Não existe conta com esse e-mail | Brak konta z tym e-mailem
+No hay saldo suficiente en esa cuenta | Not enough balance in that account | Solde insuffisant sur ce compte | Nicht genug Guthaben auf diesem Konto | Saldo insufficiente su quel conto | Saldo insuficiente nessa conta | Za mało środków na tym koncie
+No hay saldo suficiente en la cuenta de origen | Not enough balance in the source account | Solde insuffisant sur le compte d'origine | Nicht genug Guthaben auf dem Quellkonto | Saldo insufficiente sul conto di origine | Saldo insuficiente na conta de origem | Za mało środków na koncie źródłowym
+No se encuentra el juego. Elige la carpeta manualmente. | Game not found. Choose the folder manually. | Jeu introuvable. Choisis le dossier manuellement. | Spiel nicht gefunden. Wähle den Ordner manuell. | Gioco non trovato. Scegli la cartella manualmente. | Jogo não encontrado. Escolha a pasta manualmente. | Nie znaleziono gry. Wybierz folder ręcznie.
+No se pudo cargar tu perfil online | Couldn't load your online profile | Impossible de charger ton profil en ligne | Online-Profil konnte nicht geladen werden | Impossibile caricare il profilo online | Não foi possível carregar seu perfil online | Nie udało się wczytać profilu online
+No se pudo conectar con TruckersMP | Couldn't connect to TruckersMP | Impossible de se connecter à TruckersMP | Keine Verbindung zu TruckersMP | Impossibile collegarsi a TruckersMP | Não foi possível conectar ao TruckersMP | Nie udało się połączyć z TruckersMP
+No se pudo leer la imagen | Couldn't read the image | Impossible de lire l'image | Bild konnte nicht gelesen werden | Impossibile leggere l'immagine | Não foi possível ler a imagem | Nie udało się odczytać obrazu
+No se pudo comprobar | Couldn't check | Vérification impossible | Prüfung fehlgeschlagen | Impossibile verificare | Não foi possível verificar | Nie udało się sprawdzić
+No tienes tanto dinero en la cartera | You don't have that much money in your wallet | Tu n'as pas autant d'argent | Du hast nicht so viel Geld | Non hai così tanti soldi nel portafoglio | Você não tem tanto dinheiro na carteira | Nie masz tyle pieniędzy w portfelu
+No hay eventos programados | No scheduled events | Aucun événement prévu | Keine geplanten Events | Nessun evento in programma | Nenhum evento agendado | Brak zaplanowanych wydarzeń
+Sin noticias | No news | Aucune actualité | Keine Neuigkeiten | Nessuna notizia | Sem notícias | Brak wiadomości
+Nombre | Name | Nom | Name | Nome | Nome | Nazwa
+Nombre de conductor | Driver name | Nom de chauffeur | Fahrername | Nome autista | Nome de motorista | Nazwa kierowcy
+Normal | Normal | Normal | Normal | Normale | Normal | Normalny
+Noticias | News | Actualités | Neuigkeiten | Notizie | Notícias | Aktualności
+Notificaciones con sonido | Notifications with sound | Notifications sonores | Benachrichtigungen mit Ton | Notifiche con suono | Notificações com som | Powiadomienia z dźwiękiem
+Nueva generación | New generation | Nouvelle génération | Neue Generation | Nuova generazione | Nova geração | Nowa generacja
+Nueva generación aerodinámica | Aerodynamic new generation | Nouvelle génération aérodynamique | Aerodynamische neue Generation | Nuova generazione aerodinamica | Nova geração aerodinâmica | Aerodynamiczna nowa generacja
+aerodinámico | aerodynamic | aérodynamique | aerodynamisch | aerodinamico | aerodinâmico | aerodynamiczna
+Nueva ruta | New route | Nouvelle ligne | Neue Linie | Nuova linea | Nova rota | Nowa trasa
+Nueva carga | New cargo | Nouvelle cargaison | Neue Fracht | Nuovo carico | Nova carga | Nowy ładunek
+Opacidad · | Opacity · | Opacité · | Deckkraft · | Opacità · | Opacidade · | Krycie ·
+Organiza los convoyes | Organises the convoys | Organise les convois | Organisiert die Konvois | Organizza i convogli | Organiza os comboios | Organizuje konwoje
+Oscuro | Dark | Sombre | Dunkel | Scuro | Escuro | Ciemny
+Overlay en el juego | In-game overlay | Overlay en jeu | Overlay im Spiel | Overlay nel gioco | Overlay no jogo | Nakładka w grze
+Pagar desde | Pay from | Payer depuis | Bezahlen von | Paga da | Pagar com | Zapłać z
+Pago | Pay | Paiement | Bezahlung | Pagamento | Pagamento | Wypłata
+Pago de la empresa | Company payment | Paiement de l'entreprise | Firmenzahlung | Pagamento dell'azienda | Pagamento da empresa | Wypłata firmy
+Pago del trabajo | Job pay | Paiement de la mission | Auftragsvergütung | Pagamento del lavoro | Pagamento do trabalho | Zapłata za zlecenie
+Panel | Dashboard | Tableau de bord | Übersicht | Pannello | Painel | Panel
+Panel de conducción | Driving dashboard | Tableau de conduite | Fahr-Cockpit | Pannello di guida | Painel de condução | Panel jazdy
+Para ingresar dinero en la empresa ve a | To deposit money into the company go to | Pour déposer de l'argent dans l'entreprise, va dans | Um Geld in die Firma einzuzahlen, gehe zu | Per depositare soldi nell'azienda vai su | Para depositar dinheiro na empresa vá em | Aby wpłacić pieniądze do firmy, przejdź do
+Para los modelos sin imagen propia busca fotos libres en internet | For models without their own image, search free photos online | Pour les modèles sans image, cherche des photos libres en ligne | Für Modelle ohne eigenes Bild freie Fotos im Internet suchen | Per i modelli senza immagine cerca foto libere online | Para modelos sem imagem própria, busca fotos livres na internet | Dla modeli bez własnego obrazu szuka wolnych zdjęć w internecie
+Para poner etiquetas a un conductor ve a Miembros → Editar. | To tag a driver go to Members → Edit. | Pour étiqueter un chauffeur, va dans Membres → Modifier. | Um einen Fahrer zu markieren, gehe zu Mitglieder → Bearbeiten. | Per etichettare un autista vai su Membri → Modifica. | Para etiquetar um motorista vá em Membros → Editar. | Aby otagować kierowcę, przejdź do Członkowie → Edytuj.
+Paradas | Stops | Arrêts | Haltestellen | Fermate | Paradas | Przystanki
+Parada # | Stop # | Arrêt # | Haltestelle # | Fermata # | Parada # | Przystanek #
+parada # | stop # | arrêt # | Halt # | fermata # | parada # | przystanek #
+a bordo | on board | à bord | an Bord | a bordo | a bordo | na pokładzie
+# a bordo | # on board | # à bord | # an Bord | # a bordo | # a bordo | # na pokładzie
+Suben # | # get on | # montent | # steigen ein | Salgono # | Sobem # | Wsiada #
+bajan # | # get off | # descendent | # steigen aus | scendono # | descem # | wysiada #
+a bordo # | # on board | # à bord | # an Bord | a bordo # | a bordo # | # na pokładzie
+Pasa la propiedad a otro miembro antes de salir | Transfer ownership to another member before leaving | Transfère la propriété à un autre membre avant de partir | Übertrage die Firma an ein anderes Mitglied, bevor du gehst | Passa la proprietà a un altro membro prima di uscire | Passe a propriedade a outro membro antes de sair | Przekaż firmę innemu członkowi przed wyjściem
+Pasajeros | Passengers | Passagers | Fahrgäste | Passeggeri | Passageiros | Pasażerowie
+Peaje | Toll | Péage | Maut | Pedaggio | Pedágio | Opłata drogowa
+Peajes | Tolls | Péages | Maut | Pedaggi | Pedágios | Opłaty drogowe
+Ferris | Ferries | Ferries | Fähren | Traghetti | Balsas | Promy
+Trenes | Trains | Trains | Züge | Treni | Trens | Pociągi
+Ferry | Ferry | Ferry | Fähre | Traghetto | Balsa | Prom
+Tren | Train | Train | Zug | Treno | Trem | Pociąg
+Gasto | Expense | Dépense | Ausgabe | Spesa | Gasto | Wydatek
+Multa | Fine | Amende | Strafe | Multa | Multa | Mandat
+Peajes, ferris y trenes (#) | Tolls, ferries and trains (#) | Péages, ferries et trains (#) | Maut, Fähren und Züge (#) | Pedaggi, traghetti e treni (#) | Pedágios, balsas e trens (#) | Opłaty, promy i pociągi (#)
+Pequeño | Small | Petit | Klein | Piccolo | Pequeno | Mały
+Pequeño · # plazas · # € | Small · # slots · # € | Petit · # places · # € | Klein · # Plätze · # € | Piccolo · # posti · # € | Pequeno · # vagas · # € | Mały · # miejsc · # €
+Perfil | Profile | Profil | Profil | Profilo | Perfil | Profil
+Personalizar Rutero | Customise Rutero | Personnaliser Rutero | Rutero anpassen | Personalizza Rutero | Personalizar o Rutero | Dostosuj Rutero
+Peso | Weight | Poids | Gewicht | Peso | Peso | Waga
+Plazas ocupadas | Slots used | Places occupées | Belegte Plätze | Posti occupati | Vagas ocupadas | Zajęte miejsca
+Plugin de telemetría | Telemetry plugin | Plugin de télémétrie | Telemetrie-Plugin | Plugin di telemetria | Plugin de telemetria | Wtyczka telemetrii
+Plugin instalado | Plugin installed | Plugin installé | Plugin installiert | Plugin installato | Plugin instalado | Wtyczka zainstalowana
+Pon un nombre | Enter a name | Indique un nom | Gib einen Namen ein | Inserisci un nome | Coloque um nome | Podaj nazwę
+Pon un nombre a la cuenta | Name the account | Nomme le compte | Gib dem Konto einen Namen | Dai un nome al conto | Dê um nome à conta | Nazwij konto
+Pon un nombre de al menos # letras | Enter a name of at least # letters | Indique un nom d'au moins # lettres | Name mit mindestens # Buchstaben | Inserisci un nome di almeno # lettere | Coloque um nome com pelo menos # letras | Podaj nazwę z co najmniej # liter
+Pon un título a la noticia | Give the news a title | Donne un titre à l'actualité | Gib der Neuigkeit einen Titel | Dai un titolo alla notizia | Dê um título à notícia | Nadaj tytuł wiadomości
+Pon un título al evento | Give the event a title | Donne un titre à l'événement | Gib dem Event einen Titel | Dai un titolo all'evento | Dê um título ao evento | Nadaj tytuł wydarzeniu
+Por tipo | By type | Par type | Nach Art | Per tipo | Por tipo | Według typu
+Posición | Position | Position | Position | Posizione | Posição | Pozycja
+Precio billete | Ticket price | Prix du billet | Ticketpreis | Prezzo biglietto | Preço da passagem | Cena biletu
+Primera entrega | First delivery | Première livraison | Erste Lieferung | Prima consegna | Primeira entrega | Pierwsza dostawa
+Primero sal de tu empresa actual | Leave your current company first | Quitte d'abord ton entreprise actuelle | Verlasse zuerst deine aktuelle Firma | Esci prima dalla tua azienda attuale | Saia primeiro da sua empresa atual | Najpierw opuść obecną firmę
+Profesional | Professional | Professionnel | Profi | Professionista | Profissional | Profesjonalista
+Próximo evento | Next event | Prochain événement | Nächstes Event | Prossimo evento | Próximo evento | Następne wydarzenie
+Puedes salir de la empresa cuando quieras. | You can leave the company whenever you want. | Tu peux quitter l'entreprise quand tu veux. | Du kannst die Firma jederzeit verlassen. | Puoi lasciare l'azienda quando vuoi. | Você pode sair da empresa quando quiser. | Możesz opuścić firmę kiedy chcesz.
+Puestos de la empresa (Jefe de tráfico, Instructor, Conductor de convoy…) | Company positions (Traffic manager, Instructor, Convoy driver…) | Postes de l'entreprise (Chef de trafic, Instructeur, Chauffeur de convoi…) | Firmenpositionen (Disponent, Ausbilder, Konvoifahrer…) | Ruoli aziendali (Capo traffico, Istruttore, Autista di convoglio…) | Cargos da empresa (Chefe de tráfego, Instrutor, Motorista de comboio…) | Stanowiska w firmie (Dyspozytor, Instruktor, Kierowca konwoju…)
+Pulsa el botón para comprobar si hay una versión nueva. | Press the button to check for a new version. | Appuie sur le bouton pour vérifier s'il y a une nouvelle version. | Drücke den Knopf, um nach einer neuen Version zu suchen. | Premi il pulsante per cercare una nuova versione. | Toque no botão para verificar se há uma versão nova. | Naciśnij przycisk, aby sprawdzić nową wersję.
+Puntos | Points | Points | Punkte | Punti | Pontos | Punkty
+Puntuación | Score | Score | Punktzahl | Punteggio | Pontuação | Wynik
+Puntuación de conducción (velocidad, daños, multas) | Driving score (speed, damage, fines) | Score de conduite (vitesse, dégâts, amendes) | Fahrwertung (Tempo, Schäden, Strafen) | Punteggio di guida (velocità, danni, multe) | Pontuação de direção (velocidade, danos, multas) | Wynik jazdy (prędkość, uszkodzenia, mandaty)
+Puntuación media | Average score | Score moyen | Durchschnittliche Punktzahl | Punteggio medio | Pontuação média | Średni wynik
+Página al abrir | Start page | Page d'accueil | Startseite | Pagina iniziale | Página inicial | Strona startowa
+Quien lo use entra directamente y la empresa recibe # €. | Whoever uses it joins directly and the company receives # €. | Celui qui l'utilise rejoint directement et l'entreprise reçoit # €. | Wer ihn nutzt, tritt direkt bei und die Firma erhält # €. | Chi lo usa entra subito e l'azienda riceve # €. | Quem usar entra direto e a empresa recebe # €. | Kto go użyje, dołącza od razu, a firma otrzymuje # €.
+Qué mostrar | What to show | Quoi afficher | Was anzeigen | Cosa mostrare | O que mostrar | Co pokazywać
+Racha sin multas | Fine-free streak | Série sans amende | Serie ohne Strafen | Serie senza multe | Sequência sem multas | Seria bez mandatów
+Radar de velocidad | Speed camera | Radar | Blitzer | Autovelox | Radar de velocidade | Fotoradar
+Rango | Rank | Grade | Rang | Grado | Patente | Ranga
+Rangos | Ranks | Grades | Ränge | Gradi | Patentes | Rangi
+Ranking | Ranking | Classement | Rangliste | Classifica | Ranking | Ranking
+Rechazar | Decline | Refuser | Ablehnen | Rifiuta | Recusar | Odrzuć
+Recorre # km | Drive # km | Parcours # km | Fahre # km | Percorri # km | Percorra # km | Przejedź # km
+Reinstala el plugin desde Ajustes para que los datos sean correctos. | Reinstall the plugin from Settings so the data is correct. | Réinstalle le plugin depuis Paramètres pour que les données soient correctes. | Installiere das Plugin in den Einstellungen neu, damit die Daten stimmen. | Reinstalla il plugin da Impostazioni per avere dati corretti. | Reinstale o plugin em Configurações para que os dados fiquem corretos. | Zainstaluj ponownie wtyczkę w Ustawieniach, aby dane były poprawne.
+Reinstalar | Reinstall | Réinstaller | Neu installieren | Reinstalla | Reinstalar | Zainstaluj ponownie
+Remolque | Trailer | Remorque | Anhänger | Rimorchio | Reboque | Naczepa
+Remolque no permitido | Trailer not allowed | Remorque interdite | Anhänger nicht erlaubt | Rimorchio non consentito | Reboque não permitido | Niedozwolona naczepa
+Remolques | Trailers | Remorques | Anhänger | Rimorchi | Reboques | Naczepy
+Instalación | Facility | Installation | Anlage | Struttura | Instalação | Obiekt
+Reparación | Repair | Réparation | Reparatur | Riparazione | Reparo | Naprawa
+Restablecer | Reset | Réinitialiser | Zurücksetzen | Ripristina | Restaurar | Resetuj
+Restante | Remaining | Restant | Rest | Rimanente | Restante | Pozostało
+Resumen | Summary | Résumé | Übersicht | Riepilogo | Resumo | Podsumowanie
+Retos de hoy | Today's challenges | Défis du jour | Heutige Herausforderungen | Sfide di oggi | Desafios de hoje | Dzisiejsze wyzwania
+Reto diario completado 🎯 | Daily challenge completed 🎯 | Défi du jour réussi 🎯 | Tagesaufgabe geschafft 🎯 | Sfida giornaliera completata 🎯 | Desafio diário concluído 🎯 | Wyzwanie dnia ukończone 🎯
+Revisa tu bandeja para cambiar la contraseña | Check your inbox to change the password | Consulte ta boîte mail pour changer le mot de passe | Prüfe dein Postfach, um das Passwort zu ändern | Controlla la posta per cambiare la password | Confira sua caixa de entrada para trocar a senha | Sprawdź skrzynkę, aby zmienić hasło
+Rey de la carretera | King of the road | Roi de la route | König der Straße | Re della strada | Rei da estrada | Król szos
+Rol | Role | Rôle | Rolle | Ruolo | Cargo | Rola
+Roles | Roles | Rôles | Rollen | Ruoli | Cargos | Role
+Ruta | Route | Trajet | Route | Percorso | Rota | Trasa
+Ruta de autobús terminada 🚌 | Bus route finished 🚌 | Ligne de bus terminée 🚌 | Buslinie beendet 🚌 | Linea di autobus completata 🚌 | Rota de ônibus concluída 🚌 | Trasa autobusu ukończona 🚌
+Rutas de pasajeros con paradas, billetes y puntuación | Passenger routes with stops, tickets and score | Lignes de passagers avec arrêts, billets et score | Fahrgastlinien mit Haltestellen, Tickets und Punkten | Linee passeggeri con fermate, biglietti e punteggio | Rotas de passageiros com paradas, passagens e pontuação | Trasy pasażerskie z przystankami, biletami i wynikiem
+Rutero lee los datos del juego con el plugin abierto | Rutero reads game data with the open-source plugin | Rutero lit les données du jeu avec le plugin libre | Rutero liest die Spieldaten mit dem offenen Plugin | Rutero legge i dati del gioco con il plugin open source | O Rutero lê os dados do jogo com o plugin aberto | Rutero odczytuje dane gry przez otwartą wtyczkę
+Rutero se abre minimizado en la bandeja | Rutero opens minimised in the tray | Rutero s'ouvre réduit dans la barre | Rutero startet minimiert im Infobereich | Rutero si apre ridotto nella barra | O Rutero abre minimizado na bandeja | Rutero otwiera się zminimalizowany w zasobniku
+Salarios, flota, ahorro… | Salaries, fleet, savings… | Salaires, flotte, épargne… | Gehälter, Flotte, Ersparnisse… | Stipendi, flotta, risparmi… | Salários, frota, poupança… | Pensje, flota, oszczędności…
+Salarios | Salaries | Salaires | Gehälter | Stipendi | Salários | Pensje
+Saldo | Balance | Solde | Kontostand | Saldo | Saldo | Saldo
+Saldo # € · plazas #/# | Balance # € · slots #/# | Solde # € · places #/# | Kontostand # € · Plätze #/# | Saldo # € · posti #/# | Saldo # € · vagas #/# | Saldo # € · miejsca #/#
+Saldo disponible | Available balance | Solde disponible | Verfügbares Guthaben | Saldo disponibile | Saldo disponível | Dostępne saldo
+Salida | Departure | Départ | Abfahrt | Partenza | Saída | Wyjazd
+Salida # | Departure # | Départ # | Abfahrt # | Partenza # | Saída # | Wyjazd #
+Salir de la empresa | Leave the company | Quitter l'entreprise | Firma verlassen | Lascia l'azienda | Sair da empresa | Opuść firmę
+Saltarse un semáforo en rojo | Running a red light | Griller un feu rouge | Über Rot fahren | Passare col rosso | Avançar o sinal vermelho | Przejazd na czerwonym
+Sanciones recibidas por los conductores de la empresa | Penalties received by the company's drivers | Sanctions reçues par les chauffeurs de l'entreprise | Strafen der Fahrer der Firma | Sanzioni ricevute dagli autisti dell'azienda | Penalidades recebidas pelos motoristas da empresa | Kary otrzymane przez kierowców firmy
+Se consiguen automáticamente con los kilómetros recorridos en la empresa | Earned automatically with the kilometres driven in the company | S'obtiennent automatiquement avec les kilomètres parcourus dans l'entreprise | Werden automatisch mit den in der Firma gefahrenen Kilometern erreicht | Si ottengono automaticamente con i km percorsi nell'azienda | São obtidas automaticamente com os km rodados na empresa | Zdobywane automatycznie za kilometry przejechane w firmie
+Se renuevan a medianoche | They refresh at midnight | Renouvelés à minuit | Erneuern sich um Mitternacht | Si rinnovano a mezzanotte | Renovam à meia-noite | Odnawiają się o północy
+Semana | Week | Semaine | Woche | Settimana | Semana | Tydzień
+Servidores | Servers | Serveurs | Server | Server | Servidores | Serwery
+Sesión | Session | Session | Sitzung | Sessione | Sessão | Sesja
+Sesión caducada, vuelve a entrar | Session expired, log in again | Session expirée, reconnecte-toi | Sitzung abgelaufen, melde dich erneut an | Sessione scaduta, accedi di nuovo | Sessão expirada, entre de novo | Sesja wygasła, zaloguj się ponownie
+Si eres el único miembro, al salir se cierra la empresa. Si hay más, cede antes la empresa a otro miembro. | If you're the only member, leaving closes the company. If there are more, hand it to another member first. | Si tu es le seul membre, partir ferme l'entreprise. Sinon, cède-la d'abord à un autre membre. | Bist du das einzige Mitglied, wird die Firma beim Verlassen geschlossen. Sonst übertrage sie vorher. | Se sei l'unico membro, uscendo l'azienda si chiude. Altrimenti cedila prima a un altro membro. | Se você é o único membro, ao sair a empresa fecha. Se houver mais, passe-a antes para outro membro. | Jeśli jesteś jedynym członkiem, wyjście zamknie firmę. W przeciwnym razie przekaż ją najpierw.
+Siglas | Tag | Sigle | Kürzel | Sigla | Sigla | Skrót
+Sin carga | No cargo | Sans cargaison | Keine Fracht | Nessun carico | Sem carga | Brak ładunku
+Sin carga ahora mismo. Acepta un trabajo y Rutero lo registrará solo. | No cargo right now. Take a job and Rutero will log it by itself. | Pas de cargaison pour l'instant. Accepte une mission et Rutero l'enregistrera tout seul. | Gerade keine Fracht. Nimm einen Auftrag an und Rutero speichert ihn von selbst. | Nessun carico ora. Accetta un lavoro e Rutero lo registrerà da solo. | Sem carga agora. Aceite um trabalho e o Rutero vai registrar sozinho. | Brak ładunku. Przyjmij zlecenie, a Rutero zapisze je sam.
+Sin conexión a internet | No internet connection | Pas de connexion internet | Keine Internetverbindung | Nessuna connessione a internet | Sem conexão com a internet | Brak połączenia z internetem
+Sin datos | No data | Pas de données | Keine Daten | Nessun dato | Sem dados | Brak danych
+Sin descripción | No description | Sans description | Keine Beschreibung | Nessuna descrizione | Sem descrição | Brak opisu
+Sin gastos de ruta todavía | No road expenses yet | Pas encore de frais de route | Noch keine Unterwegskosten | Ancora nessuna spesa di viaggio | Sem gastos de estrada ainda | Brak wydatków w trasie
+Sin multas ni gastos. ¡Buen viaje! 👏 | No fines or expenses. Great trip! 👏 | Ni amende ni frais. Beau trajet ! 👏 | Keine Strafen oder Kosten. Gute Fahrt! 👏 | Nessuna multa né spesa. Ottimo viaggio! 👏 | Sem multas nem gastos. Boa viagem! 👏 | Bez mandatów i wydatków. Świetna trasa! 👏
+Sin plugin | No plugin | Sans plugin | Kein Plugin | Senza plugin | Sem plugin | Brak wtyczki
+Sin asignar | Unassigned | Non attribué | Nicht zugewiesen | Non assegnato | Não atribuído | Nieprzypisany
+Solicitudes | Applications | Candidatures | Bewerbungen | Richieste | Pedidos | Zgłoszenia
+Solicitud rechazada | Application declined | Candidature refusée | Bewerbung abgelehnt | Richiesta rifiutata | Pedido recusado | Zgłoszenie odrzucone
+Solo necesitas un correo y una contraseña. Tu nombre de conductor lo puedes cambiar después. | You only need an email and a password. You can change your driver name later. | Il te faut juste un e-mail et un mot de passe. Tu pourras changer ton nom de chauffeur ensuite. | Du brauchst nur eine E-Mail und ein Passwort. Deinen Fahrernamen kannst du später ändern. | Ti servono solo email e password. Il nome autista puoi cambiarlo dopo. | Você só precisa de um e-mail e uma senha. Pode mudar seu nome de motorista depois. | Potrzebujesz tylko e-maila i hasła. Nazwę kierowcy zmienisz później.
+Solo se descarga lo nuevo y se instala sin perder tus datos. Rutero también lo comprueba solo al abrirse. | Only what's new is downloaded and installed without losing your data. Rutero also checks by itself when it opens. | Seules les nouveautés sont téléchargées et installées sans perdre tes données. Rutero vérifie aussi tout seul à l'ouverture. | Nur Neues wird geladen und ohne Datenverlust installiert. Rutero prüft auch selbst beim Start. | Si scarica solo il nuovo e si installa senza perdere i dati. Rutero controlla anche da solo all'avvio. | Só o que é novo é baixado e instalado sem perder seus dados. O Rutero também verifica sozinho ao abrir. | Pobierane są tylko nowości, bez utraty danych. Rutero sprawdza też sam przy uruchomieniu.
+Son los rangos por defecto. Crea uno para personalizarlos. | These are the default ranks. Create one to customise them. | Ce sont les grades par défaut. Crée-en un pour les personnaliser. | Das sind die Standardränge. Erstelle einen, um sie anzupassen. | Sono i gradi predefiniti. Creane uno per personalizzarli. | São as patentes padrão. Crie uma para personalizar. | To domyślne rangi. Utwórz własną, by je zmienić.
+Sueldo | Salary | Salaire | Gehalt | Stipendio | Salário | Pensja
+Sueldo de la empresa | Company salary | Salaire de l'entreprise | Firmengehalt | Stipendio dell'azienda | Salário da empresa | Pensja z firmy
+Sueldos de la empresa | Company salaries | Salaires de l'entreprise | Firmengehälter | Stipendi dell'azienda | Salários da empresa | Pensje firmy
+Tablero de mandos | Dashboard | Tableau de bord | Übersicht | Cruscotto | Painel | Pulpit
+Tamaño | Size | Taille | Größe | Dimensione | Tamanho | Rozmiar
+Tamaño · | Size · | Taille · | Größe · | Dimensione · | Tamanho · | Rozmiar ·
+Tamaño del texto | Text size | Taille du texte | Textgröße | Dimensione del testo | Tamanho do texto | Rozmiar tekstu
+Tamaño no válido | Invalid size | Taille invalide | Ungültige Größe | Dimensione non valida | Tamanho inválido | Nieprawidłowy rozmiar
+Termina una entrega sin multas ni daños | Finish a delivery without fines or damage | Termine une livraison sans amende ni dégât | Beende eine Lieferung ohne Strafen und Schäden | Completa una consegna senza multe né danni | Termine uma entrega sem multas nem danos | Ukończ dostawę bez mandatów i uszkodzeń
+Tiempo de llegada | Arrival time | Heure d'arrivée | Ankunftszeit | Tempo di arrivo | Tempo de chegada | Czas przyjazdu
+Tiempo hasta descansar | Time until rest | Temps avant repos | Zeit bis zur Pause | Tempo prima del riposo | Tempo até descansar | Czas do odpoczynku
+Tienes # € | You have # € | Tu as # € | Du hast # € | Hai # € | Você tem # € | Masz # €
+Tienes la última versión. ✔ | You have the latest version. ✔ | Tu as la dernière version. ✔ | Du hast die neueste Version. ✔ | Hai l'ultima versione. ✔ | Você tem a versão mais recente. ✔ | Masz najnowszą wersję. ✔
+Todas las entregas de los conductores de la empresa | All deliveries by the company's drivers | Toutes les livraisons des chauffeurs de l'entreprise | Alle Lieferungen der Fahrer der Firma | Tutte le consegne degli autisti dell'azienda | Todas as entregas dos motoristas da empresa | Wszystkie dostawy kierowców firmy
+Todas las sanciones y gastos de ruta, guardados automáticamente | All penalties and road expenses, saved automatically | Toutes les sanctions et frais de route, enregistrés automatiquement | Alle Strafen und Unterwegskosten, automatisch gespeichert | Tutte le sanzioni e spese di viaggio, salvate in automatico | Todas as penalidades e gastos de estrada, salvos automaticamente | Wszystkie kary i wydatki w trasie, zapisywane automatycznie
+Todavía no hay ninguna versión publicada | No version has been published yet | Aucune version publiée pour l'instant | Noch keine Version veröffentlicht | Nessuna versione ancora pubblicata | Ainda não há nenhuma versão publicada | Nie opublikowano jeszcze żadnej wersji
+Todo lo que has entregado, guardado automáticamente | Everything you've delivered, saved automatically | Tout ce que tu as livré, enregistré automatiquement | Alles, was du geliefert hast, automatisch gespeichert | Tutto ciò che hai consegnato, salvato in automatico | Tudo o que você entregou, salvo automaticamente | Wszystko, co dostarczyłeś, zapisane automatycznie
+Todos | All | Tous | Alle | Tutti | Todos | Wszystkie
+Todos los conductores | All drivers | Tous les chauffeurs | Alle Fahrer | Tutti gli autisti | Todos os motoristas | Wszyscy kierowcy
+Top conductores | Top drivers | Meilleurs chauffeurs | Top-Fahrer | Migliori autisti | Melhores motoristas | Najlepsi kierowcy
+Total | Total | Total | Gesamt | Totale | Total | Razem
+Total pagado | Total paid | Total payé | Gesamt bezahlt | Totale pagato | Total pago | Razem zapłacono
+Trabajo actual | Current job | Mission actuelle | Aktueller Auftrag | Lavoro attuale | Trabalho atual | Bieżące zlecenie
+Trabajo cancelado | Job cancelled | Mission annulée | Auftrag abgebrochen | Lavoro annullato | Trabalho cancelado | Zlecenie anulowane
+Trabajo rápido | Quick job | Mission rapide | Schnellauftrag | Lavoro rapido | Trabalho rápido | Szybkie zlecenie
+Trabajos | Jobs | Missions | Aufträge | Lavori | Trabalhos | Zlecenia
+Tractora #x# | Tractor #x# | Tracteur #x# | Zugmaschine #x# | Trattore #x# | Cavalo #x# | Ciągnik #x#
+Transferencias | Transfers | Virements | Überweisungen | Trasferimenti | Transferências | Przelewy
+Transmisión | Transmission | Transmission | Getriebe | Trasmissione | Transmissão | Skrzynia biegów
+Tu carrera como conductor en números | Your driving career in numbers | Ta carrière de chauffeur en chiffres | Deine Fahrerkarriere in Zahlen | La tua carriera di autista in numeri | Sua carreira de motorista em números | Twoja kariera kierowcy w liczbach
+Tu dinero, tu sueldo y las transferencias | Your money, your salary and transfers | Ton argent, ton salaire et les virements | Dein Geld, dein Gehalt und Überweisungen | I tuoi soldi, lo stipendio e i trasferimenti | Seu dinheiro, seu salário e as transferências | Twoje pieniądze, pensja i przelewy
+Tu vehículo necesita taller 🔧 | Your vehicle needs repairs 🔧 | Ton véhicule a besoin du garage 🔧 | Dein Fahrzeug muss in die Werkstatt 🔧 | Il tuo veicolo ha bisogno dell'officina 🔧 | Seu veículo precisa de oficina 🔧 | Twój pojazd wymaga naprawy 🔧
+Tu velocidad | Your speed | Ta vitesse | Dein Tempo | La tua velocità | Sua velocidade | Twoja prędkość
+Tú | You | Toi | Du | Tu | Você | Ty
+Unidades | Units | Unités | Einheiten | Unità | Unidades | Jednostki
+Idioma | Language | Langue | Sprache | Lingua | Idioma | Język
+Automático (según tu Windows) | Automatic (from Windows) | Automatique (selon Windows) | Automatisch (wie Windows) | Automatico (da Windows) | Automático (do Windows) | Automatycznie (z Windows)
+Se elige solo según tu país. Puedes cambiarlo cuando quieras. | Chosen automatically from your country. You can change it any time. | Choisie automatiquement selon ton pays. Tu peux la changer quand tu veux. | Wird automatisch nach deinem Land gewählt. Du kannst sie jederzeit ändern. | Scelta automaticamente in base al paese. Puoi cambiarla quando vuoi. | Escolhido automaticamente pelo seu país. Você pode mudar quando quiser. | Wybierany automatycznie wg kraju. Możesz zmienić go kiedy chcesz.
+Vehículo | Vehicle | Véhicule | Fahrzeug | Veicolo | Veículo | Pojazd
+Vehículo dañado | Vehicle damaged | Véhicule endommagé | Fahrzeug beschädigt | Veicolo danneggiato | Veículo danificado | Pojazd uszkodzony
+Vehículo reparado 🔧 | Vehicle repaired 🔧 | Véhicule réparé 🔧 | Fahrzeug repariert 🔧 | Veicolo riparato 🔧 | Veículo reparado 🔧 | Pojazd naprawiony 🔧
+Vel. media | Avg. speed | Vit. moyenne | Ø Tempo | Vel. media | Vel. média | Śr. prędkość
+Vel. máx. | Max speed | Vit. max. | Max. Tempo | Vel. max | Vel. máx. | Maks. prędkość
+Vel. máxima | Top speed | Vitesse max. | Höchsttempo | Velocità max | Velocidade máx. | Prędkość maks.
+Velocidad | Speed | Vitesse | Tempo | Velocità | Velocidade | Prędkość
+Velocidad durante el viaje | Speed during the trip | Vitesse pendant le trajet | Tempo während der Fahrt | Velocità durante il viaggio | Velocidade durante a viagem | Prędkość w trasie
+Velocidad máx. | Max speed | Vitesse max. | Max. Tempo | Velocità max | Velocidade máx. | Prędkość maks.
+Vender | Sell | Vendre | Verkaufen | Vendi | Vender | Sprzedaj
+Vender (# €) | Sell (# €) | Vendre (# €) | Verkaufen (# €) | Vendi (# €) | Vender (# €) | Sprzedaj (# €)
+Ver | View | Voir | Ansehen | Vedi | Ver | Zobacz
+Ver todas | See all | Tout voir | Alle ansehen | Vedi tutte | Ver todas | Zobacz wszystkie
+Ver todos | See all | Tout voir | Alle ansehen | Vedi tutti | Ver todos | Zobacz wszystkie
+Versión del plugin distinta | Different plugin version | Version du plugin différente | Andere Plugin-Version | Versione del plugin diversa | Versão do plugin diferente | Inna wersja wtyczki
+Versión instalada: | Installed version: | Version installée : | Installierte Version: | Versione installata: | Versão instalada: | Zainstalowana wersja:
+Veterano | Veteran | Vétéran | Veteran | Veterano | Veterano | Weteran
+Viaje | Trip | Trajet | Fahrt | Viaggio | Viagem | Trasa
+Vuelve a buscar las fotos en internet | Search the photos online again | Rechercher à nouveau les photos en ligne | Fotos erneut im Internet suchen | Cerca di nuovo le foto online | Buscar as fotos na internet de novo | Wyszukaj zdjęcia ponownie
+XP ganada | XP earned | XP gagnée | Erhaltene XP | XP guadagnata | XP ganha | Zdobyte XP
+Ya formas parte de la empresa | You're now part of the company | Tu fais désormais partie de l'entreprise | Du bist jetzt Teil der Firma | Ora fai parte dell'azienda | Agora você faz parte da empresa | Należysz już do firmy
+Ya no formas parte de tu empresa | You're no longer part of your company | Tu ne fais plus partie de ton entreprise | Du gehörst nicht mehr zu deiner Firma | Non fai più parte della tua azienda | Você não faz mais parte da sua empresa | Nie należysz już do firmy
+Ya no voy | Not going anymore | Je n'y vais plus | Ich komme nicht mehr | Non vengo più | Não vou mais | Już nie idę
+Voy | I'm going | J'y vais | Ich komme | Ci sono | Vou | Idę
+Ya perteneces a una empresa | You already belong to a company | Tu fais déjà partie d'une entreprise | Du gehörst schon zu einer Firma | Fai già parte di un'azienda | Você já pertence a uma empresa | Należysz już do firmy
+Ya puedes crear tu cuenta | You can now create your account | Tu peux maintenant créer ton compte | Du kannst jetzt dein Konto erstellen | Ora puoi creare il tuo account | Agora você pode criar sua conta | Możesz teraz utworzyć konto
+Servidor online conectado ✅ | Online server connected ✅ | Serveur en ligne connecté ✅ | Online-Server verbunden ✅ | Server online collegato ✅ | Servidor online conectado ✅ | Serwer online połączony ✅
+Zona peligrosa | Danger zone | Zone dangereuse | Gefahrenzone | Zona pericolosa | Zona de perigo | Strefa niebezpieczna
+crear o unirte a una empresa | create or join a company | créer ou rejoindre une entreprise | eine Firma gründen oder beitreten | creare o unirti a un'azienda | criar ou entrar em uma empresa | założyć firmę lub dołączyć
+desde # km | from # km | dès # km | ab # km | da # km | a partir de # km | od # km
+la empresa | the company | l'entreprise | die Firma | l'azienda | a empresa | firma
+una empresa | a company | une entreprise | eine Firma | un'azienda | uma empresa | firma
+ver el ranking | see the ranking | voir le classement | die Rangliste sehen | vedere la classifica | ver o ranking | zobaczyć ranking
+mediano | medium | moyen | mittel | medio | médio | średni
+pequeño | small | petit | klein | piccolo | pequeno | mały
+grande | large | grand | groß | grande | grande | duży
+¡Bienvenido de nuevo! | Welcome back! | Bon retour ! | Willkommen zurück! | Bentornato! | Bem-vindo de volta! | Witaj ponownie!
+¡Cuenta creada! 🎉 | Account created! 🎉 | Compte créé ! 🎉 | Konto erstellt! 🎉 | Account creato! 🎉 | Conta criada! 🎉 | Konto utworzone! 🎉
+Tus viajes, empresa y ranking se sincronizan solos | Your trips, company and ranking sync by themselves | Tes trajets, ton entreprise et le classement se synchronisent tout seuls | Fahrten, Firma und Rangliste synchronisieren sich von selbst | Viaggi, azienda e classifica si sincronizzano da soli | Suas viagens, empresa e ranking sincronizam sozinhos | Trasy, firma i ranking synchronizują się same
+¡Subes de nivel! ⭐ | Level up! ⭐ | Niveau supérieur ! ⭐ | Level aufgestiegen! ⭐ | Sali di livello! ⭐ | Subiu de nível! ⭐ | Nowy poziom! ⭐
+¡Te han aceptado! 🏢 | You've been accepted! 🏢 | Tu as été accepté ! 🏢 | Du wurdest angenommen! 🏢 | Sei stato accettato! 🏢 | Você foi aceito! 🏢 | Przyjęto cię! 🏢
+¿Borrar el evento? | Delete the event? | Supprimer l'événement ? | Event löschen? | Eliminare l'evento? | Apagar o evento? | Usunąć wydarzenie?
+¿Borrar la noticia? | Delete the news? | Supprimer l'actualité ? | Neuigkeit löschen? | Eliminare la notizia? | Apagar a notícia? | Usunąć wiadomość?
+¿Olvidaste la contraseña? | Forgot your password? | Mot de passe oublié ? | Passwort vergessen? | Password dimenticata? | Esqueceu a senha? | Nie pamiętasz hasła?
+¿Seguro que quieres salir de la empresa? | Are you sure you want to leave the company? | Veux-tu vraiment quitter l'entreprise ? | Willst du die Firma wirklich verlassen? | Sei sicuro di voler lasciare l'azienda? | Tem certeza que quer sair da empresa? | Na pewno chcesz opuścić firmę?
+Últimas entregas | Latest deliveries | Dernières livraisons | Letzte Lieferungen | Ultime consegne | Últimas entregas | Ostatnie dostawy
+Último taller | Last service | Dernier passage au garage | Letzte Werkstatt | Ultima officina | Última oficina | Ostatni serwis
+Últimos # días de la empresa | Last # days of the company | # derniers jours de l'entreprise | Letzte # Tage der Firma | Ultimi # giorni dell'azienda | Últimos # dias da empresa | Ostatnie # dni firmy
+Últimos viajes | Recent trips | Derniers trajets | Letzte Fahrten | Ultimi viaggi | Últimas viagens | Ostatnie trasy
+Únete a una empresa para cobrar sueldo | Join a company to earn a salary | Rejoins une entreprise pour toucher un salaire | Tritt einer Firma bei, um Gehalt zu bekommen | Unisciti a un'azienda per ricevere lo stipendio | Entre em uma empresa para receber salário | Dołącz do firmy, by dostawać pensję
+• # € por cada conductor nuevo | • # € for each new driver | • # € par nouveau chauffeur | • # € pro neuem Fahrer | • # € per ogni nuovo autista | • # € por cada motorista novo | • # € za każdego nowego kierowcę
+• #% de cada entrega | • #% of each delivery | • #% de chaque livraison | • #% jeder Lieferung | • #% di ogni consegna | • #% de cada entrega | • #% z każdej dostawy
+• Ingresos de los miembros y ventas | • Member deposits and sales | • Dépôts des membres et ventes | • Einzahlungen der Mitglieder und Verkäufe | • Depositi dei membri e vendite | • Depósitos dos membros e vendas | • Wpłaty członków i sprzedaż
+Empezar ruta | Start route | Démarrer la ligne | Linie starten | Inizia linea | Iniciar rota | Rozpocznij trasę
+Crear evento | Create event | Créer un événement | Event erstellen | Crea evento | Criar evento | Utwórz wydarzenie
+Nueva etiqueta | New tag | Nouvelle étiquette | Neuer Tag | Nuova etichetta | Nova etiqueta | Nowy tag
+Nuevo rango | New rank | Nouveau grade | Neuer Rang | Nuovo grado | Nova patente | Nowa ranga
+Nuevo rol | New role | Nouveau rôle | Neue Rolle | Nuovo ruolo | Novo cargo | Nowa rola
+Publicar noticia | Post news | Publier une actualité | Neuigkeit veröffentlichen | Pubblica notizia | Publicar notícia | Opublikuj wiadomość
+Buscar fotos de nuevo | Search photos again | Rechercher les photos à nouveau | Fotos erneut suchen | Cerca di nuovo le foto | Buscar fotos de novo | Szukaj zdjęć ponownie
+Reiniciar para actualizar | Restart to update | Redémarrer pour mettre à jour | Neu starten zum Aktualisieren | Riavvia per aggiornare | Reiniciar para atualizar | Uruchom ponownie, aby zaktualizować
+Buscar actualizaciones | Check for updates | Rechercher des mises à jour | Nach Updates suchen | Cerca aggiornamenti | Buscar atualizações | Sprawdź aktualizacje
+Reparar | Repair | Réparer | Reparieren | Ripara | Reparar | Napraw
+Ir al concesionario | Go to the dealer | Aller à la concession | Zum Händler | Vai al concessionario | Ir à concessionária | Przejdź do salonu
+Jugando en TruckersMP | Playing on TruckersMP | Joue sur TruckersMP | Spielt auf TruckersMP | In gioco su TruckersMP | Jogando no TruckersMP | Gra w TruckersMP
+Crear empresa | Create company | Créer une entreprise | Firma gründen | Crea azienda | Criar empresa | Załóż firmę
+Unirse | Join | Rejoindre | Beitreten | Unisciti | Entrar | Dołącz
+Unirse con código | Join with code | Rejoindre avec un code | Mit Code beitreten | Unisciti con codice | Entrar com código | Dołącz kodem
+Solicitar entrar | Apply to join | Demander à rejoindre | Beitritt anfragen | Chiedi di entrare | Pedir para entrar | Poproś o dołączenie
+Solicitud enviada | Application sent | Candidature envoyée | Bewerbung gesendet | Richiesta inviata | Pedido enviado | Zgłoszenie wysłane
+Cancelar | Cancel | Annuler | Abbrechen | Annulla | Cancelar | Anuluj
+Confirmar | Confirm | Confirmer | Bestätigen | Conferma | Confirmar | Potwierdź
+Editar | Edit | Modifier | Bearbeiten | Modifica | Editar | Edytuj
+Expulsar | Kick | Exclure | Entfernen | Espelli | Expulsar | Wyrzuć
+Enviar | Send | Envoyer | Senden | Invia | Enviar | Wyślij
+Nota (opcional) | Note (optional) | Note (facultatif) | Notiz (optional) | Nota (facoltativa) | Nota (opcional) | Notatka (opcjonalnie)
+Mensaje (opcional) | Message (optional) | Message (facultatif) | Nachricht (optional) | Messaggio (facoltativo) | Mensagem (opcional) | Wiadomość (opcjonalnie)
+Título | Title | Titre | Titel | Titolo | Título | Tytuł
+Servidor | Server | Serveur | Server | Server | Servidor | Serwer
+Origen | Origin | Origine | Start | Origine | Origem | Start
+Juego | Game | Jeu | Spiel | Gioco | Jogo | Gra
+Hora de salida | Departure time | Heure de départ | Abfahrtszeit | Ora di partenza | Horário de saída | Godzina wyjazdu
+Asistentes | Attendees | Participants | Teilnehmer | Partecipanti | Participantes | Uczestnicy
+Fijar arriba | Pin to top | Épingler en haut | Oben anheften | Fissa in alto | Fixar no topo | Przypnij na górze
+Comprado por | Bought by | Acheté par | Gekauft von | Comprato da | Comprado por | Kupione przez
+Asignado a | Assigned to | Attribué à | Zugewiesen an | Assegnato a | Atribuído a | Przypisany do
+Nuevo | New | Nouveau | Neu | Nuovo | Novo | Nowy
+Disponible | Available | Disponible | Verfügbar | Disponibile | Disponível | Dostępny
+Comprar camión | Buy truck | Acheter un camion | Lkw kaufen | Compra camion | Comprar caminhão | Kup ciężarówkę
+Saldo de la empresa | Company balance | Solde de l'entreprise | Firmenkontostand | Saldo dell'azienda | Saldo da empresa | Saldo firmy
+No hay plazas libres: compra un garaje | No free slots: buy a garage | Plus de places : achète un garage | Keine freien Plätze: kauf eine Garage | Nessun posto libero: compra un garage | Sem vagas livres: compre uma garagem | Brak wolnych miejsc: kup garaż
+La empresa no tiene suficiente saldo | The company doesn't have enough balance | L'entreprise n'a pas assez de solde | Die Firma hat nicht genug Guthaben | L'azienda non ha saldo sufficiente | A empresa não tem saldo suficiente | Firma nie ma wystarczających środków
+Comprado ✅ | Bought ✅ | Acheté ✅ | Gekauft ✅ | Comprato ✅ | Comprado ✅ | Kupiono ✅
+Penalización # | Penalty # | Pénalité # | Strafe # | Penale # | Penalidade # | Kara #
+Aviso | Notice | Avis | Hinweis | Avviso | Aviso | Uwaga
+# paradas | # stops | # arrêts | # Haltestellen | # fermate | # paradas | # przystanków
+# pasajeros | # passengers | # passagers | # Fahrgäste | # passeggeri | # passageiros | # pasażerów
+de tu empresa | from your company | de ton entreprise | von deiner Firma | dalla tua azienda | da sua empresa | od twojej firmy
+Ya eres parte de | You're now part of | Tu fais maintenant partie de | Du bist jetzt Teil von | Ora fai parte di | Agora você faz parte de | Należysz teraz do
+Restante | Remaining | Restant | Rest | Rimanente | Restante | Pozostało
+KM/H | KM/H | KM/H | KM/H | KM/H | KM/H | KM/H
+Tu parte (economía realista) · #% | Your share (realistic economy) · #% | Ta part (économie réaliste) · #% | Dein Anteil (realistische Wirtschaft) · #% | La tua parte (economia realistica) · #% | Sua parte (economia realista) · #% | Twoja część (realistyczna ekonomia) · #%
+Solo cobras tu parte del pago (≈# %, más con cargas peligrosas, pesadas o delicadas y menos con granel) y las multas, peajes, ferris y trenes se descuentan de tu cartera | You only get your share of the pay (≈# %, more for dangerous, heavy or fragile cargo, less for bulk) and fines, tolls, ferries and trains come out of your wallet | Tu ne touches que ta part du paiement (≈# %, plus pour les cargaisons dangereuses, lourdes ou fragiles, moins pour le vrac) et amendes, péages, ferries et trains sont déduits | Du bekommst nur deinen Anteil (≈# %, mehr bei Gefahrgut, schweren oder empfindlichen Frachten, weniger bei Schüttgut) und Strafen, Maut, Fähren und Züge werden abgezogen | Prendi solo la tua parte del pagamento (≈# %, di più con carichi pericolosi, pesanti o delicati, meno con merci sfuse) e multe, pedaggi, traghetti e treni si scalano dal portafoglio | Você recebe só sua parte do pagamento (≈# %, mais com cargas perigosas, pesadas ou frágeis e menos com granel) e multas, pedágios, balsas e trens saem da carteira | Dostajesz tylko swoją część zapłaty (≈# %, więcej za ładunki niebezpieczne, ciężkie lub delikatne, mniej za sypkie), a mandaty, opłaty, promy i pociągi idą z portfela
+Idioma | Language | Langue | Sprache | Lingua | Idioma | Język
+Autocar # m | Coach # m | Autocar # m | Reisebus # m | Pullman # m | Rodoviário # m | Autokar # m
+Urbano # m | City # m | Urbain # m | Stadtbus # m | Urbano # m | Urbano # m | Miejski # m
+Articulado # m | Articulated # m | Articulé # m | Gelenkbus # m | Snodato # m | Articulado # m | Przegubowy # m
+# plazas | # seats | # places | # Plätze | # posti | # lugares | # miejsc
+gran turismo | grand touring | grand tourisme | Fernreise | gran turismo | turismo | turystyczny
+piso bajo | low floor | plancher bas | Niederflur | pianale ribassato | piso baixo | niskopodłogowy
+Lun # | Mon # | Lun # | Mo # | Lun # | Seg # | Pon #
+Mar # | Tue # | Mar # | Di # | Mar # | Ter # | Wt #
+Mié # | Wed # | Mer # | Mi # | Mer # | Qua # | Śr #
+Jue # | Thu # | Jeu # | Do # | Gio # | Qui # | Czw #
+Vie # | Fri # | Ven # | Fr # | Ven # | Sex # | Pt #
+Sáb # | Sat # | Sam # | Sa # | Sab # | Sáb # | Sob #
+Dom # | Sun # | Dim # | So # | Dom # | Dom # | Nd #
+Pública | Public | Publique | Öffentlich | Pubblica | Pública | Publiczna
+Con solicitud | By application | Sur candidature | Mit Bewerbung | Su richiesta | Com pedido | Na zgłoszenie
+Cerrada | Closed | Fermée | Geschlossen | Chiusa | Fechada | Zamknięta
+Sin valoraciones | No ratings | Aucune note | Keine Bewertungen | Nessuna valutazione | Sem avaliações | Brak ocen
+Cualquiera | Any | N'importe lequel | Beliebig | Qualsiasi | Qualquer | Dowolna
+ETS# y ATS | ETS# and ATS | ETS# et ATS | ETS# und ATS | ETS# e ATS | ETS# e ATS | ETS# i ATS
+Edad mínima: # años | Minimum age: # years | Âge minimum : # ans | Mindestalter: # Jahre | Età minima: # anni | Idade mínima: # anos | Minimalny wiek: # lat
+Sin requisitos: puede entrar cualquiera. | No requirements: anyone can join. | Aucune condition : tout le monde peut rejoindre. | Keine Voraussetzungen: jeder kann beitreten. | Nessun requisito: può entrare chiunque. | Sem requisitos: qualquer um pode entrar. | Brak wymagań: każdy może dołączyć.
+Nivel # o más | Level # or higher | Niveau # ou plus | Level # oder höher | Livello # o più | Nível # ou mais | Poziom # lub wyżej
+# km recorridos | # km driven | # km parcourus | # km gefahren | # km percorsi | # km rodados | # km przejechanych
+Cuenta de TruckersMP enlazada | Linked TruckersMP account | Compte TruckersMP lié | Verknüpftes TruckersMP-Konto | Account TruckersMP collegato | Conta do TruckersMP vinculada | Połączone konto TruckersMP
+Ver ficha pública | View public profile | Voir la fiche publique | Öffentliches Profil ansehen | Vedi profilo pubblico | Ver perfil público | Zobacz profil publiczny
+Banner | Banner | Bannière | Banner | Banner | Banner | Baner
+Imagen panorámica que se ve arriba en la ficha de la empresa (se recorta a #×#). | Wide image shown at the top of the company profile (cropped to #×#). | Image panoramique affichée en haut de la fiche (recadrée en #×#). | Breites Bild oben im Firmenprofil (zugeschnitten auf #×#). | Immagine panoramica in cima al profilo (ritagliata a #×#). | Imagem panorâmica no topo do perfil da empresa (cortada em #×#). | Szeroki obraz na górze profilu firmy (przycięty do #×#).
+Sin banner | No banner | Pas de bannière | Kein Banner | Nessun banner | Sem banner | Brak banera
+Subir banner | Upload banner | Ajouter une bannière | Banner hochladen | Carica banner | Enviar banner | Wgraj baner
+Quitar banner | Remove banner | Retirer la bannière | Banner entfernen | Rimuovi banner | Remover banner | Usuń baner
+Banner actualizado | Banner updated | Bannière mise à jour | Banner aktualisiert | Banner aggiornato | Banner atualizado | Baner zaktualizowany
+Entrada de conductores | Driver entry | Entrée des chauffeurs | Fahreraufnahme | Ingresso autisti | Entrada de motoristas | Przyjmowanie kierowców
+Cómo se entra | How to join | Comment rejoindre | Wie man beitritt | Come si entra | Como entrar | Jak dołączyć
+Pública: entra quien quiera (si cumple los requisitos) | Public: anyone can join (if they meet the requirements) | Publique : tout le monde peut entrer (s'il remplit les conditions) | Öffentlich: jeder kann beitreten (wenn er die Voraussetzungen erfüllt) | Pubblica: entra chi vuole (se rispetta i requisiti) | Pública: entra quem quiser (se cumprir os requisitos) | Publiczna: każdy może dołączyć (jeśli spełnia wymagania)
+Con solicitud: un gerente tiene que aceptarla | By application: a manager must accept it | Sur candidature : un gérant doit l'accepter | Mit Bewerbung: ein Manager muss sie annehmen | Su richiesta: un manager deve accettarla | Com pedido: um gerente precisa aceitar | Na zgłoszenie: menedżer musi je zaakceptować
+Cerrada: solo con código de invitación | Closed: invite code only | Fermée : uniquement avec un code d'invitation | Geschlossen: nur mit Einladungscode | Chiusa: solo con codice d'invito | Fechada: só com código de convite | Zamknięta: tylko z kodem zaproszenia
+Nivel mínimo | Minimum level | Niveau minimum | Mindestlevel | Livello minimo | Nível mínimo | Minimalny poziom
+Kilómetros mínimos | Minimum kilometres | Kilomètres minimum | Mindestkilometer | Chilometri minimi | Quilômetros mínimos | Minimalne kilometry
+Juego | Game | Jeu | Spiel | Gioco | Jogo | Gra
+Edad mínima | Minimum age | Âge minimum | Mindestalter | Età minima | Idade mínima | Minimalny wiek
+Idiomas | Languages | Langues | Sprachen | Lingue | Idiomas | Języki
+Español, inglés… | Spanish, English… | Espagnol, anglais… | Spanisch, Englisch… | Spagnolo, inglese… | Espanhol, inglês… | Hiszpański, angielski…
+Obligatorio tener cuenta de TruckersMP | TruckersMP account required | Compte TruckersMP obligatoire | TruckersMP-Konto erforderlich | Account TruckersMP obbligatorio | Conta do TruckersMP obrigatória | Wymagane konto TruckersMP
+Otros requisitos | Other requirements | Autres conditions | Weitere Voraussetzungen | Altri requisiti | Outros requisitos | Inne wymagania
+Normas de la empresa | Company rules | Règles de l'entreprise | Firmenregeln | Regole dell'azienda | Regras da empresa | Zasady firmy
+Guardar entrada y normas | Save entry and rules | Enregistrer l'entrée et les règles | Aufnahme und Regeln speichern | Salva ingresso e regole | Salvar entrada e regras | Zapisz przyjmowanie i zasady
+Todas | All | Toutes | Alle | Tutte | Todas | Wszystkie
+Públicas | Public | Publiques | Öffentlich | Pubbliche | Públicas | Publiczne
+Mejor valoradas | Top rated | Mieux notées | Am besten bewertet | Più votate | Mais bem avaliadas | Najlepiej oceniane
+Más kilómetros | Most kilometres | Plus de kilomètres | Meiste Kilometer | Più chilometri | Mais quilômetros | Najwięcej kilometrów
+Más conductores | Most drivers | Plus de chauffeurs | Meiste Fahrer | Più autisti | Mais motoristas | Najwięcej kierowców
+Más nuevas | Newest | Plus récentes | Neueste | Più nuove | Mais novas | Najnowsze
+No hay empresas que coincidan. | No matching companies. | Aucune entreprise ne correspond. | Keine passenden Firmen. | Nessuna azienda corrispondente. | Nenhuma empresa encontrada. | Brak pasujących firm.
+Ya formas parte de esta empresa. | You're already part of this company. | Tu fais déjà partie de cette entreprise. | Du gehörst schon zu dieser Firma. | Fai già parte di questa azienda. | Você já faz parte desta empresa. | Już należysz do tej firmy.
+Ya has enviado una solicitud. Te avisaremos cuando respondan. | You've already applied. We'll let you know when they answer. | Tu as déjà postulé. On te prévient dès qu'ils répondent. | Du hast dich schon beworben. Wir sagen dir Bescheid, wenn sie antworten. | Hai già inviato una richiesta. Ti avviseremo quando rispondono. | Você já enviou um pedido. Avisaremos quando responderem. | Zgłoszenie już wysłane. Powiadomimy cię o odpowiedzi.
+Ahora mismo no acepta conductores. Solo se entra con código de invitación. | Not accepting drivers right now. Invite code only. | N'accepte pas de chauffeurs pour l'instant. Uniquement sur code d'invitation. | Nimmt gerade keine Fahrer auf. Nur mit Einladungscode. | Ora non accetta autisti. Si entra solo con codice d'invito. | Não aceita motoristas agora. Só com código de convite. | Teraz nie przyjmuje kierowców. Tylko z kodem zaproszenia.
+No cumples todos los requisitos para entrar. | You don't meet all the requirements to join. | Tu ne remplis pas toutes les conditions. | Du erfüllst nicht alle Voraussetzungen. | Non rispetti tutti i requisiti per entrare. | Você não cumpre todos os requisitos para entrar. | Nie spełniasz wszystkich wymagań.
+Unirme ahora | Join now | Rejoindre maintenant | Jetzt beitreten | Unisciti ora | Entrar agora | Dołącz teraz
+Primero sal de tu empresa actual | Leave your current company first | Quitte d'abord ton entreprise actuelle | Verlasse zuerst deine aktuelle Firma | Esci prima dalla tua azienda attuale | Saia primeiro da sua empresa atual | Najpierw opuść obecną firmę
+Mensaje para la empresa | Message for the company | Message pour l'entreprise | Nachricht an die Firma | Messaggio per l'azienda | Mensagem para a empresa | Wiadomość dla firmy
+Enviar solicitud | Send application | Envoyer la candidature | Bewerbung senden | Invia richiesta | Enviar pedido | Wyślij zgłoszenie
+Conductores | Drivers | Chauffeurs | Fahrer | Autisti | Motoristas | Kierowcy
+Comisión | Commission | Commission | Provision | Commissione | Comissão | Prowizja
+Requisitos | Requirements | Conditions | Voraussetzungen | Requisiti | Requisitos | Wymagania
+Normas | Rules | Règles | Regeln | Regole | Regras | Zasady
+Esta empresa no ha puesto normas. | This company hasn't set any rules. | Cette entreprise n'a pas de règles. | Diese Firma hat keine Regeln festgelegt. | Questa azienda non ha regole. | Esta empresa não definiu regras. | Ta firma nie ustaliła zasad.
+Valoraciones | Ratings | Avis | Bewertungen | Valutazioni | Avaliações | Oceny
+Cuenta qué tal es la empresa (opcional) | Tell others what the company is like (optional) | Raconte comment est l'entreprise (facultatif) | Erzähl, wie die Firma ist (optional) | Racconta com'è l'azienda (facoltativo) | Conte como é a empresa (opcional) | Napisz, jaka jest firma (opcjonalnie)
+Valorar | Rate | Noter | Bewerten | Valuta | Avaliar | Oceń
+Cambiar valoración | Change rating | Modifier la note | Bewertung ändern | Cambia valutazione | Alterar avaliação | Zmień ocenę
+Solo pueden valorar los conductores que han estado en la empresa. | Only drivers who have been in the company can rate it. | Seuls les chauffeurs passés par l'entreprise peuvent la noter. | Nur Fahrer, die in der Firma waren, können sie bewerten. | Possono valutare solo gli autisti che sono stati nell'azienda. | Só motoristas que passaram pela empresa podem avaliar. | Oceniać mogą tylko kierowcy, którzy byli w firmie.
+Todavía nadie ha valorado esta empresa. | Nobody has rated this company yet. | Personne n'a encore noté cette entreprise. | Noch niemand hat diese Firma bewertet. | Nessuno ha ancora valutato questa azienda. | Ninguém avaliou esta empresa ainda. | Nikt jeszcze nie ocenił tej firmy.
+Valoración guardada ⭐ | Rating saved ⭐ | Note enregistrée ⭐ | Bewertung gespeichert ⭐ | Valutazione salvata ⭐ | Avaliação salva ⭐ | Ocena zapisana ⭐
+Bienvenido 🎉 | Welcome 🎉 | Bienvenue 🎉 | Willkommen 🎉 | Benvenuto 🎉 | Bem-vindo 🎉 | Witaj 🎉
+Solicitud enviada | Application sent | Candidature envoyée | Bewerbung gesendet | Richiesta inviata | Pedido enviado | Zgłoszenie wysłane
+Cargando… | Loading… | Chargement… | Laden… | Caricamento… | Carregando… | Ładowanie…
+Elige de # a # estrellas | Choose # to # stars | Choisis de # à # étoiles | Wähle # bis # Sterne | Scegli da # a # stelle | Escolha de # a # estrelas | Wybierz od # do # gwiazdek
+No puedes valorar tu propia empresa | You can't rate your own company | Tu ne peux pas noter ta propre entreprise | Du kannst deine eigene Firma nicht bewerten | Non puoi valutare la tua azienda | Você não pode avaliar sua própria empresa | Nie możesz ocenić własnej firmy
+Solo pueden valorar los conductores que han estado en la empresa | Only drivers who have been in the company can rate it | Seuls les chauffeurs passés par l'entreprise peuvent la noter | Nur Fahrer, die in der Firma waren, können sie bewerten | Possono valutare solo gli autisti che sono stati nell'azienda | Só motoristas que passaram pela empresa podem avaliar | Oceniać mogą tylko kierowcy, którzy byli w firmie
+Esa empresa ya no existe | That company no longer exists | Cette entreprise n'existe plus | Diese Firma existiert nicht mehr | Quell'azienda non esiste più | Essa empresa não existe mais | Ta firma już nie istnieje
+Esta empresa no es pública: envía una solicitud | This company isn't public: send an application | Cette entreprise n'est pas publique : envoie une candidature | Diese Firma ist nicht öffentlich: sende eine Bewerbung | Questa azienda non è pubblica: invia una richiesta | Esta empresa não é pública: envie um pedido | Ta firma nie jest publiczna: wyślij zgłoszenie
+No cumples los requisitos | You don't meet the requirements | Tu ne remplis pas les conditions | Du erfüllst die Voraussetzungen nicht | Non rispetti i requisiti | Você não cumpre os requisitos | Nie spełniasz wymagań
+Empresas | Companies | Entreprises | Firmen | Aziende | Empresas | Firmy
+Funda tu propia empresa de transporte o únete a una | Found your own transport company or join one | Fonde ta propre entreprise de transport ou rejoins-en une | Gründe deine eigene Spedition oder tritt einer bei | Fonda la tua azienda di trasporti o unisciti a una | Funde sua própria transportadora ou entre em uma | Załóż własną firmę transportową lub dołącz do jednej
+Fundar una empresa | Found a company | Fonder une entreprise | Firma gründen | Fonda un'azienda | Fundar uma empresa | Załóż firmę
+Fundar empresa | Found company | Fonder l'entreprise | Firma gründen | Fonda azienda | Fundar empresa | Załóż firmę
+Subir logo | Upload logo | Ajouter un logo | Logo hochladen | Carica logo | Enviar logo | Wgraj logo
+Opcional | Optional | Facultatif | Optional | Facoltativo | Opcional | Opcjonalnie
+Siglas (máx. #) | Tag (max. #) | Sigle (max. #) | Kürzel (max. #) | Sigla (max #) | Sigla (máx. #) | Skrót (maks. #)
+Comisión de la empresa (%) | Company commission (%) | Commission de l'entreprise (%) | Firmenprovision (%) | Commissione dell'azienda (%) | Comissão da empresa (%) | Prowizja firmy (%)
+La empresa empieza con # € y recibe # € más por cada conductor que entre. | The company starts with # € and gets # € more for each driver who joins. | L'entreprise commence avec # € et reçoit # € de plus par chauffeur qui rejoint. | Die Firma startet mit # € und bekommt # € pro neuem Fahrer. | L'azienda parte con # € e riceve # € per ogni autista che entra. | A empresa começa com # € e recebe # € a mais por cada motorista que entrar. | Firma zaczyna z # € i dostaje # € za każdego nowego kierowcę.
+Unirse con código | Join with a code | Rejoindre avec un code | Mit Code beitreten | Unisciti con codice | Entrar com código | Dołącz kodem
+Pide el código de # letras al fundador o a un gerente. | Ask the founder or a manager for the #-letter code. | Demande le code à # lettres au fondateur ou à un gérant. | Frag den Gründer oder einen Manager nach dem #-stelligen Code. | Chiedi il codice di # lettere al fondatore o a un manager. | Peça o código de # letras ao fundador ou a um gerente. | Poproś założyciela lub menedżera o #-literowy kod.
+Unirme | Join | Rejoindre | Beitreten | Unisciti | Entrar | Dołącz
+Buscar empresa | Find a company | Chercher une entreprise | Firma suchen | Cerca azienda | Buscar empresa | Szukaj firmy
+Próximamente | Coming soon | Bientôt | Demnächst | Prossimamente | Em breve | Wkrótce
+Esta marca llegará próximamente al concesionario de Rutero. | This brand is coming soon to the Rutero dealer. | Cette marque arrive bientôt dans la concession Rutero. | Diese Marke kommt bald zum Rutero-Händler. | Questo marchio arriverà presto nel concessionario di Rutero. | Esta marca chega em breve à concessionária do Rutero. | Ta marka wkrótce pojawi się w salonie Rutero.
+Este modelo llegará próximamente | This model is coming soon | Ce modèle arrive bientôt | Dieses Modell kommt bald | Questo modello arriverà presto | Este modelo chega em breve | Ten model pojawi się wkrótce
+Trabajo pesado | Heavy duty | Usage intensif | Schwerlast | Uso pesante | Trabalho pesado | Ciężka praca
+Larga distancia | Long haul | Longue distance | Fernverkehr | Lunga percorrenza | Longa distância | Długodystansowy
+Litera media | Mid sleeper | Couchette moyenne | Mittlere Schlafkabine | Cuccetta media | Leito médio | Średnia sypialna
+Capó largo clásico | Classic long hood | Long capot classique | Klassische Langhaube | Muso lungo classico | Capô longo clássico | Klasyczna długa maska
+cabina corta | day cab | cabine courte | kurze Kabine | cabina corta | cabine curta | kabina dzienna
+diseño retro | retro design | design rétro | Retro-Design | design rétro | design retrô | design retro
+litera alta | high sleeper | couchette haute | hohe Schlafkabine | cuccetta alta | leito alto | wysoka sypialna
+cromado | chrome | chromé | verchromt | cromato | cromado | chromowany
+Trabajo pesado · cabina corta | Heavy duty · day cab | Usage intensif · cabine courte | Schwerlast · kurze Kabine | Uso pesante · cabina corta | Trabalho pesado · cabine curta | Ciężka praca · kabina dzienna
+Trabajo pesado · cabina con litera | Heavy duty · sleeper cab | Usage intensif · cabine couchette | Schwerlast · Schlafkabine | Uso pesante · cabina con cuccetta | Trabalho pesado · cabine leito | Ciężka praca · kabina sypialna
+Trabajo pesado · litera alta | Heavy duty · high sleeper | Usage intensif · couchette haute | Schwerlast · hohe Schlafkabine | Uso pesante · cuccetta alta | Trabalho pesado · leito alto | Ciężka praca · wysoka sypialna
+Larga distancia · litera alta | Long haul · high sleeper | Longue distance · couchette haute | Fernverkehr · hohe Schlafkabine | Lunga percorrenza · cuccetta alta | Longa distância · leito alto | Długodystansowy · wysoka sypialna

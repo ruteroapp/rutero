@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#4C8DFF"/>
+      <stop offset="1" stop-color="#5A3DF0"/>
+    </linearGradient>
+    <clipPath id="c"><rect x="16" y="16" width="480" height="480" rx="118"/></clipPath>
+  </defs>
+  <rect x="16" y="16" width="480" height="480" rx="118" fill="url(#bg)"/>
+  <g clip-path="url(#c)">
+    <!-- carretera -->
+    <rect x="0" y="372" width="512" height="140" fill="#10163A"/>
+    <path d="M40 428 H120 M180 428 H260 M320 428 H400 M460 428 H540" stroke="#FF9F1C" stroke-width="12" stroke-linecap="round"/>
+  </g>
+  <!-- líneas de velocidad -->
+  <path d="M44 214 H112 M28 262 H100 M52 310 H108" stroke="#FFFFFF" stroke-opacity=".55" stroke-width="14" stroke-linecap="round"/>
+  <!-- remolque -->
+  <rect x="128" y="168" width="196" height="166" rx="16" fill="#FFFFFF"/>
+  <rect x="146" y="190" width="160" height="22" rx="8" fill="#FF9F1C"/>
+  <!-- cabina -->
+  <path d="M336 206 H404 C418 206 428 212 434 224 L468 290 C472 298 474 306 474 314 V334 H336 Z" fill="#FFFFFF"/>
+  <path d="M370 226 H402 C408 226 412 229 415 234 L436 278 H370 Z" fill="#4C8DFF"/>
+  <rect x="456" y="306" width="16" height="12" rx="3" fill="#FF9F1C"/>
+  <!-- chasis y ruedas -->
+  <rect x="128" y="334" width="346" height="16" rx="6" fill="#10163A"/>
+  <g fill="#10163A" stroke="#FFFFFF" stroke-width="10">
+    <circle cx="186" cy="360" r="30"/><circle cx="256" cy="360" r="30"/><circle cx="420" cy="360" r="30"/>
+  </g>
+  <g fill="#FF9F1C"><circle cx="186" cy="360" r="9"/><circle cx="256" cy="360" r="9"/><circle cx="420" cy="360" r="9"/></g>
+</svg>

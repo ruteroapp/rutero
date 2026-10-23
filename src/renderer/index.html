@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' https: data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com data:; script-src 'self'">
+  <title>Rutero</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Saira+Condensed:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="titlebar">
+    <img src="../../build/icon-64.png" alt="">
+    <span class="brand">RUTERO</span>
+    <span id="tb-status" class="pill"><span class="dot"></span>Esperando al juego</span>
+    <span id="tb-mp" class="pill mp" style="display:none">TruckersMP</span>
+    <button id="tb-update" class="pill warn" style="display:none;-webkit-app-region:no-drag;cursor:pointer"></button>
+    <div class="grow"></div>
+    <button class="winbtn" data-win="min" title="Minimizar">—</button>
+    <button class="winbtn" data-win="max" title="Maximizar">☐</button>
+    <button class="winbtn close" data-win="close" title="Cerrar (sigue en la bandeja)">✕</button>
+  </div>
+  <div class="app">
+    <nav class="side" id="side"></nav>
+    <main class="main" id="main"></main>
+  </div>
+  <div class="toasts" id="toasts"></div>
+  <script src="i18n.js"></script>
+  <script src="icons.js"></script>
+  <script src="vehicles.js"></script>
+  <script src="cutouts.js"></script>
+  <script src="company.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

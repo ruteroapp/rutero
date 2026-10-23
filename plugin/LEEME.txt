@@ -1,0 +1,3 @@
+Si quieres que el instalador lleve el plugin incluido (sin descargarlo), pon aquí
+el archivo scs-telemetry.dll de 64 bits (de https://github.com/RenCloud/scs-sdk-plugin/releases).
+Si esta carpeta solo tiene este texto, Rutero lo descargará solo al pulsar "Instalar plugin".

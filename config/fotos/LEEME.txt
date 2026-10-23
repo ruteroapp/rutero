@@ -1,0 +1,8 @@
+Fotos propias del concesionario
+===============================
+Pon aquí una imagen por modelo con el nombre del id del modelo, por ejemplo:
+  scania-s2016.png    volvo-fh5.png    daf-xg.png    mb-travego16.png
+Si es PNG o WEBP con fondo transparente (camión recortado), se ve como en una tienda.
+Usa solo imágenes propias o que tengas permiso para usar.
+Si no hay imagen, Rutero busca una foto con licencia libre en Wikimedia Commons.
+La lista de ids está en src/main/catalog.js.
