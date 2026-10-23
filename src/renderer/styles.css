@@ -336,3 +336,19 @@ input[type=range] { accent-color: var(--accent); width: 100%; }
 .model-card.soon:hover { transform: none; }
 .soon-img { height: 150px; display: grid; place-items: center; align-content: center; gap: 4px; border-radius: 12px; background: repeating-linear-gradient(135deg, rgba(255,176,32,.08) 0 14px, transparent 14px 28px); border: 1px dashed rgba(255,176,32,.45); margin-bottom: 10px; }
 .soon-img span { font-size: 34px; } .soon-img b { color: #FFB020; letter-spacing: .08em; text-transform: uppercase; font-size: 13px; }
+
+/* rutas de bus */
+.route-card { border-top: 3px solid var(--rc); }
+.route-code { display: inline-grid; place-items: center; min-width: 44px; height: 34px; padding: 0 8px; border-radius: 9px; background: var(--rc, #FF9F1C); color: #111; font-family: var(--display); font-weight: 800; font-size: 15px; flex: none; }
+.route-line { display: flex; flex-wrap: wrap; align-items: flex-start; margin: 14px 0; row-gap: 12px; }
+.rstop { position: relative; display: grid; justify-items: center; gap: 6px; min-width: 84px; flex: 1; font-size: 12px; text-align: center; color: var(--muted); }
+.rstop::before { content: ''; position: absolute; top: 6px; left: -50%; width: 100%; height: 3px; background: var(--rc, #FF9F1C); opacity: .5; z-index: 0; }
+.rstop:first-child::before { display: none; }
+.rstop i { width: 14px; height: 14px; border-radius: 50%; background: var(--panel); border: 3px solid var(--rc, #FF9F1C); z-index: 1; }
+.rstop.end i { background: var(--rc, #FF9F1C); }
+.rstop.end span { color: var(--text); font-weight: 600; }
+.route-line.live { --rc: #19C3B1; }
+.rstop.done i { background: #19C3B1; } .rstop.done span { color: var(--text); }
+.rstop.next i { background: #FFB020; border-color: #FFB020; box-shadow: 0 0 0 5px rgba(255,176,32,.25); } .rstop.next span { color: #FFB020; font-weight: 700; }
+.route-pick { display: flex; align-items: center; gap: 10px; padding: 12px; border-radius: 12px; border: 1px solid var(--line); background: var(--bg); color: var(--text); cursor: pointer; border-left: 4px solid var(--rc); font: inherit; }
+.route-pick:hover { background: rgba(255,255,255,.04); }

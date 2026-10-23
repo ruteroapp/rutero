@@ -33,12 +33,13 @@ const CICONS = {
   maintenance: CI('<path d="m14.7 6.3 3-3a5 5 0 0 1-6.4 6.4l-7 7a1.9 1.9 0 0 1-2.7-2.7l7-7a5 5 0 0 1 6.4-6.4l-3 3 .3 2.4z"/><path d="m14 15 5.5 5.5 2-2L16 13z"/>'),
   calendar: CI('<path d="M7 2h2v3H7zM15 2h2v3h-2z"/><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18" stroke="#141A2C" stroke-width="2"/>'),
   events: CI('<rect x="3" y="4" width="18" height="17" rx="2"/><path d="M6 11h3v3H6zm5 0h3v3h-3zm5 0h2v3h-2zM6 16h3v2H6zm5 0h3v2h-3z" fill="#141A2C"/>'),
+  busroutes: CI('<path d="M5 3h14a2 2 0 0 1 2 2v11a2 2 0 0 1-1 1.7V20a1 1 0 0 1-1 1h-1a1 1 0 0 1-1-1v-1H7v1a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-2.3A2 2 0 0 1 3 16V5a2 2 0 0 1 2-2z"/><path d="M5 6h14v5H5z" fill="#141A2C"/><circle cx="7.5" cy="14.5" r="1.3" fill="#141A2C"/><circle cx="16.5" cy="14.5" r="1.3" fill="#141A2C"/>'),
   news: CI('<path d="M3 4h14v16H5a2 2 0 0 1-2-2z"/><path d="M17 8h4v10a2 2 0 0 1-4 0z"/><path d="M6 8h8v2H6zm0 4h8v1.5H6zm0 3h5v1.5H6z" fill="#141A2C"/>'),
 };
 const CNAV = [
   ['Compañía', [['dashboard', 'Tablero de mandos', '#FF5A8A'], ['settings', 'Ajustes de compañía', '#FF5A8A', 'mgr']]],
   ['Miembros', [['members', 'Miembros', '#9B7BFF'], ['roles', 'Roles', '#FF5A8A'], ['tags', 'Etiquetas', '#9B7BFF'], ['ranks', 'Rangos', '#19C3B1'], ['requests', 'Solicitudes', '#FF5A8A', 'mgr']]],
-  ['Trabajos', [['jobs', 'Trabajos', '#9B7BFF'], ['stats', 'Estadísticas', '#FF5A8A'], ['fines', 'Multas', '#FF9F1C']]],
+  ['Trabajos', [['jobs', 'Trabajos', '#9B7BFF'], ['busroutes', 'Rutas de bus', '#FF9F1C'], ['stats', 'Estadísticas', '#FF5A8A'], ['fines', 'Multas', '#FF9F1C']]],
   ['Flota y finanzas', [['balance', 'Saldo', '#19C3B1'], ['garages', 'Garajes', '#19C3B1'], ['fleet', 'Flota', '#FF5A8A'], ['dealer', 'Concesionario', '#4C8DFF'], ['maintenance', 'Mantenimiento', '#FF5A5F']]],
   ['Eventos', [['calendar', 'Calendario', '#9B7BFF'], ['events', 'Eventos', '#9B7BFF']]],
   ['Contenido', [['news', 'Noticias', '#FF5A8A']]],
@@ -400,6 +401,25 @@ const SECTIONS = {
       ${past.length ? `<h2 style="margin-top:22px">Eventos pasados</h2><div class="card">${past.slice(0, 15).map((e) => `<div class="list-item"><span class="muted" style="width:110px">${dayStr(e.date)}</span><b style="flex:1">${esc(e.title)}</b><span class="muted">${(e.attendees || []).length} asistentes</span></div>`).join('')}</div>` : ''}`;
   },
   // ---------------------------------------------------------- CONTENIDO
+  // ---------------------------------------------------------- RUTAS DE BUS
+  async busroutes(c) {
+    const routes = c.busRoutes || [];
+    const done = (r) => c.jobs.filter((j) => j.routeId === r.id);
+    S.busRoutes = routes;
+    return head('Rutas de bus', 'Líneas de autobús de la empresa con sus paradas, billete y pago extra', S.mgr ? '<button class="btn primary" id="route-new">＋ Nueva ruta</button>' : '') +
+      (routes.length ? `<div class="grid g2">${routes.map((r) => { const d = done(r); const full = d.filter((j) => j.routeDone).length;
+        return `<div class="card route-card" style="--rc:${esc(r.color || '#FF9F1C')}">
+        <div class="row between" style="align-items:flex-start"><div class="row" style="gap:10px;flex-wrap:nowrap;min-width:0"><span class="route-code">${esc(r.code || '🚌')}</span>
+          <div style="min-width:0"><h2 style="margin:0">${esc(r.name)}</h2><div class="muted" style="font-size:12px">${esc(r.stops[0])} → ${esc(r.stops[r.stops.length - 1])} · ${r.stops.length} paradas${r.game && r.game !== 'any' ? ` · ${r.game.toUpperCase()}` : ''}</div></div></div>
+          ${r.active === false ? '<span class="pill">Pausada</span>' : '<span class="pill ok">Activa</span>'}</div>
+        <div class="route-line">${r.stops.map((s, i) => `<div class="rstop ${i === 0 || i === r.stops.length - 1 ? 'end' : ''}"><i></i><span>${esc(s)}</span></div>`).join('')}</div>
+        ${r.description ? `<div class="muted" style="font-size:13px;margin-bottom:10px;white-space:pre-wrap">${esc(r.description)}</div>` : ''}
+        <div class="grid g3" style="margin-bottom:12px"><div class="mini-stat"><span>Billete</span><b>${money(r.fare)}</b></div><div class="mini-stat"><span>Pago extra</span><b>${money(r.bonus || 0)}</b></div><div class="mini-stat"><span>Completada</span><b>${full}×</b></div></div>
+        <div class="row">${r.active === false ? '' : `<button class="btn primary sm" data-drive="${r.id}">▶ Conducir esta ruta</button>`}
+          ${S.mgr ? `<button class="btn sm" data-editroute="${r.id}">Editar</button><button class="btn sm ghost" data-delroute="${r.id}">Borrar</button>` : ''}</div></div>`; }).join('')}</div>`
+        : `<div class="card"><div class="empty"><div class="big">🚏</div>La empresa todavía no tiene rutas de bus.${S.mgr ? '<br>Crea la primera con «Nueva ruta».' : ''}</div></div>`) +
+      '<div class="notice" style="margin-top:16px">Cada vez que te detienes 12 segundos cuenta como la siguiente parada de la lista. Si haces todas las paradas, cobras el pago extra de la ruta.</div>';
+  },
   async news(c) {
     const list = [...c.news].sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0));
     return head('Noticias', 'Avisos y novedades para los conductores', S.mgr ? '<button class="btn primary" id="news-new">＋ Publicar noticia</button>' : '') +
@@ -688,6 +708,23 @@ function mountCompany(root) {
   });
 
   // noticias
+  // rutas de bus
+  const routeForm = (r = {}) => formModal(r.id ? 'Editar ruta' : 'Nueva ruta de bus', `
+      <div class="grid g2"><label class="field"><span>Código de línea</span><input type="text" id="rt-code" maxlength="8" placeholder="L1" value="${esc(r.code || '')}"></label>
+        <label class="field"><span>Nombre</span><input type="text" id="rt-name" maxlength="60" placeholder="Exprés de la costa" value="${esc(r.name || '')}"></label></div>
+      <label class="field"><span>Paradas (una por línea: la primera es la salida y la última el destino)</span><textarea id="rt-stops" rows="7" placeholder="Barcelona&#10;Tarragona&#10;Castellón&#10;Valencia">${esc((r.stops || []).join('\n'))}</textarea></label>
+      <div class="grid g3"><label class="field"><span>Precio billete</span><input type="number" id="rt-fare" min="0" step="0.5" value="${r.fare ?? 3}"></label>
+        <label class="field"><span>Pago extra al completar</span><input type="number" id="rt-bonus" min="0" step="100" value="${r.bonus ?? 500}"></label>
+        <label class="field"><span>Juego</span><select id="rt-game"><option value="any">Cualquiera</option><option value="ets2" ${r.game === 'ets2' ? 'selected' : ''}>ETS2</option><option value="ats" ${r.game === 'ats' ? 'selected' : ''}>ATS</option></select></label></div>
+      <div class="grid g2"><label class="field"><span>Color</span>${colorInput('rt-color', r.color || '#FF9F1C')}</label>
+        <label class="row" style="align-self:end"><span class="switch"><input type="checkbox" id="rt-active" ${r.active === false ? '' : 'checked'}><i></i></span> Ruta activa</label></div>
+      <label class="field"><span>Descripción</span><textarea id="rt-desc" rows="2" maxlength="600" placeholder="Servicio diario, salida a las 21:00 en Simulation 1">${esc(r.description || '')}</textarea></label>`,
+    async (bg) => { await K.call('company:busroute', { id: r.id, code: $('#rt-code', bg).value, name: $('#rt-name', bg).value, stops: $('#rt-stops', bg).value, fare: $('#rt-fare', bg).value, bonus: $('#rt-bonus', bg).value, game: $('#rt-game', bg).value, color: $('#rt-color', bg).value, active: $('#rt-active', bg).checked, description: $('#rt-desc', bg).value });
+      toast({ title: 'Ruta guardada 🚌', body: $('#rt-name', bg).value }); }, r.id ? 'Guardar cambios' : 'Crear ruta');
+  on('#route-new', async () => routeForm());
+  $$('[data-editroute]', root).forEach((b) => b.onclick = () => routeForm((S.busRoutes || []).find((r) => r.id === b.dataset.editroute)));
+  $$('[data-delroute]', root).forEach((b) => b.onclick = () => act(b, async () => { if (!confirm('¿Borrar esta ruta?')) return; await K.call('company:busrouteDel', b.dataset.delroute); render(); }));
+  $$('[data-drive]', root).forEach((b) => b.onclick = () => act(b, async () => { await startCompanyRoute((S.busRoutes || []).find((r) => r.id === b.dataset.drive)); }));
   on('#news-new', async () => {
     let img = '';
     formModal('Publicar noticia', `<label class="field"><span>Título</span><input type="text" id="n-t" maxlength="90"></label><label class="field"><span>Texto</span><textarea id="n-b" rows="6" maxlength="4000"></textarea></label>

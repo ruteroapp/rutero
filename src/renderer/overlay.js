@@ -39,7 +39,7 @@ K.on('telemetry', (t) => {
   else { l.textContent = '—'; l.style.opacity = .4; l.classList.remove('over'); }
   $('rpm').style.width = `${Math.min(100, (t.rpm / (t.rpmMax || 2500)) * 100)}%`;
   const j = t.job;
-  if (bus) $('j').textContent = `🚌 ${bus.line} · parada ${bus.stops} · ${bus.onBoard} a bordo`;
+  if (bus) $('j').textContent = `🚌 ${bus.line} · ${bus.next ? `${RI18N.tr('próxima')}: ${bus.next}` : `${RI18N.tr('parada')} ${bus.stops}`} · ${bus.onBoard} ${RI18N.tr('a bordo')}`;
   else $('j').textContent = j ? `📦 ${j.cargo} → ${j.to}` : 'Sin carga';
   $('r').textContent = t.routeKm > 0 ? `${c(t.routeKm).toLocaleString(LOC())} ${imperial ? 'mi' : 'km'}` : '—';
   $('e').textContent = fmtMin(t.routeMin);

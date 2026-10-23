@@ -509,19 +509,33 @@ const PAGE_STATS = {
 };
 
 // ------------------------------------------------------------------ AUTOBÚS
+// empieza una ruta de bus de la empresa y abre el modo autobús
+async function startCompanyRoute(r) {
+  if (!r) return;
+  if (S.bus) throw new Error('Ya tienes una ruta en marcha: termínala o cancélala en Modo autobús');
+  S.bus = await K.call('bus:start', { line: `${r.code ? r.code + ' · ' : ''}${r.name}`, from: r.stops[0], to: r.stops[r.stops.length - 1], fare: r.fare, routeId: r.id, stopNames: r.stops, bonus: r.bonus, color: r.color });
+  toast({ title: 'Ruta empezada 🚌', body: `${r.name} · ${r.stops.length} paradas` });
+  go('bus');
+}
 const PAGE_BUS = {
   id: 'bus',
   async html() {
     const b = S.bus; const trips = S.data.jobs.filter((j) => j.type === 'bus');
+    const me = (S.profile && S.profile.online) || {};
+    let routes = [];
+    if (!b && me.companyId) { try { const c = S.company && S.company.info && S.company.info.id === me.companyId ? S.company : await K.call('company:get'); routes = ((c && c.busRoutes) || []).filter((r) => r.active !== false); } catch { routes = []; } }
+    S.busRoutes = routes;
     S.busView = trips;
     const isBus = S.live && /bus|coach|autob|setra|irizar|intercity|citaro|lion|neoplan|solaris|urbino/i.test(`${S.live.truck.brand} ${S.live.truck.name}`);
     return `<div class="page-head"><div><h1>Modo autobús</h1><div class="subtitle">Rutas de pasajeros con paradas, billetes y puntuación</div></div></div>
     ${isBus && !b ? '<div class="notice" style="margin-bottom:16px">🚌 Parece que conduces un autobús. ¡Empieza una ruta!</div>' : ''}
     ${b ? `<div class="card"><div class="card-title"><h2>${esc(b.line)} · ${esc(b.from || '?')} → ${esc(b.to || '?')}</h2><span class="pill ok"><span class="dot"></span>En servicio</span></div>
       <div class="grid g4" id="bus-live"></div>
-      <div class="notice" style="margin-top:14px">Detente al menos 12 segundos en cada parada para que suban y bajen pasajeros.</div>
+      ${b.stopNames && b.stopNames.length ? `<div class="route-line live" id="bus-stops"></div>` : ''}
+      <div class="notice" style="margin-top:14px">Detente al menos 12 segundos en cada parada para que suban y bajen pasajeros.${b.bonus ? ` Si haces las ${b.stopNames.length} paradas cobras ${money(b.bonus)} extra.` : ''}</div>
       <div class="row" style="margin-top:16px"><button class="btn primary" id="bus-end">Terminar ruta y cobrar</button><button class="btn danger" id="bus-cancel">Cancelar</button></div></div>`
-    : `<div class="card"><h2>Nueva ruta</h2><div class="grid g4">
+    : `${routes.length ? `<div class="card" style="margin-bottom:16px"><h2>Rutas de tu empresa</h2><div class="grid g3">${routes.map((r) => `<button class="route-pick" data-pickroute="${r.id}" style="--rc:${esc(r.color || '#FF9F1C')}"><span class="route-code">${esc(r.code || '🚌')}</span><span style="flex:1;min-width:0;text-align:left"><b>${esc(r.name)}</b><span class="muted" style="display:block;font-size:12px">${esc(r.stops[0])} → ${esc(r.stops[r.stops.length - 1])} · ${r.stops.length} paradas · ${money(r.fare)}</span></span><span>▶</span></button>`).join('')}</div></div>` : ''}
+    <div class="card"><h2>Nueva ruta</h2><div class="grid g4">
         <label class="field"><span>Línea</span><input type="text" id="b-line" placeholder="L1 Express"></label>
         <label class="field"><span>Salida</span><input type="text" id="b-from" placeholder="Madrid"></label>
         <label class="field"><span>Destino</span><input type="text" id="b-to" placeholder="Valencia"></label>
@@ -538,6 +552,7 @@ const PAGE_BUS = {
     if (en) en.onclick = () => act(en, async () => { await K.call('bus:end'); S.bus = null; await refreshState(); render(); });
     const ca = $('#bus-cancel');
     if (ca) ca.onclick = async () => { await K.call('bus:cancel'); S.bus = null; render(); };
+    $$('[data-pickroute]', root).forEach((b) => b.onclick = () => act(b, () => startCompanyRoute(S.busRoutes.find((r) => r.id === b.dataset.pickroute))));
     bindTrips(root, S.busView);
     updateBus();
   },
@@ -548,6 +563,8 @@ function updateBus() {
   el.innerHTML = [['Paradas', b.stops], ['A bordo', b.onBoard], ['Pasajeros totales', b.passengers], ['Distancia', dist(b.km, 1)],
     ['Billetes', money(b.passengers * b.fare)], ['Tiempo', dur((Date.now() - b.startedAt) / 60000)], ['Vel. máx.', `${spd(b.maxSpeed)} ${spdUnit()}`], ['Exceso velocidad', `${Math.round(b.speedingSec)} s`]]
     .map(([k, v]) => `<div class="stat"><span class="k">${k}</span><span class="v mono" style="font-size:26px">${esc(v)}</span></div>`).join('');
+  const st = $('#bus-stops');
+  if (st && b.stopNames) st.innerHTML = b.stopNames.map((s, i) => `<div class="rstop ${i < b.stops ? 'done' : i === b.stops ? 'next' : ''}"><i></i><span>${esc(s)}</span></div>`).join('');
 }
 
 // ------------------------------------------------------------------ RANKING

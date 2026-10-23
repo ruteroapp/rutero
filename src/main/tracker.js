@@ -147,8 +147,10 @@ class Tracker {
   }
 
   // ------------------------------------------------------------------ Autobús
-  startBus({ line, from, to, fare = 2.5 }) {
-    this.bus = { line: line || 'Línea 1', from, to, fare: Number(fare) || 2.5, startedAt: Date.now(), km: 0, stops: 0, passengers: 0, onBoard: 0, stoppedSec: 0, sinceLastStopKm: 0, drivingSec: 0, speedingSec: 0, maxSpeed: 0, events: [] };
+  startBus({ line, from, to, fare = 2.5, routeId = '', stopNames = [], bonus = 0, color = '' }) {
+    const names = (stopNames || []).map(String).filter(Boolean);
+    this.bus = { line: line || 'Línea 1', from: from || names[0] || '', to: to || names[names.length - 1] || '', fare: Number(fare) || 2.5, startedAt: Date.now(),
+      routeId, stopNames: names, bonus: Math.max(0, Number(bonus) || 0), color, next: names[0] || '', km: 0, stops: 0, passengers: 0, onBoard: 0, stoppedSec: 0, sinceLastStopKm: 0, drivingSec: 0, speedingSec: 0, maxSpeed: 0, events: [] };
     this.emit('bus:update', this.bus);
   }
   busFrame(t, dt, dKm) {
@@ -164,8 +166,10 @@ class Tracker {
         const on = 2 + Math.floor(Math.random() * 18);
         b.onBoard = Math.min(60, b.onBoard - off + on);
         b.passengers += on; b.stops += 1; b.sinceLastStopKm = 0;
-        b.events.push({ stop: b.stops, on, off, at: Date.now() });
-        this.emit('bus:stop', { stop: b.stops, on, off, onBoard: b.onBoard });
+        const name = b.stopNames[b.stops - 1] || '';
+        b.next = b.stopNames[b.stops] || '';
+        b.events.push({ stop: b.stops, name, on, off, at: Date.now() });
+        this.emit('bus:stop', { stop: b.stops, name, on, off, onBoard: b.onBoard });
       }
     }
     this.emit('bus:update', b);
@@ -174,8 +178,11 @@ class Tracker {
     const b = this.bus; if (!b) return null;
     const score = Tracker.score({ drivingSec: b.drivingSec, speedingSec: b.speedingSec, damage: 0 });
     const tickets = Math.round(b.passengers * b.fare);
-    const revenue = Math.round(tickets + b.km * 0.9 + (score >= 90 && b.km > 1 ? 50 : 0));
-    const trip = { type: 'bus', line: b.line, from: b.from, to: b.to, startedAt: b.startedAt, finishedAt: Date.now(), km: b.km, stops: b.stops, passengers: b.passengers, tickets, revenue, score, maxSpeed: b.maxSpeed, status: 'delivered' };
+    const routeDone = !!(b.routeId && b.stopNames.length && b.stops >= b.stopNames.length);
+    const routeBonus = routeDone ? Math.round(b.bonus) : 0;
+    const revenue = Math.round(tickets + b.km * 0.9 + (score >= 90 && b.km > 1 ? 50 : 0) + routeBonus);
+    const trip = { type: 'bus', line: b.line, from: b.from, to: b.to, startedAt: b.startedAt, finishedAt: Date.now(), km: b.km, stops: b.stops, passengers: b.passengers, tickets, revenue, score, maxSpeed: b.maxSpeed, status: 'delivered',
+      routeId: b.routeId || '', routeDone, routeBonus, stopNames: b.stopNames, events: b.events };
     this.bus = null;
     this.emit('bus:finished', trip);
     return trip;

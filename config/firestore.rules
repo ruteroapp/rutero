@@ -69,6 +69,7 @@ service cloud.firestore {
       }
       match /garages/{g} { allow read: if signed(); allow write: if isManager(cid); }
       match /news/{n} { allow read: if signed(); allow write: if isManager(cid); }
+      match /busroutes/{r} { allow read: if signed(); allow write: if isManager(cid); }
       match /events/{e} {
         allow read: if signed();
         allow create, delete: if isManager(cid);

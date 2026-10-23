@@ -335,9 +335,9 @@ function startTelemetry() {
       case 'job:started': { const { samples, expenses, ...d } = data; data = d; } send('job', data); toast('Nueva carga', `${data.cargo}: ${data.from} → ${data.to}`); break;
       case 'job:delivered': handleTrip({ type: 'cargo', ...data }); toast('Carga entregada ✅', `${data.cargo} · ${Math.round(data.km)} km · ${data.score} pts`, 'money'); break;
       case 'job:cancelled': handleTrip({ type: 'cargo', ...data }); toast('Trabajo cancelado', `Penalización ${Math.abs(data.revenue).toLocaleString(I18N.locale())}`, 'warn'); break;
-      case 'bus:finished': handleTrip(data); toast('Ruta de autobús terminada 🚌', `${data.stops} paradas · ${data.passengers} pasajeros`, 'money'); break;
+      case 'bus:finished': handleTrip(data); toast(data.routeDone ? 'Ruta completada 🚌✅' : 'Ruta de autobús terminada 🚌', `${data.stops} paradas · ${data.passengers} pasajeros${data.routeBonus ? ` · +${data.routeBonus.toLocaleString(I18N.locale())} extra` : ''}`, 'money'); break;
       case 'bus:update': send('bus', data); sendOverlay('bus', data); break;
-      case 'bus:stop': toast(`Parada ${data.stop}`, `Suben ${data.on} · bajan ${data.off} · a bordo ${data.onBoard}`); break;
+      case 'bus:stop': toast(data.name ? `Parada ${data.stop}: ${data.name}` : `Parada ${data.stop}`, `Suben ${data.on} · bajan ${data.off} · a bordo ${data.onBoard}`); break;
       case 'expense': {
         const names = { fine: 'Multa', toll: 'Peaje', ferry: 'Ferry', train: 'Tren' };
         store.push('expenses', { ...data, at: Date.now() }, 2000);
@@ -526,6 +526,8 @@ function registerIpc() {
   h('company:deleteEvent', (id) => cloud.deleteEvent(me.companyId, id));
   h('company:attend', (id, going) => cloud.attendEvent(me.companyId, id, me.name || '', going));
   h('company:news', (n) => cloud.postNews(me.companyId, n, me));
+  h('company:busroute', (r) => cloud.saveBusRoute(me.companyId, r, me));
+  h('company:busrouteDel', (id) => cloud.deleteBusRoute(me.companyId, id));
   h('company:deleteNews', (id) => cloud.deleteNews(me.companyId, id));
   h('company:assign', (truckId, driver) => cloud.assignTruck(me.companyId, truckId, driver));
   h('company:sell', (truck) => cloud.sellTruck(me.companyId, truck, me));

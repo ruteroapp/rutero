@@ -153,7 +153,7 @@ class Cloud {
       fromCompany: trip.fromCompany || '', toCompany: trip.toCompany || '',
       km, revenue: Math.round(trip.revenue || 0), net: Math.round(split.net), companyCut: Math.round(split.companyCut), salary,
       damage: Number(trip.damage || 0), score: trip.score || 0, xp: trip.xp || 0, truck: trip.truck || '',
-      stops: trip.stops || 0, passengers: trip.passengers || 0,
+      stops: trip.stops || 0, passengers: trip.passengers || 0, routeId: trip.routeId || '', routeDone: !!trip.routeDone,
       avgSpeed: trip.avgSpeed || 0, maxSpeed: Math.round(trip.maxSpeed || 0), durationMin: trip.durationMin || 0,
       fuelUsed: Math.round(trip.fuelUsed || 0), fineCount: trip.fineCount || 0, fines: Math.round(trip.fines || 0), tolls: Math.round(trip.tolls || 0),
       speedingSec: Math.round(trip.speedingSec || 0), cruiseSec: Math.round(trip.cruiseSec || 0),
@@ -344,13 +344,13 @@ class Cloud {
   }
   async company(id) {
     const sub = (col, field, limit = 60) => this.query(`companies/${id}`, { from: [{ collectionId: col }], orderBy: [{ field: { fieldPath: field }, direction: 'DESCENDING' }], limit }).catch(() => []);
-    const [info, members, jobs, bank, fleet, accounts, fines, requests, garages, events, news] = await Promise.all([
+    const [info, members, jobs, bank, fleet, accounts, fines, requests, garages, events, news, busRoutes] = await Promise.all([
       this.getDoc(`companies/${id}`),
       sub('members', 'km', 200), sub('jobs', 'finishedAt', 200), sub('bank', 'at', 100), sub('fleet', 'boughtAt', 200),
       sub('accounts', 'createdAt', 50), sub('fines', 'at', 100), sub('requests', 'at', 50),
-      sub('garages', 'boughtAt', 50), sub('events', 'date', 60), sub('news', 'at', 40),
+      sub('garages', 'boughtAt', 50), sub('events', 'date', 60), sub('news', 'at', 40), sub('busroutes', 'createdAt', 100),
     ]);
-    return { info, members, jobs, bank, fleet, accounts, fines, garages, events, news, requests: requests.filter((r) => r.status === 'pending') };
+    return { info, members, jobs, bank, fleet, accounts, fines, garages, events, news, busRoutes, requests: requests.filter((r) => r.status === 'pending') };
   }
   async browseCompanies() {
     // sin el banner (pesa mucho): se carga al abrir la ficha de la empresa
@@ -573,6 +573,21 @@ class Cloud {
     if (!title) throw new Error('Pon un título a la noticia');
     await this.commit([this.create(`companies/${id}/news/${newId()}`, { title, body: body || '', image: image || '', pinned: !!pinned, author: me.name || '', authorPhoto: me.photo || '', at: new Date() })]);
   }
+  // ---------- rutas de autobús de la empresa ----------
+  async saveBusRoute(cid, r, me) {
+    const stops = (Array.isArray(r.stops) ? r.stops : String(r.stops || '').split('\n')).map((s) => String(s).trim()).filter(Boolean).slice(0, 40);
+    if (!String(r.name || '').trim()) throw new Error('Pon un nombre a la ruta');
+    if (stops.length < 2) throw new Error('La ruta necesita al menos 2 paradas (salida y destino)');
+    const data = {
+      code: String(r.code || '').trim().slice(0, 8), name: String(r.name).trim().slice(0, 60), color: r.color || '#FF9F1C',
+      game: ['ets2', 'ats', 'any'].includes(r.game) ? r.game : 'any', stops,
+      fare: Math.max(0, Math.min(500, Number(r.fare) || 0)), bonus: Math.max(0, Math.min(100000, Math.round(Number(r.bonus) || 0))),
+      description: String(r.description || '').slice(0, 600), active: r.active !== false,
+    };
+    if (r.id) await this.commit([this.upd(`companies/${cid}/busroutes/${r.id}`, data)]);
+    else await this.commit([this.create(`companies/${cid}/busroutes/${newId()}`, { ...data, createdBy: me.name || '', createdAt: new Date() })]);
+  }
+  async deleteBusRoute(cid, rid) { await this.commit([{ delete: this.path(`companies/${cid}/busroutes/${rid}`) }]); }
   async deleteNews(id, nId) { await this.commit([{ delete: this.path(`companies/${id}/news/${nId}`) }]); }
 
   async assignTruck(id, truckId, driverName) { await this.commit([this.upd(`companies/${id}/fleet/${truckId}`, { assignedTo: driverName || '' })]); }

@@ -746,3 +746,35 @@ Trabajo pesado · cabina corta | Heavy duty · day cab | Usage intensif · cabin
 Trabajo pesado · cabina con litera | Heavy duty · sleeper cab | Usage intensif · cabine couchette | Schwerlast · Schlafkabine | Uso pesante · cabina con cuccetta | Trabalho pesado · cabine leito | Ciężka praca · kabina sypialna
 Trabajo pesado · litera alta | Heavy duty · high sleeper | Usage intensif · couchette haute | Schwerlast · hohe Schlafkabine | Uso pesante · cuccetta alta | Trabalho pesado · leito alto | Ciężka praca · wysoka sypialna
 Larga distancia · litera alta | Long haul · high sleeper | Longue distance · couchette haute | Fernverkehr · hohe Schlafkabine | Lunga percorrenza · cuccetta alta | Longa distância · leito alto | Długodystansowy · wysoka sypialna
+próxima | next | prochain | nächster | prossima | próxima | następny
+parada | stop | arrêt | Halt | fermata | parada | przystanek
+Rutas de bus | Bus routes | Lignes de bus | Buslinien | Linee bus | Rotas de ônibus | Trasy autobusowe
+Líneas de autobús de la empresa con sus paradas, billete y pago extra | Company bus lines with their stops, fare and extra pay | Lignes de bus de l'entreprise avec arrêts, tarif et prime | Buslinien der Firma mit Haltestellen, Fahrpreis und Zusatzbezahlung | Linee di autobus dell'azienda con fermate, biglietto e paga extra | Linhas de ônibus da empresa com paradas, passagem e pagamento extra | Linie autobusowe firmy z przystankami, ceną biletu i premią
+Nueva ruta | New route | Nouvelle ligne | Neue Linie | Nuova linea | Nova rota | Nowa trasa
+Nueva ruta de bus | New bus route | Nouvelle ligne de bus | Neue Buslinie | Nuova linea di autobus | Nova rota de ônibus | Nowa trasa autobusowa
+Editar ruta | Edit route | Modifier la ligne | Linie bearbeiten | Modifica linea | Editar rota | Edytuj trasę
+# paradas | # stops | # arrêts | # Haltestellen | # fermate | # paradas | # przystanków
+Pausada | Paused | En pause | Pausiert | In pausa | Pausada | Wstrzymana
+Activa | Active | Active | Aktiv | Attiva | Ativa | Aktywna
+Billete | Fare | Billet | Fahrpreis | Biglietto | Passagem | Bilet
+Pago extra | Extra pay | Prime | Zusatzbezahlung | Paga extra | Pagamento extra | Premia
+Completada | Completed | Terminée | Abgeschlossen | Completata | Concluída | Ukończona
+#× | #× | #× | #× | #× | #× | #×
+Conducir esta ruta | Drive this route | Conduire cette ligne | Diese Linie fahren | Guida questa linea | Dirigir esta rota | Jedź tą trasą
+La empresa todavía no tiene rutas de bus. | The company has no bus routes yet. | L'entreprise n'a pas encore de lignes de bus. | Die Firma hat noch keine Buslinien. | L'azienda non ha ancora linee di autobus. | A empresa ainda não tem rotas de ônibus. | Firma nie ma jeszcze tras autobusowych.
+Crea la primera con «Nueva ruta». | Create the first one with “New route”. | Crée la première avec « Nouvelle ligne ». | Erstelle die erste mit „Neue Linie“. | Crea la prima con «Nuova linea». | Crie a primeira em «Nova rota». | Utwórz pierwszą przyciskiem „Nowa trasa”.
+Cada vez que te detienes # segundos cuenta como la siguiente parada de la lista. Si haces todas las paradas, cobras el pago extra de la ruta. | Each time you stop for # seconds it counts as the next stop on the list. Do every stop and you get the route's extra pay. | Chaque arrêt de # secondes compte comme l'arrêt suivant de la liste. Fais tous les arrêts pour toucher la prime de la ligne. | Jeder Halt von # Sekunden zählt als nächste Haltestelle der Liste. Fährst du alle an, bekommst du die Zusatzbezahlung. | Ogni sosta di # secondi conta come la fermata successiva. Facendo tutte le fermate ricevi la paga extra. | Cada parada de # segundos conta como a próxima da lista. Fazendo todas, você recebe o pagamento extra. | Każdy postój # sekund liczy się jako kolejny przystanek. Zalicz wszystkie, a dostaniesz premię.
+Código de línea | Line code | Code de ligne | Linienkürzel | Codice linea | Código da linha | Kod linii
+Paradas (una por línea: la primera es la salida y la última el destino) | Stops (one per line: the first is the start and the last the destination) | Arrêts (un par ligne : le premier est le départ, le dernier la destination) | Haltestellen (eine pro Zeile: die erste ist der Start, die letzte das Ziel) | Fermate (una per riga: la prima è la partenza, l'ultima la destinazione) | Paradas (uma por linha: a primeira é a saída e a última o destino) | Przystanki (jeden w linii: pierwszy to start, ostatni to cel)
+Pago extra al completar | Extra pay on completion | Prime à l'arrivée | Zusatzbezahlung bei Abschluss | Paga extra al completamento | Pagamento extra ao concluir | Premia za ukończenie
+Ruta activa | Active route | Ligne active | Linie aktiv | Linea attiva | Rota ativa | Trasa aktywna
+Crear ruta | Create route | Créer la ligne | Linie erstellen | Crea linea | Criar rota | Utwórz trasę
+Ruta guardada 🚌 | Route saved 🚌 | Ligne enregistrée 🚌 | Linie gespeichert 🚌 | Linea salvata 🚌 | Rota salva 🚌 | Trasa zapisana 🚌
+¿Borrar esta ruta? | Delete this route? | Supprimer cette ligne ? | Diese Linie löschen? | Eliminare questa linea? | Apagar esta rota? | Usunąć tę trasę?
+Rutas de tu empresa | Your company's routes | Lignes de ton entreprise | Linien deiner Firma | Linee della tua azienda | Rotas da sua empresa | Trasy twojej firmy
+Ruta empezada 🚌 | Route started 🚌 | Ligne démarrée 🚌 | Linie gestartet 🚌 | Linea iniziata 🚌 | Rota iniciada 🚌 | Trasa rozpoczęta 🚌
+Ruta completada 🚌✅ | Route completed 🚌✅ | Ligne terminée 🚌✅ | Linie abgeschlossen 🚌✅ | Linea completata 🚌✅ | Rota concluída 🚌✅ | Trasa ukończona 🚌✅
+Pon un nombre a la ruta | Name the route | Donne un nom à la ligne | Gib der Linie einen Namen | Dai un nome alla linea | Dê um nome à rota | Nazwij trasę
+La ruta necesita al menos # paradas (salida y destino) | The route needs at least # stops (start and destination) | La ligne doit avoir au moins # arrêts (départ et destination) | Die Linie braucht mindestens # Haltestellen (Start und Ziel) | La linea richiede almeno # fermate (partenza e destinazione) | A rota precisa de pelo menos # paradas (saída e destino) | Trasa potrzebuje co najmniej # przystanków (start i cel)
+Ya tienes una ruta en marcha: termínala o cancélala en Modo autobús | You already have a route running: finish or cancel it in Bus mode | Tu as déjà une ligne en cours : termine-la ou annule-la dans Mode bus | Du hast schon eine Linie aktiv: beende oder brich sie im Busmodus ab | Hai già una linea in corso: terminala o annullala in Modalità autobus | Você já tem uma rota em andamento: termine ou cancele no Modo ônibus | Masz już trwającą trasę: zakończ lub anuluj ją w Trybie autobusu
+Si haces las # paradas cobras # € extra. | Do all # stops and you get # € extra. | Fais les # arrêts et touche # € de plus. | Fährst du alle # Haltestellen an, bekommst du # € extra. | Facendo le # fermate ricevi # € extra. | Fazendo as # paradas você ganha # € extra. | Zalicz # przystanków, a dostaniesz # € extra.
