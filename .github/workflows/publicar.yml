@@ -1,11 +1,12 @@
 # Crea el instalador de Windows y lo publica en GitHub Releases.
-# Se lanza solo al subir una etiqueta de versión (v1.2.3) o a mano desde la pestaña Actions.
+# Se lanza solo cuando cambia la versión en package.json (rama main) o a mano desde la pestaña Actions.
 # No hace falta ningún token personal: usa el token automático de GitHub.
 name: Publicar Rutero
 
 on:
   push:
-    tags: ['v*']
+    branches: [main]
+    paths: ['package.json', '.github/workflows/publicar.yml']
   workflow_dispatch:
 
 permissions:
