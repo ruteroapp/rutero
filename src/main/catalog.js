@@ -113,10 +113,7 @@ const CATALOG = [
   M('Western Star', 'ws-49x-48', '49X 48" Sleeper', C, 'ats', 153690, 'Trabajo pesado · cabina con litera', 't6x4', null, 'us-heavy', '#F4F6F9'),
   M('Western Star', 'ws-49x-72', '49X 72" Sleeper', C, 'ats', 191960, 'Trabajo pesado · litera alta', 't6x4', null, 'us-heavy', '#C0202A'),
   // ---------------- autobuses
-  M('Mercedes-Benz', 'mb-tourismo', 'Tourismo 17 RHD', B, 'all', 380000, 'Autocar 12 m · 51 plazas', 'coach', ['Mercedes-Benz Tourismo', 'Mercedes-Benz Tourismo RHD'], 'coach', '#F4F6F9'),
-  M('Mercedes-Benz', 'mb-travego15', 'Travego 15 SHD', B, 'all', 378000, 'Autocar 12 m · gran turismo', 'coach', ['Mercedes-Benz Travego', 'Mercedes-Benz Travego 15 SHD'], 'coach', '#D92B3A'),
   M('Mercedes-Benz', 'mb-travego16', 'Travego 16 SHD (2022)', B, 'all', 378000, 'Autocar 13 m · 55 plazas', 'coach', ['Mercedes-Benz Travego 16 SHD', 'Mercedes-Benz Travego 2023'], 'coach', '#1E7A4C'),
-  M('Mercedes-Benz', 'mb-citaro', 'Citaro', B, 'all', 192000, 'Urbano 12 m · piso bajo', 'citybus', ['Mercedes-Benz Citaro C2', 'Mercedes-Benz Citaro'], 'citybus', '#D92B3A'),
   // ---------------- remolques e instalaciones (ilustraciones propias)
   M('', 'curtain', 'Semirremolque lona', 'Remolque', 'all', 32000, '13,6 m · 24 t', 'curtain'),
   M('', 'reefer', 'Semirremolque frigorífico', 'Remolque', 'all', 46000, '13,6 m · −25 °C', 'reefer'),
