@@ -79,6 +79,19 @@ function linkBtns(c) {
   return `${c.discord ? `<button class="btn sm discord" data-url="${esc(c.discord)}">💬 Discord</button>` : ''}${c.website ? `<button class="btn sm" data-url="${esc(c.website)}">🌐 Web</button>` : ''}`;
 }
 
+function loanCard(info, mgr) {
+  const L = info.loan || {}; const owed = L.owed || 0;
+  const rate = S.data.loanRate || 10; const auto = S.data.loanAutopay || 30;
+  if (owed > 0) {
+    const paid = Math.max(0, (L.total || owed) - owed); const pct = Math.round(paid / (L.total || owed) * 100);
+    return `<div class="card loan"><h2>🏛️ Préstamo</h2><div class="row between"><span class="muted">Pedido ${money(L.amount || 0)} · ${esc(L.takenBy || '')}</span><b class="mono neg">Falta ${money(owed)}</b></div>
+      <div class="bar" style="margin:10px 0"><i style="width:${pct}%;background:var(--teal)"></i></div><div class="muted" style="font-size:12px">Devuelto ${pct}% · se paga solo con el ${auto}% de cada comisión de entrega</div>
+      ${mgr ? `<div class="row" style="margin-top:12px;flex-wrap:nowrap"><input type="number" id="loan-pay" min="1" max="${owed}" placeholder="Cantidad (máx. ${nf(owed)})"><button class="btn primary" id="loan-pay-btn">Devolver</button><button class="btn ghost" id="loan-pay-all">Todo</button></div>` : ''}</div>`;
+  }
+  return `<div class="card loan"><h2>🏛️ Pedir un préstamo</h2><div class="muted" style="margin-bottom:12px">El banco presta dinero a la empresa con un ${rate}% de interés. Se devuelve solo con el ${auto}% de cada comisión de entrega, o cuando quieras desde aquí.</div>
+    ${mgr ? `<div class="grid g2">${(S.data.loanOptions || [100000, 250000, 500000, 1000000]).map((a) => `<button class="loan-opt" data-loan="${a}"><b>${money(a)}</b><span>Devuelves ${money(Math.round(a * (1 + rate / 100)))}</span></button>`).join('')}</div>` : '<div class="muted">Solo el fundador o un gerente pueden pedir préstamos.</div>'}</div>`;
+}
+
 function companyLogo(info, size = 74) {
   return `<div class="company-logo" style="width:${size}px;height:${size}px;background:${esc((info && info.color) || 'var(--accent)')};font-size:${Math.round(size / 3)}px;overflow:hidden">${info && info.logo ? `<img src="${esc(info.logo)}" style="width:100%;height:100%;object-fit:cover" alt="">` : esc((info && (info.tag || initials(info.name))) || '?')}</div>`;
 }
@@ -311,8 +324,9 @@ const SECTIONS = {
           <button class="btn teal" id="dep-btn" style="margin-top:12px">Ingresar</button></div>
         ${mgr ? `<div class="card"><h2>Mover dinero entre cuentas</h2><div class="grid g2">${accSelect('mv-from', 'Desde')}${accSelect('mv-to', 'Hacia')}</div>
           <div class="row" style="margin-top:12px;flex-wrap:nowrap"><input type="number" id="mv-amt" min="1" placeholder="Cantidad"><button class="btn primary" id="mv-btn">Mover</button></div></div>` : ''}
+        ${loanCard(info, mgr)}
         <div class="card"><h2>Cómo entra el dinero</h2><div class="muted">• ${info.commission}% de cada entrega<br>• ${money(300000)} por cada conductor nuevo<br>• Ingresos de los miembros y ventas</div></div></div>
-      <div class="card"><h2>Movimientos</h2>${c.bank.map((b) => `<div class="list-item"><div class="avatar">${{ commission: '📦', bonus: '💸', salary: '💼', purchase: '🛒', sale: '🏷️', deposit: '🏦', joinbonus: '🎉', move: '🔁', repair: '🔧', info: 'ℹ️' }[b.kind] || '•'}</div>
+      <div class="card"><h2>Movimientos</h2>${c.bank.map((b) => `<div class="list-item"><div class="avatar">${{ commission: '📦', bonus: '💸', salary: '💼', purchase: '🛒', sale: '🏷️', deposit: '🏦', joinbonus: '🎉', move: '🔁', repair: '🔧', info: 'ℹ️', loan: '🏛️', loanpay: '🏛️' }[b.kind] || '•'}</div>
         <div style="flex:1">${esc(b.note)}<div class="muted" style="font-size:12px">${esc(b.by)} · ${ago(b.at)}</div></div><b class="mono ${b.amount >= 0 ? 'pos' : 'neg'}">${b.amount ? (b.amount > 0 ? '+' : '') + money(b.amount) : ''}</b></div>`).join('') || '<div class="empty">Sin movimientos</div>'}</div></div>`;
   },
   async garages(c) {
@@ -402,7 +416,16 @@ const SECTIONS = {
   },
   // ---------------------------------------------------------- CONTENIDO
   // ---------------------------------------------------------- RUTAS DE BUS
-  async busroutes(c) {
+  async busroutes(c, info) {
+    if (!info.busUnlocked) {
+      const price = S.data.busUnlockPrice || 700000;
+      return head('Rutas de bus', 'Líneas de autobús de la empresa con sus paradas, billete y pago extra') + `<div class="card bus-lock"><div class="big">🚌🔒</div>
+        <h2>Servicio de autobuses</h2><div class="muted" style="max-width:560px;margin:6px auto 16px">Activa el servicio de autobuses para que la empresa pueda crear sus propias líneas con paradas.</div>
+        <div class="grid g3" style="max-width:720px;margin:0 auto 18px;text-align:left">
+          <div class="mini-stat"><span>Precio</span><b>${money(price)}</b></div><div class="mini-stat"><span>Las rutas pagan</span><b>×${nf(S.data.busBoost || 1.5, 1)}</b></div><div class="mini-stat"><span>Saldo</span><b>${money(info.balance || 0)}</b></div></div>
+        <div class="muted" style="font-size:13px;margin-bottom:16px">✓ Rutas propias con paradas y pago extra · ✓ Todo lo que se gana en ellas vale un 50% más · ✓ Para siempre, se paga una vez</div>
+        ${S.mgr ? `<button class="btn primary" id="bus-unlock" ${(info.balance || 0) < price ? 'disabled' : ''}>Activar por ${money(price)}</button>${(info.balance || 0) < price ? '<div class="muted" style="font-size:12px;margin-top:8px">No hay saldo suficiente: puedes pedir un préstamo en Saldo.</div>' : ''}` : '<div class="muted">Solo el fundador o un gerente pueden activarlo.</div>'}</div>`;
+    }
     const routes = c.busRoutes || [];
     const done = (r) => c.jobs.filter((j) => j.routeId === r.id);
     S.busRoutes = routes;
@@ -504,7 +527,7 @@ async function companyProfileModal(id) {
       : `<label class="field"><span>Mensaje para la empresa</span><textarea id="cp-msg" rows="3" maxlength="300" placeholder="Hola, conduzco en ETS2 casi todos los días…"></textarea></label><button class="btn primary" id="cp-apply" ${me.companyId || me.pendingCompanyId ? 'disabled' : ''}>📨 Enviar solicitud</button>`;
     bg.querySelector('.modal').innerHTML = `<div class="cp-banner" style="${c.banner ? `background-image:url('${esc(c.banner)}')` : `background:linear-gradient(135deg,${esc(c.color || '#4C8DFF')},#11162a)`}"><button class="btn sm ghost cp-x" data-close>✕</button></div>
       <div class="cp-head">${companyLogo(c, 86)}<div style="flex:1;min-width:0"><h2 style="margin:0">${esc(c.name)} <span class="tag">${esc(c.tag)}</span></h2>
-        <div class="row" style="gap:10px;margin-top:4px">${ratingLine(c)} ${MODE_PILL[mode]}</div></div><div class="row">${linkBtns(c)}</div></div>
+        <div class="row" style="gap:10px;margin-top:4px">${ratingLine(c)} ${MODE_PILL[mode]}</div></div><div class="row">${linkBtns(c)}<button class="btn sm ghost" id="cp-rep" title="Reportar empresa">🚩</button></div></div>
       <div class="grid g4" style="margin:14px 0"><div class="mini-stat"><span>Conductores</span><b>${c.membersCount || 1}</b></div><div class="mini-stat"><span>Distancia</span><b>${dist(c.km || 0)}</b></div>
         <div class="mini-stat"><span>Entregas</span><b>${nf(c.jobs || 0)}</b></div><div class="mini-stat"><span>Comisión</span><b>${c.commission || 0}%</b></div></div>
       ${c.description ? `<h3>Descripción</h3><div class="muted" style="white-space:pre-wrap">${esc(c.description)}</div>` : ''}
@@ -520,6 +543,7 @@ async function companyProfileModal(id) {
         ${r.comment ? `<div class="muted" style="font-size:13px">${esc(r.comment)}</div>` : ''}</div><span class="muted" style="font-size:12px">${ago(r.at)}</span></div>`).join('') : '<div class="muted">Todavía nadie ha valorado esta empresa.</div>'}`;
     $$('[data-close]', bg).forEach((b) => b.onclick = () => bg.remove());
     $$('[data-url]', bg).forEach((b) => b.onclick = () => K.call('open', b.dataset.url));
+    const rp = $('#cp-rep', bg); if (rp) rp.onclick = () => reportModal({ type: 'company', target: `${c.name} [${c.tag}]`, targetId: id });
     let pick = myR.stars || 0;
     $$('[data-star]', bg).forEach((b) => b.onclick = () => { pick = +b.dataset.star; $$('[data-star]', bg).forEach((x) => x.classList.toggle('on', +x.dataset.star <= pick)); });
     const rb = $('#cp-rate', bg); if (rb) rb.onclick = () => act(rb, async () => { data = await K.call('company:rate', id, pick, $('#cp-comment', bg).value); toast({ title: 'Valoración guardada ⭐', body: c.name }); draw(bg); });
@@ -708,6 +732,18 @@ function mountCompany(root) {
   });
 
   // noticias
+  // préstamos y servicio de autobuses
+  $$('[data-loan]', root).forEach((b) => b.onclick = () => act(b, async () => {
+    const a = +b.dataset.loan; const back = Math.round(a * (1 + (S.data.loanRate || 10) / 100));
+    if (!confirm(`¿Pedir un préstamo de ${money(a)}? La empresa tendrá que devolver ${money(back)}.`)) return;
+    await K.call('company:loan', a); toast({ title: 'Préstamo concedido 🏛️', body: `+${money(a)} en el banco de la empresa`, kind: 'money' }); render();
+  }));
+  on('#loan-pay-btn', async () => { await K.call('company:repay', +$('#loan-pay').value); toast({ title: 'Pago hecho', body: '' }); render(); });
+  on('#loan-pay-all', async () => { await K.call('company:repay', (info.loan && info.loan.owed) || 0); toast({ title: 'Préstamo devuelto ✅', body: '' }); render(); });
+  on('#bus-unlock', async () => {
+    if (!confirm(`¿Activar el servicio de autobuses por ${money(S.data.busUnlockPrice || 700000)}?`)) return;
+    await K.call('company:unlockBus'); toast({ title: 'Servicio de autobuses activado 🚌', body: 'Ya puedes crear rutas', kind: 'achievement' }); render();
+  });
   // rutas de bus
   const routeForm = (r = {}) => formModal(r.id ? 'Editar ruta' : 'Nueva ruta de bus', `
       <div class="grid g2"><label class="field"><span>Código de línea</span><input type="text" id="rt-code" maxlength="8" placeholder="L1" value="${esc(r.code || '')}"></label>
@@ -762,7 +798,7 @@ async function driverModal(uid, member) {
     const me = S.profile.online || {};
     const bg = modal(`<div class="row between"><div class="row" style="gap:14px">${avatar(u.photo, u.name, 64, 'linear-gradient(135deg,var(--accent),var(--accent2))', '#fff')}<div><h2 style="margin:0">${esc(u.name || 'Conductor')}</h2>
         <div class="muted">${u.companyName ? esc(u.companyName) : 'Sin empresa'}${m.role ? ' · ' + ROLE[m.role] : ''}${u.tmpName ? ' · TruckersMP: ' + esc(u.tmpName) : ''}</div></div></div>
-        <div class="row">${uid !== me.uid ? '<button class="btn sm" id="dm-send">💸 Enviar dinero</button>' : ''}<button class="btn sm ghost" data-close>Cerrar</button></div></div>
+        <div class="row">${uid !== me.uid ? '<button class="btn sm" id="dm-send">💸 Enviar dinero</button><button class="btn sm ghost" id="dm-rep" title="Reportar conductor">🚩</button>' : ''}<button class="btn sm ghost" data-close>Cerrar</button></div></div>
       <div class="kv" style="margin-top:16px"><div><div class="k">Distancia</div><div class="v mono">${dist(u.km || 0)}</div></div><div><div class="k">Entregas</div><div class="v mono">${nf(u.jobs)}</div></div>
         <div><div class="k">Nivel</div><div class="v mono">${Math.floor(Math.sqrt((u.xp || 0) / 120)) + 1}</div></div><div><div class="k">Multas</div><div class="v mono">${nf(u.fineCount || 0)}</div></div>
         ${member ? `<div><div class="k">Ha ganado</div><div class="v mono pos">${money(m.driverEarned || 0)}</div></div><div><div class="k">Aportado</div><div class="v mono">${money(m.earned || 0)}</div></div>
@@ -772,5 +808,6 @@ async function driverModal(uid, member) {
     bg.querySelector('.modal').style.width = 'min(720px, 94vw)';
     $$('[data-dj]', bg).forEach((el) => el.onclick = () => tripModal(d.jobs[+el.dataset.dj]));
     const sb = $('#dm-send', bg); if (sb) sb.onclick = () => { bg.remove(); sendMoneyModal(uid, u.name); };
+    const rb = $('#dm-rep', bg); if (rb) rb.onclick = () => { bg.remove(); reportModal({ type: 'driver', target: u.name || '', targetId: uid }); };
   } catch (e) { err(e); }
 }

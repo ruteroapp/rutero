@@ -285,6 +285,8 @@ function tripModal(j) {
       <div class="card flat"><h3>Dinero</h3>
         <div class="row between"><span class="muted">Pago del trabajo</span><b class="mono">${money(j.gameRevenue || j.revenue || 0, j.game)}</b></div>
         ${j.share ? `<div class="row between" style="margin-top:6px"><span class="muted">Tu parte (economía realista) · ${Math.round(j.share * 100)}%</span><b class="mono neg">${money(-((j.gameRevenue || 0) - Math.round((j.gameRevenue || 0) * j.share)), j.game)}</b></div>` : ''}
+        ${j.busBoost ? `<div class="row between" style="margin-top:6px"><span class="muted">Servicio de autobuses de la empresa (×1,5)</span><b class="mono pos">${money(j.busBoost, j.game)}</b></div>` : ''}
+        ${j.foreignFee ? `<div class="row between" style="margin-top:6px"><span class="muted">Vehículo que no es de la empresa · ${j.foreignPct || (j.type === 'bus' ? 15 : 5)}%</span><b class="mono neg">${money(-j.foreignFee, j.game)}</b></div>` : ''}
         <div class="row between" style="margin-top:6px"><span class="muted">Comisión empresa</span><b class="mono neg">${money(-(j.companyCut || 0), j.game)}</b></div>
         <div class="row between" style="margin-top:6px"><span class="muted">Sueldo de la empresa</span><b class="mono pos">${money(j.salary || 0, j.game)}</b></div>
         <div class="row between" style="margin-top:6px"><span class="muted">Multas y peajes</span><b class="mono neg">${money(-((j.fines || 0) + (j.tolls || 0)), j.game)}</b></div>
@@ -509,6 +511,36 @@ const PAGE_STATS = {
 };
 
 // ------------------------------------------------------------------ AUTOBÚS
+// ---- reportes (se guardan online y avisan al canal de moderación de Discord)
+const REPORT_REASONS = {
+  driver: ['Embestir o chocar a propósito (ramming)', 'Bloquear la carretera', 'Insultos o acoso', 'Trampas o mods prohibidos', 'Conducción temeraria en convoy', 'Otro'],
+  company: ['Estafa o promesas falsas', 'Nombre o logo ofensivo', 'Spam o publicidad', 'Trato abusivo a los conductores', 'Otro'],
+  bug: ['La app se cierra o se congela', 'No detecta el juego', 'Datos o dinero incorrectos', 'Problema con la cuenta online', 'Traducción incorrecta', 'Otro'],
+  other: ['Sugerencia', 'Otro'],
+};
+function reportModal(pre = {}) {
+  if (!S.data.loggedIn) return toast({ title: 'Inicia sesión primero', body: 'Ajustes → Cuenta online', kind: 'warn' });
+  const type = pre.type || 'bug';
+  const reasons = (t) => REPORT_REASONS[t].map((r) => `<option>${esc(r)}</option>`).join('');
+  modal(`<h2>🚩 Enviar un reporte</h2><div class="grid">
+    <label class="field"><span>Qué quieres reportar</span><select id="rp-type" ${pre.type ? 'disabled' : ''}>${[['bug', '🐞 Un error de la app'], ['driver', '🚚 Un conductor'], ['company', '🏢 Una empresa'], ['other', '📝 Otra cosa']].map(([k, n]) => `<option value="${k}" ${k === type ? 'selected' : ''}>${n}</option>`).join('')}</select></label>
+    <label class="field" id="rp-target-f" style="${type === 'driver' || type === 'company' ? '' : 'display:none'}"><span>Nombre del conductor o empresa</span><input type="text" id="rp-target" maxlength="80" value="${esc(pre.target || '')}" ${pre.target ? 'readonly' : ''}></label>
+    <label class="field"><span>Motivo</span><select id="rp-reason">${reasons(type)}</select></label>
+    <label class="field"><span>Qué ha pasado</span><textarea id="rp-desc" rows="5" maxlength="2000" placeholder="Cuéntalo con detalle: dónde, cuándo, servidor de TruckersMP…"></textarea></label>
+    <label class="field"><span>Pruebas (enlace a vídeo o captura, opcional)</span><input type="text" id="rp-ev" maxlength="400" placeholder="https://youtu.be/…"></label>
+    <div class="muted" style="font-size:12px">El equipo de Rutero lo revisará en Discord. Los reportes falsos pueden llevar a una sanción.</div>
+    <div class="row"><button class="btn danger" id="rp-send">Enviar reporte</button><button class="btn ghost" data-close>Cancelar</button></div></div>`, (bg, close) => {
+    const ty = $('#rp-type', bg);
+    ty.onchange = () => { $('#rp-reason', bg).innerHTML = reasons(ty.value); $('#rp-target-f', bg).style.display = ty.value === 'driver' || ty.value === 'company' ? '' : 'none'; };
+    const sb = $('#rp-send', bg); sb.onclick = () => act(sb, async () => {
+      const description = $('#rp-desc', bg).value.trim(); if (description.length < 10) throw new Error('Explica un poco más lo que ha pasado');
+      await K.call('report:send', { type: ty.value, reason: $('#rp-reason', bg).value, target: $('#rp-target', bg).value.trim(), targetId: pre.targetId || '', description, evidence: $('#rp-ev', bg).value.trim() });
+      toast({ title: 'Reporte enviado ✅', body: 'Gracias, lo revisaremos lo antes posible' }); close();
+    });
+  });
+}
+const openDiscord = () => { const u = S.data.links && S.data.links.discordInvite; if (u) K.call('open', u); else toast({ title: 'Discord', body: 'El servidor de Discord estará disponible muy pronto' }); };
+
 // empieza una ruta de bus de la empresa y abre el modo autobús
 async function startCompanyRoute(r) {
   if (!r) return;
@@ -523,7 +555,7 @@ const PAGE_BUS = {
     const b = S.bus; const trips = S.data.jobs.filter((j) => j.type === 'bus');
     const me = (S.profile && S.profile.online) || {};
     let routes = [];
-    if (!b && me.companyId) { try { const c = S.company && S.company.info && S.company.info.id === me.companyId ? S.company : await K.call('company:get'); routes = ((c && c.busRoutes) || []).filter((r) => r.active !== false); } catch { routes = []; } }
+    if (!b && me.companyId) { try { const c = S.company && S.company.info && S.company.info.id === me.companyId ? S.company : await K.call('company:get'); routes = c && c.info && c.info.busUnlocked ? (c.busRoutes || []).filter((r) => r.active !== false) : []; } catch { routes = []; } }
     S.busRoutes = routes;
     S.busView = trips;
     const isBus = S.live && /bus|coach|autob|setra|irizar|intercity|citaro|lion|neoplan|solaris|urbino/i.test(`${S.live.truck.brand} ${S.live.truck.name}`);
@@ -768,6 +800,10 @@ const PAGE_SETTINGS = {
         ${sw('realPhotos', s.realPhotos, 'Fotos de internet en el concesionario', 'Para los modelos sin imagen propia busca fotos libres en internet')}
       </div>
 
+      <div class="card span2"><h2>Comunidad y ayuda</h2><div class="row" style="gap:10px">
+        <button class="btn discord" id="st-discord">💬 Únete al Discord de Rutero</button><button class="btn" id="st-report">🚩 Reportar un error o a un jugador</button>
+        ${S.data.links && S.data.links.website ? '<button class="btn ghost" id="st-web">🌐 Web de Rutero</button>' : ''}</div>
+        <div class="muted" style="font-size:12px;margin-top:8px">En Discord puedes pedir ayuda, promocionar tu empresa, buscar convoyes y hablar con otros conductores.</div></div>
       <div class="card span2" id="upd-card">${updateCard()}</div>
       <div class="card span2"><h2>Plugin de telemetría</h2><div class="muted" style="margin-bottom:12px">Rutero lee los datos del juego con el plugin abierto <b>scs-sdk-plugin</b>. Cierra el juego antes de instalarlo.</div>
         ${['ets2', 'ats'].map((g) => { const x = games[g]; const nm = g === 'ets2' ? 'Euro Truck Simulator 2' : 'American Truck Simulator';
@@ -780,6 +816,9 @@ const PAGE_SETTINGS = {
   mount(root) {
     bindUpdateCard();
     bindAuthForm(root, 'a');
+    $('#st-discord').onclick = openDiscord;
+    $('#st-report').onclick = () => reportModal();
+    const sw2 = $('#st-web'); if (sw2) sw2.onclick = () => K.call('open', S.data.links.website);
     $('#units').value = S.data.settings.units;
     $('#units').onchange = async (e) => { await K.call('settings:set', { units: e.target.value }); await refreshState(); };
     $$('[data-set]', root).forEach((c) => c.onchange = async () => { await K.call('settings:set', { [c.dataset.set]: c.checked }); if (c.dataset.set === 'realPhotos') S.photos = null; await refreshState(); });

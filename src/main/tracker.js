@@ -156,6 +156,7 @@ class Tracker {
   busFrame(t, dt, dKm) {
     const b = this.bus;
     b.km += dKm; b.sinceLastStopKm += dKm; b.maxSpeed = Math.max(b.maxSpeed, t.speedKmh);
+    if (t.truck && t.truck.brand) b.truck = `${t.truck.brand} ${t.truck.name}`.trim();
     if (t.speedKmh > 3) { b.drivingSec += dt; b.stoppedSec = 0; }
     if (t.limitKmh > 5 && t.speedKmh > t.limitKmh + 5) b.speedingSec += dt;
     // Parada: detenido ≥ 12 s con al menos 300 m desde la anterior y sin freno de mano puesto en un parking
@@ -182,7 +183,7 @@ class Tracker {
     const routeBonus = routeDone ? Math.round(b.bonus) : 0;
     const revenue = Math.round(tickets + b.km * 0.9 + (score >= 90 && b.km > 1 ? 50 : 0) + routeBonus);
     const trip = { type: 'bus', line: b.line, from: b.from, to: b.to, startedAt: b.startedAt, finishedAt: Date.now(), km: b.km, stops: b.stops, passengers: b.passengers, tickets, revenue, score, maxSpeed: b.maxSpeed, status: 'delivered',
-      routeId: b.routeId || '', routeDone, routeBonus, stopNames: b.stopNames, events: b.events };
+      routeId: b.routeId || '', routeDone, routeBonus, stopNames: b.stopNames, events: b.events, truck: b.truck || '', game: b.game || '' };
     this.bus = null;
     this.emit('bus:finished', trip);
     return trip;

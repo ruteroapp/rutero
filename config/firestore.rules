@@ -32,7 +32,7 @@ service cloud.firestore {
       allow create: if signed() && request.resource.data.ownerUid == me();
       allow update: if isManager(cid)
         || (signed() && request.resource.data.diff(resource.data).affectedKeys()
-              .hasOnly(['km', 'jobs', 'balance', 'membersCount', 'lastActivity', 'ratingSum', 'ratingCount']));
+              .hasOnly(['km', 'jobs', 'balance', 'membersCount', 'lastActivity', 'ratingSum', 'ratingCount', 'loan']));
       allow delete: if isOwner(cid);
 
       match /members/{uid} {
@@ -75,6 +75,11 @@ service cloud.firestore {
         allow create, delete: if isManager(cid);
         allow update: if isManager(cid) || (isMember(cid) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['attendees']));
       }
+    }
+
+    // ---------- reportes: cualquiera con cuenta puede enviar, nadie puede leerlos desde la app ----------
+    match /reports/{r} {
+      allow create: if signed() && request.resource.data.reporterUid == me();
     }
 
     // ---------- rankings semanales ----------

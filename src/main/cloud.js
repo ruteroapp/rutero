@@ -29,6 +29,12 @@ function fromFs(v) {
 const docData = (fields) => Object.fromEntries(Object.entries(fields || {}).map(([k, x]) => [k, fromFs(x)]));
 const fromDoc = (d) => d && d.fields ? { id: d.name.split('/').pop(), ...docData(d.fields) } : null;
 const newId = () => crypto.randomBytes(15).toString('base64url').slice(0, 20);
+// préstamos y servicio de autobuses
+const LOAN_OPTIONS = [100000, 250000, 500000, 1000000];
+const LOAN_RATE = 10;          // % de interés
+const LOAN_AUTOPAY = 30;       // % de cada comisión que se usa para devolverlo
+const BUS_UNLOCK_PRICE = 700000;
+const BUS_BOOST = 1.5;         // las rutas de bus de la empresa pagan ×1,5
 // requisitos para entrar en una empresa
 const cleanReqs = (r = {}) => ({
   minLevel: Math.max(0, Math.min(200, Math.round(Number(r.minLevel) || 0))),
@@ -154,6 +160,7 @@ class Cloud {
       km, revenue: Math.round(trip.revenue || 0), net: Math.round(split.net), companyCut: Math.round(split.companyCut), salary,
       damage: Number(trip.damage || 0), score: trip.score || 0, xp: trip.xp || 0, truck: trip.truck || '',
       stops: trip.stops || 0, passengers: trip.passengers || 0, routeId: trip.routeId || '', routeDone: !!trip.routeDone,
+      foreignVehicle: !!trip.foreignVehicle, foreignFee: Math.round(trip.foreignFee || 0), busBoost: Math.round(trip.busBoost || 0),
       avgSpeed: trip.avgSpeed || 0, maxSpeed: Math.round(trip.maxSpeed || 0), durationMin: trip.durationMin || 0,
       fuelUsed: Math.round(trip.fuelUsed || 0), fineCount: trip.fineCount || 0, fines: Math.round(trip.fines || 0), tolls: Math.round(trip.tolls || 0),
       speedingSec: Math.round(trip.speedingSec || 0), cruiseSec: Math.round(trip.cruiseSec || 0),
@@ -169,7 +176,11 @@ class Cloud {
     if (me.companyId) {
       const c = me.companyId;
       writes.push(this.create(`companies/${c}/jobs/${id}`, doc));
-      writes.push(this.upd(`companies/${c}`, { lastActivity: new Date() }, [inc('km', km, true), inc('jobs', delivered ? 1 : 0), inc('balance', split.companyCut - salary)]));
+      const repay = Math.max(0, Math.round(split.loanRepay || 0));
+      const compT = [inc('km', km, true), inc('jobs', delivered ? 1 : 0), inc('balance', split.companyCut - salary - repay)];
+      if (repay) compT.push(inc('loan.owed', -repay));
+      writes.push(this.upd(`companies/${c}`, { lastActivity: new Date() }, compT));
+      if (repay) writes.push(this.create(`companies/${c}/bank/${newId()}`, { kind: 'loanpay', amount: -repay, by: me.name || '', note: `Devolución automática del préstamo (${LOAN_AUTOPAY}% de la comisión)`, at: new Date() }));
       writes.push(this.upd(`companies/${c}/members/${this.uid}`, { name: me.name || '', lastActivity: new Date() },
         [inc('km', km, true), inc('jobs', delivered ? 1 : 0), inc('earned', split.companyCut), inc('driverEarned', split.net + salary), inc('salaryEarned', salary)]));
       writes.push(this.upd(`weekly/${wk}/companies/${c}`, { name: me.companyName || '', tag: me.companyTag || '' },
@@ -573,6 +584,50 @@ class Cloud {
     if (!title) throw new Error('Pon un título a la noticia');
     await this.commit([this.create(`companies/${id}/news/${newId()}`, { title, body: body || '', image: image || '', pinned: !!pinned, author: me.name || '', authorPhoto: me.photo || '', at: new Date() })]);
   }
+  // ---------- préstamos ----------
+  async takeLoan(cid, amount, me) {
+    amount = Math.round(Number(amount));
+    if (!LOAN_OPTIONS.includes(amount)) throw new Error('Cantidad no válida');
+    const c = await this.getDoc(`companies/${cid}`);
+    if (c && c.loan && c.loan.owed > 0) throw new Error('Primero devuelve el préstamo que ya tienes');
+    const owed = Math.round(amount * (1 + LOAN_RATE / 100));
+    await this.commit([
+      this.upd(`companies/${cid}`, { loan: { amount, owed, total: owed, rate: LOAN_RATE, takenBy: me.name || '', takenAt: new Date() }, lastActivity: new Date() }, [inc('balance', amount)]),
+      this.create(`companies/${cid}/bank/${newId()}`, { kind: 'loan', amount, by: me.name || '', note: `Préstamo del banco · a devolver ${owed.toLocaleString('es-ES')} (${LOAN_RATE}% de interés)`, at: new Date() }),
+    ]);
+  }
+  async repayLoan(cid, amount, me) {
+    const c = await this.getDoc(`companies/${cid}`);
+    const owed = (c && c.loan && c.loan.owed) || 0;
+    if (owed <= 0) throw new Error('La empresa no tiene préstamos');
+    const pay = Math.min(Math.round(Number(amount) || 0), owed);
+    if (pay <= 0) throw new Error('Cantidad no válida');
+    if ((c.balance || 0) < pay) throw new Error('No hay saldo suficiente en esa cuenta');
+    await this.commit([
+      this.upd(`companies/${cid}`, { lastActivity: new Date() }, [inc('balance', -pay), inc('loan.owed', -pay)]),
+      this.create(`companies/${cid}/bank/${newId()}`, { kind: 'loanpay', amount: -pay, by: me.name || '', note: pay === owed ? 'Préstamo devuelto del todo ✅' : 'Devolución del préstamo', at: new Date() }),
+    ]);
+  }
+  // ---------- servicio de autobuses ----------
+  async unlockBus(cid, me) {
+    const c = await this.getDoc(`companies/${cid}`);
+    if (c && c.busUnlocked) return;
+    if ((c.balance || 0) < BUS_UNLOCK_PRICE) throw new Error('No hay saldo suficiente en esa cuenta');
+    await this.commit([
+      this.upd(`companies/${cid}`, { busUnlocked: true, busUnlockedAt: new Date(), lastActivity: new Date() }, [inc('balance', -BUS_UNLOCK_PRICE)]),
+      this.create(`companies/${cid}/bank/${newId()}`, { kind: 'purchase', amount: -BUS_UNLOCK_PRICE, by: me.name || '', note: 'Servicio de autobuses de la empresa', at: new Date() }),
+    ]);
+  }
+  async fleetOf(cid) { return this.query(`companies/${cid}`, { from: [{ collectionId: 'fleet' }], limit: 500 }); }
+  // ---------- reportes ----------
+  async submitReport(r, me) {
+    const id = newId();
+    const doc = { type: r.type || 'otro', reason: r.reason || '', target: String(r.target || '').slice(0, 80), targetId: String(r.targetId || '').slice(0, 60),
+      description: String(r.description || '').slice(0, 2000), evidence: String(r.evidence || '').slice(0, 400), reporterUid: this.uid || '', reporterName: (me && me.name) || '',
+      version: r.version || '', status: 'open', at: new Date() };
+    await this.commit([this.create(`reports/${id}`, doc)]);
+    return { id, ...doc };
+  }
   // ---------- rutas de autobús de la empresa ----------
   async saveBusRoute(cid, r, me) {
     const stops = (Array.isArray(r.stops) ? r.stops : String(r.stops || '').split('\n')).map((s) => String(s).trim()).filter(Boolean).slice(0, 40);
@@ -612,4 +667,4 @@ class Cloud {
   }
 }
 
-module.exports = { cleanReqs, Cloud, toFs, fromFs, fieldsOf, newId, JOIN_BONUS, GARAGES, BASE_SLOTS, repairCost };
+module.exports = { LOAN_OPTIONS, LOAN_RATE, LOAN_AUTOPAY, BUS_UNLOCK_PRICE, BUS_BOOST, cleanReqs, Cloud, toFs, fromFs, fieldsOf, newId, JOIN_BONUS, GARAGES, BASE_SLOTS, repairCost };

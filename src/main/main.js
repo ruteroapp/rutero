@@ -4,7 +4,7 @@ const fs = require('fs');
 const { parse, SharedMemoryReader, EXPECTED_REV } = require('./telemetry');
 const { Tracker } = require('./tracker');
 const { Store } = require('./store');
-const { Cloud, GARAGES, BASE_SLOTS } = require('./cloud');
+const { Cloud, GARAGES, BASE_SLOTS, LOAN_OPTIONS, LOAN_RATE, LOAN_AUTOPAY, BUS_UNLOCK_PRICE, BUS_BOOST } = require('./cloud');
 const { tmp } = require('./truckersmp');
 const plugin = require('./plugin');
 const { Photos } = require('./photos');
@@ -237,6 +237,49 @@ async function checkReqs(cid) {
   if (miss.length) throw new Error(`No cumples los requisitos: ${miss.map((x) => x.label).join(', ')}`);
 }
 
+// ¿el conductor lleva un vehículo de la flota de su empresa?
+const WORD = (s) => String(s || '').toLowerCase().replace(/mercedes-benz/g, 'mercedes').replace(/renault trucks/g, 'renault').replace(/western star/g, 'westernstar');
+const GENERIC = new Set(['day', 'cab', 'sleeper', 'roof', 'rise', 'hi', 'mid', 'low', 'high', 'flat', 'stand', 'up', 'ultra', 'studio', 'aerodyne', 'sky', 'new', 'gen', 'rhd', 'shd']);
+function sameVehicle(f, truck) {
+  const t = WORD(truck); if (!t) return true; // sin datos del juego: no penalizar
+  const m = CATALOG.find((x) => x.id === f.modelId) || {};
+  const brand = WORD(m.brand || f.brand).split(' ')[0];
+  if (brand && !t.includes(brand)) return false;
+  const tokens = WORD(m.name || f.model).split(/[^a-z0-9]+/).filter((w) => w.length >= 2 && !GENERIC.has(w) && !/^\d{4}$/.test(w) && w !== brand);
+  return !tokens.length || tokens.some((w) => t.includes(w));
+}
+async function vehicleCheck(trip) {
+  const fleet = (await cloud.fleetOf(me.companyId)).filter((f) => f.kind === 'Camión' || f.kind === 'Autobús');
+  if (!fleet.length) return null; // la empresa no tiene flota: cada uno usa su camión
+  const mine = fleet.filter((f) => !f.assignedTo || f.assignedTo === (me.name || ''));
+  return { own: mine.some((f) => sameVehicle(f, trip.truck)) };
+}
+
+// enlaces públicos (Discord, web) y aviso de reportes al canal de moderación de Discord
+function loadLinks() {
+  for (const p of [path.join(RES, 'config', 'links.json'), path.join(ROOT, 'config', 'links.json')]) {
+    try { return JSON.parse(fs.readFileSync(p, 'utf8')); } catch { /* sigue */ }
+  }
+  return {};
+}
+const REPORT_TYPES = { driver: '🚚 Conductor', company: '🏢 Empresa', bug: '🐞 Error de la app', other: '📝 Otro' };
+async function sendReportToDiscord(r) {
+  const hook = loadCloudConfig().discordWebhook;
+  if (!hook || !/^https:\/\/(discord|discordapp)\.com\/api\/webhooks\//.test(hook)) return;
+  const clip = (s, n) => String(s || '').slice(0, n) || '—';
+  const fields = [
+    { name: 'Tipo', value: REPORT_TYPES[r.type] || r.type, inline: true },
+    { name: 'Motivo', value: clip(r.reason, 100), inline: true },
+  ];
+  if (r.target) fields.push({ name: 'Reportado', value: clip(r.target, 100), inline: true });
+  if (r.evidence) fields.push({ name: 'Pruebas', value: clip(r.evidence, 400) });
+  fields.push({ name: 'Enviado por', value: `${clip(r.reporterName, 60)} · Rutero ${r.version}`, inline: true }, { name: 'ID', value: `\`${r.id}\``, inline: true });
+  await fetch(hook, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({
+    username: 'Rutero · Reportes', allowed_mentions: { parse: [] },
+    embeds: [{ title: `Nuevo reporte: ${clip(r.reason, 200)}`, description: clip(r.description, 1800), color: r.type === 'bug' ? 0xFFB020 : 0xFF5A5F, fields, timestamp: new Date().toISOString() }],
+  }) });
+}
+
 async function handleTrip(trip) {
   const delivered = trip.status === 'delivered';
   const commission = me && me.companyId && myCompany ? (myCompany.commission || 0) : 0;
@@ -244,6 +287,15 @@ async function handleTrip(trip) {
   if (delivered && gross > 0 && trip.type !== 'bus' && store.get('settings').realisticEconomy) {
     trip.gameRevenue = gross; trip.share = cargoShare(trip);
     gross = Math.round(gross * trip.share);
+  }
+  // servicio de autobuses de la empresa: sus rutas pagan más
+  if (delivered && gross > 0 && trip.type === 'bus' && trip.routeId && myCompany && myCompany.busUnlocked) {
+    trip.busBoost = Math.round(gross * (BUS_BOOST - 1)); gross += trip.busBoost;
+  }
+  // trabajo de empresa con un vehículo que no es de la flota: se cobra un porcentaje
+  if (delivered && gross > 0 && me && me.companyId && (trip.type !== 'bus' || trip.routeId)) {
+    const v = await vehicleCheck(trip).catch(() => null);
+    if (v && !v.own) { trip.foreignVehicle = true; trip.foreignPct = trip.type === 'bus' ? 15 : 5; trip.foreignFee = Math.round(gross * trip.foreignPct / 100); gross -= trip.foreignFee; }
   }
   const companyCut = delivered && gross > 0 ? Math.round(gross * commission / 100) : 0;
   const net = gross - companyCut;
@@ -254,7 +306,9 @@ async function handleTrip(trip) {
     salary = Math.max(0, Math.min(salary, bank));
   }
   const xp = delivered ? Math.max(trip.xp || 0, 0) + Math.round((trip.km || 0) / 4) + (trip.score >= 95 ? 60 : 0) + (trip.type === 'bus' ? (trip.stops || 0) * 5 : 0) : 0;
-  const split = { net, companyCut, salary, xp };
+  const owed = (myCompany && myCompany.loan && myCompany.loan.owed) || 0;
+  const loanRepay = owed > 0 && companyCut > 0 ? Math.min(owed, Math.round(companyCut * LOAN_AUTOPAY / 100)) : 0;
+  const split = { net, companyCut, salary, xp, loanRepay };
   trip.id = trip.id || require('./cloud').newId();
   trip.net = net; trip.companyCut = companyCut; trip.salary = salary; trip.xpGained = xp;
 
@@ -408,7 +462,7 @@ function registerIpc() {
   const h = (ch, fn) => ipcMain.handle(ch, wrap(async (...a) => { if (NEEDS_ME.test(ch)) await ensureMe(); return fn(...a); }));
   h('win', (cmd) => { if (cmd === 'min') win.minimize(); else if (cmd === 'max') win.isMaximized() ? win.unmaximize() : win.maximize(); else if (cmd === 'close') win.hide(); else if (cmd === 'quit') { app.isQuitting = true; app.quit(); } });
   h('state', () => ({
-    lang: langNow(),
+    lang: langNow(), links: loadLinks(), loanOptions: LOAN_OPTIONS, loanRate: LOAN_RATE, loanAutopay: LOAN_AUTOPAY, busUnlockPrice: BUS_UNLOCK_PRICE, busBoost: BUS_BOOST,
     settings: store.get('settings'), profile: publicProfile(), jobs: store.get('jobs').slice(0, 300), expenses: store.get('expenses').slice(0, 200),
     achievements: P.ACHIEVEMENTS.map(({ test, ...a }) => ({ ...a, unlockedAt: store.get('achievements')[a.id] || null })),
     daily: { ...dailyState(), list: P.dailyChallenges(dailyState().day) },
@@ -528,6 +582,15 @@ function registerIpc() {
   h('company:news', (n) => cloud.postNews(me.companyId, n, me));
   h('company:busroute', (r) => cloud.saveBusRoute(me.companyId, r, me));
   h('company:busrouteDel', (id) => cloud.deleteBusRoute(me.companyId, id));
+  h('company:loan', async (amount) => { await cloud.takeLoan(me.companyId, amount, me); await refreshOnline(); });
+  h('company:repay', async (amount) => { await cloud.repayLoan(me.companyId, amount, me); await refreshOnline(); });
+  h('company:unlockBus', async () => { await cloud.unlockBus(me.companyId, me); await refreshOnline(); });
+  h('report:send', async (r) => {
+    if (!cloud.uid) throw new Error('Inicia sesión primero');
+    const rep = await cloud.submitReport({ ...r, version: app.getVersion() }, me || {});
+    await sendReportToDiscord(rep).catch(() => {});
+    return true;
+  });
   h('company:deleteNews', (id) => cloud.deleteNews(me.companyId, id));
   h('company:assign', (truckId, driver) => cloud.assignTruck(me.companyId, truckId, driver));
   h('company:sell', (truck) => cloud.sellTruck(me.companyId, truck, me));
