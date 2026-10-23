@@ -43,6 +43,12 @@ jobs:
           else
             git tag "$V" && git push origin "$V"
           fi
+          # se crea la versión (borrador) antes de compilar: así los archivos se suben todos a la misma
+          if ! gh release view "$V" >/dev/null 2>&1; then
+            gh release create "$V" --draft --title "Rutero ${V#v}" --notes "Rutero ${V#v}. Se instala sola desde el botón de actualizar de la app."
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Instalar dependencias
         run: npm install --no-audit --no-fund
