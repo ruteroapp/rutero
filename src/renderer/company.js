@@ -421,7 +421,7 @@ const SECTIONS = {
   async discord(c, info, me) {
     let map = null; try { map = info.discordRegistered ? await K.call('company:discordInfo') : null; } catch { map = null; }
     const last = info.lastPromoAt ? Date.parse(info.lastPromoAt) : 0;
-    const wait = Math.max(0, 24 * 3600e3 - (Date.now() - last));
+    const wait = Math.max(0, 14 * 864e5 - (Date.now() - last));
     S.promo = S.promo && S.promo.cid === info.id ? S.promo : { cid: info.id, photo: '', text: '' };
     const n = info.ratingCount || 0, avg = n ? info.ratingSum / n : 0;
     return head('Discord', 'Registra tu empresa en el servidor de Rutero y promociónala con foto y estrellas') + `
@@ -440,8 +440,8 @@ const SECTIONS = {
             <div class="list-item"><span>👑</span><b style="flex:1">El rol 🏢 Dueño de empresa para el fundador</b></div>
             ${S.mgr ? '<button class="btn primary" id="dc-register" style="margin-top:14px">📝 Registrar empresa en Discord</button>' : '<div class="muted" style="margin-top:12px">Solo el fundador o un gerente pueden registrarla.</div>'}`}
         </div>
-        <div class="card"><div class="card-title"><h2>📢 Promocionar</h2>${wait ? `<span class="pill warn">Otra en ${Math.ceil(wait / 3600e3)} h</span>` : '<span class="pill ok">Disponible</span>'}</div>
-          <div class="muted" style="margin-bottom:12px">Se publica en <b>#promociona-tu-empresa</b> con tu foto, tus ⭐ estrellas, conductores, requisitos y enlaces. Una vez al día.</div>
+        <div class="card"><div class="card-title"><h2>📢 Promocionar</h2>${wait ? `<span class="pill warn">Otra en ${Math.ceil(wait / 864e5)} ${Math.ceil(wait / 864e5) === 1 ? 'día' : 'días'}</span>` : '<span class="pill ok">Disponible</span>'}</div>
+          <div class="muted" style="margin-bottom:12px">Se publica en <b>#promociona-tu-empresa</b> con tu foto, tus ⭐ estrellas, conductores, requisitos y enlaces. Una vez cada 2 semanas.</div>
           <label class="field"><span>Texto de la promoción</span><textarea id="pm-text" rows="3" maxlength="600" placeholder="¡Buscamos conductores! Convoyes los viernes en Simulation 1…">${esc(S.promo.text)}</textarea></label>
           <div class="row" style="margin:10px 0"><button class="btn sm" id="pm-photo">📷 ${S.promo.photo ? 'Cambiar foto' : 'Elegir foto'}</button>${S.promo.photo ? '<button class="btn sm ghost" id="pm-photo-del">Quitar foto</button>' : `<span class="muted" style="font-size:12px">${info.banner ? 'Si no eliges, se usa el banner' : 'Opcional'}</span>`}</div>
           <div class="promo-prev" style="--pc:${esc(info.color || '#FF9F1C')}"><div class="pp-title">📢 ${esc(info.name)} [${esc(info.tag)}]</div>

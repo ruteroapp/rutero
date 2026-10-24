@@ -99,7 +99,9 @@ service cloud.firestore {
       allow update: if signed() && resource.data.adminUid == me() && request.resource.data.adminUid == me();
     }
     match /discordQueue/{q} {
-      allow create: if signed() && request.resource.data.by == me() && isManager(request.resource.data.cid);
+      allow create: if signed() && request.resource.data.by == me() && isManager(request.resource.data.cid)
+        && (request.resource.data.type != 'promo' || !('lastPromoAt' in company(request.resource.data.cid))
+            || company(request.resource.data.cid).lastPromoAt < request.time - duration.value(14, 'd'));
       allow read, delete: if isBotAdmin();
     }
     match /discordMap/{cid} {

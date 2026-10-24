@@ -675,7 +675,8 @@ class Cloud {
     const now = Date.now();
     if (type === 'promo') {
       const last = c.lastPromoAt ? Date.parse(c.lastPromoAt) : 0;
-      if (now - last < 24 * 3600e3) { const h = Math.ceil((24 * 3600e3 - (now - last)) / 3600e3); throw new Error(`Solo se puede promocionar una vez al día (faltan ${h} h)`); }
+      const WAIT = 14 * 24 * 3600e3; // una promoción cada 2 semanas
+      if (now - last < WAIT) { const d = Math.ceil((WAIT - (now - last)) / 864e5); throw new Error(`Solo se puede promocionar una vez cada 2 semanas (faltan ${d} ${d === 1 ? 'día' : 'días'})`); }
     }
     const doc = { type, cid, by: this.uid, byName: me.name || '', byDiscord: me.discordId || '', at: new Date(),
       text: String(extra.text || '').slice(0, 600), photo: type === 'promo' ? String(extra.photo || '').slice(0, 700000) : '' };

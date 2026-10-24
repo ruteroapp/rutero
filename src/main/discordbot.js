@@ -297,7 +297,7 @@ class DiscordBot {
         '**4.** Usa cada canal para lo que es (mira la descripción de arriba).',
         '**5.** En TruckersMP y convoyes, respeta sus normas: nada de ramming ni trolleo.',
         '**6.** No compartas datos personales tuyos ni de otros.',
-        '**7.** Las promociones de empresas se hacen desde la app (una al día).',
+        '**7.** Las promociones de empresas se hacen desde la app (una cada 2 semanas).',
         '**8.** Los moderadores tienen la última palabra. Si ves algo raro, repórtalo desde la app con 🚩.',
       ].join('\n'), footer: { text: 'Saltarse las normas = aviso → silencio → expulsión' } }],
     });
@@ -324,7 +324,7 @@ class DiscordBot {
       embeds: [{ color: AMBER, title: '📝 Registra tu empresa', description: 'En Rutero: **Mi empresa → Discord → Registrar empresa**.\n\nAl registrarla, el bot crea:\n• un rol con el nombre y color de tu empresa para todos sus conductores\n• una **sede privada** (texto y voz) que solo ve tu empresa\n• el rol 🏢 Dueño de empresa para el fundador\n\nLas empresas nuevas se anuncian en este canal.' }],
     });
     await this.upsert('promo', ch.promo, {
-      embeds: [{ color: AMBER, title: '📢 Promociona tu empresa', description: 'Desde Rutero: **Mi empresa → Discord → Promocionar**. Puedes elegir una foto y un texto; el bot publica aquí la ficha con tus ⭐ estrellas, conductores, requisitos y enlaces.\n\nUna promoción cada 24 horas por empresa.' }],
+      embeds: [{ color: AMBER, title: '📢 Promociona tu empresa', description: 'Desde Rutero: **Mi empresa → Discord → Promocionar**. Puedes elegir una foto y un texto; el bot publica aquí la ficha con tus ⭐ estrellas, conductores, requisitos y enlaces.\n\nUna promoción cada 2 semanas por empresa.' }],
     });
   }
 
