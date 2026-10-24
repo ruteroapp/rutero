@@ -919,3 +919,21 @@ El servicio de autobuses incluye un Mercedes-Benz Travego para la flota. | The b
 Recoger autobús | Claim bus | Récupérer l'autocar | Bus abholen | Ritira l'autobus | Pegar ônibus | Odbierz autobus
 Autobús recibido | Bus received | Autocar reçu | Bus erhalten | Autobus ricevuto | Ônibus recebido | Autobus odebrany
 Servicio de autobuses activado | Bus service enabled | Service de bus activé | Busservice aktiviert | Servizio autobus attivato | Serviço de ônibus ativado | Usługa autobusowa włączona
+Mis rutas | My routes | Mes lignes | Meine Linien | Le mie linee | Minhas rotas | Moje trasy
+Crear ruta con paradas | Create route with stops | Créer une ligne avec arrêts | Linie mit Haltestellen erstellen | Crea linea con fermate | Criar rota com paradas | Utwórz trasę z przystankami
+Nueva ruta con paradas | New route with stops | Nouvelle ligne avec arrêts | Neue Linie mit Haltestellen | Nuova linea con fermate | Nova rota com paradas | Nowa trasa z przystankami
+Paradas en orden (una por línea: la primera es la salida y la última el destino) | Stops in order (one per line: the first is the start and the last the destination) | Arrêts dans l'ordre (un par ligne : le premier est le départ, le dernier la destination) | Haltestellen der Reihe nach (eine pro Zeile: die erste ist der Start, die letzte das Ziel) | Fermate in ordine (una per riga: la prima è la partenza e l'ultima la destinazione) | Paradas em ordem (uma por linha: a primeira é a saída e a última o destino) | Przystanki po kolei (jeden w linii: pierwszy to start, ostatni to cel)
+Precio del billete | Ticket price | Prix du billet | Ticketpreis | Prezzo del biglietto | Preço da passagem | Cena biletu
+Pago por km | Pay per km | Paie par km | Bezahlung pro km | Paga per km | Pagamento por km | Zapłata za km
+Plazas del autobús | Bus seats | Places dans le bus | Sitzplätze im Bus | Posti dell'autobus | Lugares do ônibus | Miejsca w autobusie
+Conducir | Drive | Conduire | Fahren | Guida | Dirigir | Jedź
+Ruta rápida | Quick route | Ligne rapide | Schnelle Linie | Linea rapida | Rota rápida | Szybka trasa
+Abrir puertas | Open doors | Ouvrir les portes | Türen öffnen | Apri porte | Abrir portas | Otwórz drzwi
+Cerrar puertas | Close doors | Fermer les portes | Türen schließen | Chiudi porte | Fechar portas | Zamknij drzwi
+Puertas abiertas | Doors open | Portes ouvertes | Türen offen | Porte aperte | Portas abertas | Drzwi otwarte
+Por km | Per km | Par km | Pro km | Per km | Por km | Za km
+Ya han subido todos | Everyone is on board | Tout le monde est monté | Alle sind eingestiegen | Sono saliti tutti | Todos já embarcaram | Wszyscy wsiedli
+Para el autobús y pulsa | Stop the bus and press | Arrête le bus et appuie sur | Halte den Bus an und drücke | Ferma l'autobus e premi | Pare o ônibus e aperte | Zatrzymaj autobus i naciśnij
+para abrir las puertas | to open the doors | pour ouvrir les portes | um die Türen zu öffnen | per aprire le porte | para abrir as portas | aby otworzyć drzwi
+para cerrar | to close | pour fermer | zum Schließen | per chiudere | para fechar | aby zamknąć
+Pulsa | Press | Appuie sur | Drücke | Premi | Aperte | Naciśnij

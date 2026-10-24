@@ -646,7 +646,7 @@ const openDiscord = () => { const u = S.data.links && S.data.links.discordInvite
 async function startCompanyRoute(r) {
   if (!r) return;
   if (S.bus) throw new Error('Ya tienes una ruta en marcha: termínala o cancélala en Modo autobús');
-  S.bus = await K.call('bus:start', { line: `${r.code ? r.code + ' · ' : ''}${r.name}`, from: r.stops[0], to: r.stops[r.stops.length - 1], fare: r.fare, routeId: r.id, stopNames: r.stops, bonus: r.bonus, color: r.color });
+  S.bus = await K.call('bus:start', { line: `${r.code ? r.code + ' · ' : ''}${r.name}`, from: r.stops[0], to: r.stops[r.stops.length - 1], fare: r.fare, perKm: r.perKm ?? 8, capacity: r.capacity || 55, routeId: r.id, stopNames: r.stops, bonus: r.bonus, color: r.color });
   toast({ title: 'Ruta empezada 🚌', body: `${r.name} · ${r.stops.length} paradas` });
   go('bus');
 }
@@ -660,6 +660,8 @@ const PAGE_BUS = {
     if (!me.companyId) { S.busCompanyBanner = ''; S.busCompanyName = ''; }
     S.busRoutes = routes;
     S.busView = trips;
+    S.myRoutes = await K.call('bus:routes').catch(() => []);
+    const key = (S.data.settings.busDoorKey || 'U').toUpperCase();
     const isBus = S.live && /bus|coach|autob|setra|irizar|intercity|citaro|lion|neoplan|solaris|urbino/i.test(`${S.live.truck.brand} ${S.live.truck.name}`);
     const mine = S.data.settings.busBanner || '';
     const hero = mine || S.busCompanyBanner || '';
@@ -667,16 +669,24 @@ const PAGE_BUS = {
       `<button class="btn sm" id="bus-banner">🖼️ ${mine ? 'Cambiar' : 'Poner'} banner</button>${mine ? '<button class="btn sm ghost" id="bus-banner-del">Quitar</button>' : ''}`)}
     ${isBus && !b ? '<div class="notice" style="margin-bottom:16px">🚌 Parece que conduces un autobús. ¡Empieza una ruta!</div>' : ''}
     ${b ? `<div class="card"><div class="card-title"><h2>${esc(b.line)} · ${esc(b.from || '?')} → ${esc(b.to || '?')}</h2><span class="pill ok"><span class="dot"></span>En servicio</span></div>
+      <div class="door-bar ${b.doors ? 'open' : ''}" id="bus-doorbar"></div>
       <div class="grid g4" id="bus-live"></div>
       ${b.stopNames && b.stopNames.length ? `<div class="route-line live" id="bus-stops"></div>` : ''}
-      <div class="notice" style="margin-top:14px">Detente al menos 12 segundos en cada parada para que suban y bajen pasajeros.${b.bonus ? ` Si haces las ${b.stopNames.length} paradas cobras ${money(b.bonus)} extra.` : ''}</div>
-      <div class="row" style="margin-top:16px"><button class="btn primary" id="bus-end">Terminar ruta y cobrar</button><button class="btn danger" id="bus-cancel">Cancelar</button></div></div>`
+      <div class="notice" style="margin-top:14px">🚪 En cada parada, para el autobús y pulsa <b class="kbd">${esc(key)}</b> en el juego para abrir las puertas: primero bajan y luego suben pasajeros. Vuelve a pulsar <b class="kbd">${esc(key)}</b> para cerrar y seguir.${b.bonus ? ` Si haces las ${b.stopNames.length} paradas cobras ${money(b.bonus)} extra.` : ''}</div>
+      <div class="row" style="margin-top:16px"><button class="btn" id="bus-door">🚪 ${b.doors ? 'Cerrar' : 'Abrir'} puertas</button><button class="btn primary" id="bus-end">Terminar ruta y cobrar</button><button class="btn danger" id="bus-cancel">Cancelar</button></div></div>`
     : `${routes.length ? `<div class="card" style="margin-bottom:16px"><h2>Rutas de tu empresa</h2><div class="grid g3">${routes.map((r) => `<button class="route-pick" data-pickroute="${r.id}" style="--rc:${esc(r.color || '#FF9F1C')}"><span class="route-code">${esc(r.code || '🚌')}</span><span style="flex:1;min-width:0;text-align:left"><b>${esc(r.name)}</b><span class="muted" style="display:block;font-size:12px">${esc(r.stops[0])} → ${esc(r.stops[r.stops.length - 1])} · ${r.stops.length} paradas · ${money(r.fare)}</span></span><span>▶</span></button>`).join('')}</div></div>` : ''}
-    <div class="card"><h2>Nueva ruta</h2><div class="grid g4">
+    <div class="card" style="margin-bottom:16px"><div class="card-title"><h2>Mis rutas</h2><button class="btn primary sm" id="my-route-new">＋ Crear ruta con paradas</button></div>
+      ${S.myRoutes.length ? `<div class="grid g2">${S.myRoutes.map((r) => `<div class="card route-card" style="--rc:${esc(r.color || '#4C8DFF')};margin:0">
+        <div class="row between" style="align-items:flex-start"><div class="row" style="gap:10px;flex-wrap:nowrap;min-width:0"><span class="route-code">${esc(r.code || '🚌')}</span>
+          <div style="min-width:0"><h2 style="margin:0">${esc(r.name)}</h2><div class="muted" style="font-size:12px">${r.stops.length} paradas · billete ${nf(r.fare, 2)} ${cur()} · ${nf(r.perKm, 2)} ${cur()}/km · ${r.capacity} plazas</div></div></div></div>
+        <div class="route-line">${r.stops.map((x, i) => `<div class="rstop ${i === 0 || i === r.stops.length - 1 ? 'end' : ''}"><i></i><span>${esc(x)}</span></div>`).join('')}</div>
+        <div class="row"><button class="btn primary sm" data-mydrive="${r.id}">▶ Conducir</button><button class="btn sm" data-myedit="${r.id}">Editar</button><button class="btn sm ghost" data-mydel="${r.id}">Borrar</button></div></div>`).join('')}</div>`
+      : '<div class="empty"><div class="big">🗺️</div>Crea tu propia línea con todas sus paradas: salida, paradas intermedias y destino.</div>'}</div>
+    <div class="card"><h2>Ruta rápida</h2><div class="grid g4">
         <label class="field"><span>Línea</span><input type="text" id="b-line" placeholder="L1 Express"></label>
         <label class="field"><span>Salida</span><input type="text" id="b-from" placeholder="Madrid"></label>
         <label class="field"><span>Destino</span><input type="text" id="b-to" placeholder="Valencia"></label>
-        <label class="field"><span>Precio billete</span><input type="number" id="b-fare" value="2.5" step="0.5" min="0"></label></div>
+        <label class="field"><span>Precio billete</span><input type="number" id="b-fare" value="5" step="0.5" min="0"></label></div>
         <div class="row" style="margin-top:14px"><button class="btn primary" id="bus-start">▶ Empezar ruta</button><span class="muted">Funciona con cualquier mod de autobús o con un camión.</span></div></div>`}
     <div class="card" style="margin-top:16px"><h2>Historial de rutas</h2>${!trips.length ? '<div class="empty"><div class="big">🚏</div>Aún no has hecho rutas</div>' : `
       <table><thead><tr><th>Fecha</th><th>Línea</th><th>Ruta</th><th class="num">Paradas</th><th class="num">Pasajeros</th><th class="num">Distancia</th><th class="num">Ganado</th><th class="num">Puntos</th></tr></thead>
@@ -690,6 +700,26 @@ const PAGE_BUS = {
     const ca = $('#bus-cancel');
     if (ca) ca.onclick = async () => { await K.call('bus:cancel'); S.bus = null; render(); };
     $$('[data-pickroute]', root).forEach((b) => b.onclick = () => act(b, () => startCompanyRoute(S.busRoutes.find((r) => r.id === b.dataset.pickroute))));
+    const dr = $('#bus-door');
+    if (dr) dr.onclick = () => act(dr, async () => { S.bus = await K.call('bus:doors'); render(); });
+    const myForm = (r = {}) => formModal(r.id ? 'Editar ruta' : 'Nueva ruta con paradas', `
+      <div class="grid g2"><label class="field"><span>Código de línea</span><input type="text" id="mr-code" maxlength="8" placeholder="L1" value="${esc(r.code || '')}"></label>
+        <label class="field"><span>Nombre</span><input type="text" id="mr-name" maxlength="60" placeholder="Costa Express" value="${esc(r.name || '')}"></label></div>
+      <label class="field"><span>Paradas en orden (una por línea: la primera es la salida y la última el destino)</span><textarea id="mr-stops" rows="8" placeholder="Barcelona - Estación Nord&#10;Tarragona&#10;Castellón&#10;Valencia - Estación">${esc((r.stops || []).join('\n'))}</textarea></label>
+      <div class="grid g3"><label class="field"><span>Precio del billete</span><input type="number" id="mr-fare" min="0" step="0.5" value="${r.fare ?? 5}"></label>
+        <label class="field"><span>Pago por km</span><input type="number" id="mr-km" min="0" max="30" step="0.5" value="${r.perKm ?? 8}"></label>
+        <label class="field"><span>Plazas del autobús</span><input type="number" id="mr-cap" min="8" max="120" step="1" value="${r.capacity ?? 55}"></label></div>
+      <label class="field"><span>Color</span>${typeof colorInput === 'function' ? colorInput('mr-color', r.color || '#4C8DFF') : `<input type="color" id="mr-color" value="${esc(r.color || '#4C8DFF')}">`}</label>`,
+      async (bg) => { S.myRoutes = await K.call('bus:routeSave', { id: r.id, code: $('#mr-code', bg).value, name: $('#mr-name', bg).value, stops: $('#mr-stops', bg).value, fare: $('#mr-fare', bg).value, perKm: $('#mr-km', bg).value, capacity: $('#mr-cap', bg).value, color: $('#mr-color', bg).value });
+        toast({ title: 'Ruta guardada 🚌', body: $('#mr-name', bg).value }); render(); }, r.id ? 'Guardar cambios' : 'Crear ruta');
+    const mn = $('#my-route-new'); if (mn) mn.onclick = () => myForm();
+    $$('[data-myedit]', root).forEach((b) => b.onclick = () => myForm(S.myRoutes.find((r) => r.id === b.dataset.myedit)));
+    $$('[data-mydel]', root).forEach((b) => b.onclick = () => act(b, async () => { if (!confirm('¿Borrar esta ruta?')) return; S.myRoutes = await K.call('bus:routeDel', b.dataset.mydel); render(); }));
+    $$('[data-mydrive]', root).forEach((b) => b.onclick = () => act(b, async () => {
+      const r = S.myRoutes.find((x) => x.id === b.dataset.mydrive); if (!r) return;
+      S.bus = await K.call('bus:start', { line: `${r.code ? r.code + ' · ' : ''}${r.name}`, from: r.stops[0], to: r.stops[r.stops.length - 1], fare: r.fare, perKm: r.perKm, capacity: r.capacity, routeId: r.id, stopNames: r.stops, color: r.color, mine: true });
+      toast({ title: 'Ruta empezada 🚌', body: `${r.name} · ${r.stops.length} paradas` }); render();
+    }));
     const bb = $('#bus-banner');
     if (bb) bb.onclick = async () => { const img = await pickBanner(1200, 300, 'Banner del modo autobús'); if (!img) return; await K.call('settings:set', { busBanner: img }); await refreshState(); render(); };
     const bd = $('#bus-banner-del');
@@ -701,9 +731,18 @@ const PAGE_BUS = {
 function updateBus() {
   const el = $('#bus-live'); if (!el || !S.bus) return;
   const b = S.bus;
-  el.innerHTML = [['Paradas', b.stops], ['A bordo', b.onBoard], ['Pasajeros totales', b.passengers], ['Distancia', dist(b.km, 1)],
-    ['Billetes', money(b.passengers * b.fare)], ['Tiempo', dur((Date.now() - b.startedAt) / 60000)], ['Vel. máx.', `${spd(b.maxSpeed)} ${spdUnit()}`], ['Exceso velocidad', `${Math.round(b.speedingSec)} s`]]
+  const key = (S.data.settings.busDoorKey || 'U').toUpperCase();
+  el.innerHTML = [['Paradas', `${b.stops}${b.stopNames && b.stopNames.length ? ` / ${b.stopNames.length}` : ''}`], ['A bordo', `${b.onBoard} / ${b.capacity || 55}`], ['Pasajeros totales', b.passengers], ['Distancia', dist(b.km, 1)],
+    ['Billetes', money(b.ticketMoney ?? b.passengers * b.fare)], ['Por km', money((b.km || 0) * (b.perKm ?? 0))], ['Tiempo', dur((Date.now() - b.startedAt) / 60000)], ['Exceso velocidad', `${Math.round(b.speedingSec)} s`]]
     .map(([k, v]) => `<div class="stat"><span class="k">${k}</span><span class="v mono" style="font-size:26px">${esc(v)}</span></div>`).join('');
+  const db = $('#bus-doorbar');
+  if (db) {
+    db.classList.toggle('open', !!b.doors);
+    db.innerHTML = b.doors
+      ? `<span class="dk">🚪</span><div style="flex:1"><b>Puertas abiertas${b.stopName ? ` · ${esc(b.stopName)}` : ''}</b><div class="muted">${b.alighting ? `Bajando… quedan ${b.alighting}` : b.waiting ? `Subiendo… ${b.waiting} esperando` : 'Ya han subido todos'} · ↓ ${b.stopOff} · ↑ ${b.stopOn}</div></div><span class="muted">Pulsa <b class="kbd">${esc(key)}</b> para cerrar</span>`
+      : `<span class="dk">🚌</span><div style="flex:1"><b>${b.next ? `Próxima parada: ${esc(b.next)}` : b.stopNames && b.stopNames.length ? 'Ruta completada: termina para cobrar' : `Parada ${b.stops + 1}`}</b><div class="muted">Para el autobús y pulsa <b class="kbd">${esc(key)}</b> para abrir las puertas</div></div>`;
+    const btn = $('#bus-door'); if (btn) btn.innerHTML = `🚪 ${b.doors ? 'Cerrar' : 'Abrir'} puertas`;
+  }
   const st = $('#bus-stops');
   if (st && b.stopNames) st.innerHTML = b.stopNames.map((s, i) => `<div class="rstop ${i < b.stops ? 'done' : i === b.stops ? 'next' : ''}"><i></i><span>${esc(s)}</span></div>`).join('');
 }

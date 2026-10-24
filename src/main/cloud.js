@@ -653,7 +653,7 @@ class Cloud {
     const data = {
       code: String(r.code || '').trim().slice(0, 8), name: String(r.name).trim().slice(0, 60), color: r.color || '#FF9F1C',
       game: ['ets2', 'ats', 'any'].includes(r.game) ? r.game : 'any', stops,
-      fare: Math.max(0, Math.min(500, Number(r.fare) || 0)), bonus: Math.max(0, Math.min(100000, Math.round(Number(r.bonus) || 0))),
+      fare: Math.max(0, Math.min(500, Number(r.fare) || 0)), perKm: Math.max(0, Math.min(30, Number(r.perKm ?? 8) || 0)), capacity: Math.max(8, Math.min(120, Math.round(Number(r.capacity) || 55))), bonus: Math.max(0, Math.min(100000, Math.round(Number(r.bonus) || 0))),
       description: String(r.description || '').slice(0, 600), active: r.active !== false,
     };
     if (r.id) await this.commit([this.upd(`companies/${cid}/busroutes/${r.id}`, data)]);

@@ -240,6 +240,17 @@ class DiscordBot {
 
       progress('Mensajes…');
       await this.postStatic(ids, verified);
+      progress('Comandos…');
+      await this.api('PUT', `/applications/${this.state.user.id}/guilds/${GUILD}/commands`, [{
+        name: 'dar-dinero', description: 'Da dinero a una empresa de Rutero (solo dueño y administradores)',
+        description_localizations: { 'en-US': 'Give money to a Rutero company (owner and admins only)', 'en-GB': 'Give money to a Rutero company (owner and admins only)' },
+        default_member_permissions: '8', dm_permission: false,
+        options: [
+          { type: 3, name: 'empresa', description: 'Nombre o etiqueta de la empresa', required: true, max_length: 60 },
+          { type: 4, name: 'cantidad', description: 'Cantidad en € (o $)', required: true, min_value: 1, max_value: 100000000 },
+          { type: 3, name: 'motivo', description: 'Motivo (opcional)', required: false, max_length: 120 },
+        ],
+      }]).catch((e) => this.log('comandos', e.message));
       progress('Enlaces de publicación…');
       await this.ensureHooks(ids);
       // servidor: canal del sistema y nivel de verificación (correo verificado)

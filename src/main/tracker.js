@@ -147,26 +147,43 @@ class Tracker {
   }
 
   // ------------------------------------------------------------------ Autobús
-  startBus({ line, from, to, fare = 2.5, routeId = '', stopNames = [], bonus = 0, color = '' }) {
+  // Con puertas (tecla U en el juego): al abrir bajan y suben pasajeros poco a poco; al cerrar cuenta la parada.
+  // Sin usar puertas: modo automático (detenido 12 s = parada), como antes.
+  startBus({ line, from, to, fare = 5, perKm = 8, capacity = 55, routeId = '', stopNames = [], bonus = 0, color = '', mine = false }) {
     const names = (stopNames || []).map(String).filter(Boolean);
-    this.bus = { line: line || 'Línea 1', from: from || names[0] || '', to: to || names[names.length - 1] || '', fare: Number(fare) || 2.5, startedAt: Date.now(),
-      routeId, stopNames: names, bonus: Math.max(0, Number(bonus) || 0), color, next: names[0] || '', km: 0, stops: 0, passengers: 0, onBoard: 0, stoppedSec: 0, sinceLastStopKm: 0, drivingSec: 0, speedingSec: 0, maxSpeed: 0, events: [] };
+    this.bus = { line: line || 'Línea 1', from: from || names[0] || '', to: to || names[names.length - 1] || '', fare: Math.max(0, Number(fare) || 0), perKm: Math.max(0, Math.min(30, Number(perKm ?? 8) || 0)),
+      capacity: Math.max(8, Math.min(120, Math.round(Number(capacity) || 55))), startedAt: Date.now(), mine: !!mine,
+      routeId, stopNames: names, bonus: Math.max(0, Number(bonus) || 0), color, next: names[0] || '', km: 0, stops: 0, passengers: 0, onBoard: 0, stoppedSec: 0, sinceLastStopKm: 0, drivingSec: 0, speedingSec: 0, maxSpeed: 0, events: [],
+      doors: false, doorsUsed: false, waiting: 0, alighting: 0, stopOn: 0, stopOff: 0, flowSec: 0, ticketMoney: 0, stopName: '' };
     this.emit('bus:update', this.bus);
   }
   busFrame(t, dt, dKm) {
     const b = this.bus;
+    this.busSpeed = t.speedKmh;
     b.km += dKm; b.sinceLastStopKm += dKm; b.maxSpeed = Math.max(b.maxSpeed, t.speedKmh);
     if (t.truck && t.truck.brand) b.truck = `${t.truck.brand} ${t.truck.name}`.trim();
     if (t.speedKmh > 3) { b.drivingSec += dt; b.stoppedSec = 0; }
     if (t.limitKmh > 5 && t.speedKmh > t.limitKmh + 5) b.speedingSec += dt;
-    // Parada: detenido ≥ 12 s con al menos 300 m desde la anterior y sin freno de mano puesto en un parking
-    if (t.speedKmh < 1.5) {
+    if (b.doors) {
+      if (t.speedKmh > 6) { this.toggleDoors(true); this.emit('bus:warn', 'Has arrancado con las puertas abiertas: se han cerrado solas'); }
+      else {
+        // primero bajan, luego suben (uno cada ~0,8 s)
+        b.flowSec += dt;
+        while (b.flowSec >= 0.8) {
+          b.flowSec -= 0.8;
+          if (b.alighting > 0 && b.onBoard > 0) { b.alighting--; b.onBoard--; b.stopOff++; }
+          else if (b.waiting > 0 && b.onBoard < b.capacity) { b.waiting--; b.onBoard++; b.passengers++; b.stopOn++; b.ticketMoney += b.fare; }
+          else break;
+        }
+      }
+    } else if (!b.doorsUsed && t.speedKmh < 1.5) {
+      // modo automático
       b.stoppedSec += dt;
       if (b.stoppedSec >= 12 && b.sinceLastStopKm >= 0.3) {
         const off = b.stops === 0 ? 0 : Math.min(b.onBoard, Math.floor(Math.random() * (b.onBoard + 1)));
-        const on = 2 + Math.floor(Math.random() * 18);
-        b.onBoard = Math.min(60, b.onBoard - off + on);
-        b.passengers += on; b.stops += 1; b.sinceLastStopKm = 0;
+        const on = Math.min(b.capacity - (b.onBoard - off), 2 + Math.floor(Math.random() * 18));
+        b.onBoard = b.onBoard - off + on;
+        b.passengers += on; b.ticketMoney += on * b.fare; b.stops += 1; b.sinceLastStopKm = 0;
         const name = b.stopNames[b.stops - 1] || '';
         b.next = b.stopNames[b.stops] || '';
         b.events.push({ stop: b.stops, name, on, off, at: Date.now() });
@@ -175,15 +192,40 @@ class Tracker {
     }
     this.emit('bus:update', b);
   }
+  // abre o cierra las puertas (tecla U o botón de la app)
+  toggleDoors(force = false) {
+    const b = this.bus; if (!b) return null;
+    if (!b.doors) {
+      if (!force && (this.busSpeed || 0) > 3) { this.emit('bus:warn', 'Para el autobús antes de abrir las puertas'); return b; }
+      const n = b.stopNames.length;
+      const first = b.stops === 0, last = n > 0 && b.stops >= n - 1;
+      b.doors = true; b.doorsUsed = true; b.flowSec = 0; b.stopOn = 0; b.stopOff = 0;
+      b.stopName = b.stopNames[b.stops] || '';
+      const rnd = (a, z) => a + Math.floor(Math.random() * (z - a + 1));
+      b.alighting = first ? 0 : last ? b.onBoard : Math.min(b.onBoard, rnd(0, Math.ceil(b.onBoard * 0.6)));
+      b.waiting = last ? 0 : first ? rnd(6, 28) : (Math.random() < 0.15 ? 0 : rnd(1, 18));
+      this.emit('bus:doors', { open: true, name: b.stopName, waiting: b.waiting, alighting: b.alighting });
+    } else {
+      b.doors = false;
+      b.stops += 1; b.sinceLastStopKm = 0;
+      b.events.push({ stop: b.stops, name: b.stopName, on: b.stopOn, off: b.stopOff, at: Date.now() });
+      b.next = b.stopNames[b.stops] || '';
+      const left = b.waiting; b.waiting = 0; b.alighting = 0;
+      this.emit('bus:stop', { stop: b.stops, name: b.stopName, on: b.stopOn, off: b.stopOff, onBoard: b.onBoard, left, doors: true });
+    }
+    this.emit('bus:update', b);
+    return b;
+  }
   endBus() {
     const b = this.bus; if (!b) return null;
     const score = Tracker.score({ drivingSec: b.drivingSec, speedingSec: b.speedingSec, damage: 0 });
-    const tickets = Math.round(b.passengers * b.fare);
-    const routeDone = !!(b.routeId && b.stopNames.length && b.stops >= b.stopNames.length);
-    const routeBonus = routeDone ? Math.round(b.bonus) : 0;
-    const revenue = Math.round(tickets + b.km * 0.9 + (score >= 90 && b.km > 1 ? 50 : 0) + routeBonus);
-    const trip = { type: 'bus', line: b.line, from: b.from, to: b.to, startedAt: b.startedAt, finishedAt: Date.now(), km: b.km, stops: b.stops, passengers: b.passengers, tickets, revenue, score, maxSpeed: b.maxSpeed, status: 'delivered',
-      routeId: b.routeId || '', routeDone, routeBonus, stopNames: b.stopNames, events: b.events, truck: b.truck || '', game: b.game || '' };
+    const tickets = Math.round(b.ticketMoney);
+    const kmPay = Math.round(b.km * b.perKm);
+    const routeDone = !!(b.stopNames.length && b.stops >= b.stopNames.length);
+    const routeBonus = routeDone && b.routeId ? Math.round(b.bonus) : 0;
+    const revenue = Math.round(tickets + kmPay + (score >= 90 && b.km > 1 ? 50 : 0) + routeBonus);
+    const trip = { type: 'bus', line: b.line, from: b.from, to: b.to, startedAt: b.startedAt, finishedAt: Date.now(), km: b.km, stops: b.stops, passengers: b.passengers, tickets, kmPay, perKm: b.perKm, revenue, score, maxSpeed: b.maxSpeed, status: 'delivered',
+      routeId: b.mine ? '' : (b.routeId || ''), routeDone, routeBonus, stopNames: b.stopNames, events: b.events, truck: b.truck || '', game: b.game || '', doorsUsed: b.doorsUsed };
     this.bus = null;
     this.emit('bus:finished', trip);
     return trip;

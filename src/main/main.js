@@ -10,6 +10,7 @@ const plugin = require('./plugin');
 const { Photos } = require('./photos');
 const { setupUpdater } = require('./updater');
 const P = require('./progress');
+const { watchKey } = require('./keys');
 const { DiscordBot, buildRegister, buildPromo, postWebhook, announceRelease } = require('./discordbot');
 const DISCORD_CLIENT = '1563527823522533426';
 const DISCORD_REDIRECT = 'https://ruteroapp.github.io/rutero/discord.html';
@@ -397,7 +398,9 @@ function startTelemetry() {
       case 'job:cancelled': handleTrip({ type: 'cargo', ...data }); toast('Trabajo cancelado', `Penalización ${Math.abs(data.revenue).toLocaleString(I18N.locale())}`, 'warn'); break;
       case 'bus:finished': handleTrip(data); toast(data.routeDone ? 'Ruta completada 🚌✅' : 'Ruta de autobús terminada 🚌', `${data.stops} paradas · ${data.passengers} pasajeros${data.routeBonus ? ` · +${data.routeBonus.toLocaleString(I18N.locale())} extra` : ''}`, 'money'); break;
       case 'bus:update': send('bus', data); sendOverlay('bus', data); break;
-      case 'bus:stop': toast(data.name ? `Parada ${data.stop}: ${data.name}` : `Parada ${data.stop}`, `Suben ${data.on} · bajan ${data.off} · a bordo ${data.onBoard}`); break;
+      case 'bus:stop': toast(data.name ? `Parada ${data.stop}: ${data.name}` : `Parada ${data.stop}`, `Suben ${data.on} · bajan ${data.off} · a bordo ${data.onBoard}${data.left ? ` · ${data.left} se quedan en tierra` : ''}`); sendOverlay('toast', { title: `🚏 ${data.name || `Parada ${data.stop}`}`, body: `+${data.on} / -${data.off} · ${data.onBoard} a bordo` }); break;
+      case 'bus:doors': sendOverlay('toast', { title: '🚪 Puertas abiertas', body: `${data.alighting} bajan · ${data.waiting} esperando${data.name ? ` · ${data.name}` : ''}` }); break;
+      case 'bus:warn': sendOverlay('toast', { title: '⚠️ Autobús', body: data }); toast('Autobús', data); break;
       case 'expense': {
         const names = { fine: 'Multa', toll: 'Peaje', ferry: 'Ferry', train: 'Tren' };
         store.push('expenses', { ...data, at: Date.now() }, 2000);
@@ -551,6 +554,19 @@ function registerIpc() {
   // autobús
   h('bus:start', (o) => { tracker.startBus(o); return tracker.bus; });
   h('bus:end', () => tracker.endBus());
+  h('bus:doors', () => tracker.toggleDoors());
+  h('bus:routes', () => store.get('busRoutes') || []);
+  h('bus:routeSave', (r) => {
+    const stops = (Array.isArray(r.stops) ? r.stops : String(r.stops || '').split('\n')).map((x) => String(x).trim()).filter(Boolean).slice(0, 60);
+    if (!String(r.name || '').trim()) throw new Error('Pon un nombre a la ruta');
+    if (stops.length < 2) throw new Error('La ruta necesita al menos 2 paradas (salida y destino)');
+    const route = { id: r.id || `r${Date.now().toString(36)}`, code: String(r.code || '').trim().slice(0, 8), name: String(r.name).trim().slice(0, 60), stops, color: r.color || '#4C8DFF',
+      fare: Math.max(0, Math.min(100, Number(r.fare ?? 5) || 0)), perKm: Math.max(0, Math.min(30, Number(r.perKm ?? 8) || 0)), capacity: Math.max(8, Math.min(120, Math.round(Number(r.capacity) || 55))) };
+    const list = (store.get('busRoutes') || []).filter((x) => x.id !== route.id);
+    store.set('busRoutes', [route, ...list].slice(0, 50));
+    return store.get('busRoutes');
+  });
+  h('bus:routeDel', (id) => { store.set('busRoutes', (store.get('busRoutes') || []).filter((x) => x.id !== id)); return store.get('busRoutes'); });
   h('bus:cancel', () => { tracker.bus = null; send('bus', null); sendOverlay('bus', null); });
 
   // TruckersMP
@@ -707,6 +723,8 @@ app.whenReady().then(async () => {
   store = new Store(app.getPath('userData'));
   cloud = new Cloud(loadCloudConfig(), store);
   photos = new Photos(store, [path.join(RES, 'config'), path.join(ROOT, 'config')]);
+  // tecla de puertas del autobús (U por defecto) mientras haya una ruta en marcha
+  watchKey(() => store.get('settings').busDoorKey || 'U', () => !!(tracker && tracker.bus), () => tracker.toggleDoors());
   bot = new DiscordBot({ store, getCloud: () => cloud, root: ROOT, log: (...a) => console.warn('[bot]', ...a) });
   updater = setupUpdater(send);
   registerIpc();

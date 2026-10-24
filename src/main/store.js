@@ -13,7 +13,9 @@ const DEFAULTS = {
     sounds: true,
     language: 'auto',          // auto = según el idioma de Windows
     realPhotos: false,        // fotos reales de internet en el concesionario (si no, dibujos)
+    busDoorKey: 'U',          // tecla del juego para abrir y cerrar las puertas del autobús
   },
+  busRoutes: [],              // rutas de autobús propias (con todas sus paradas)
   profile: { name: '', wallet: 0, xp: 0, km: 0, jobs: 0, busTrips: 0, perfect: 0, fines: 0, cancelled: 0 },
   jobs: [],
   expenses: [],

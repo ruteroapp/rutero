@@ -802,11 +802,13 @@ function mountCompany(root) {
       <label class="field"><span>Paradas (una por línea: la primera es la salida y la última el destino)</span><textarea id="rt-stops" rows="7" placeholder="Barcelona&#10;Tarragona&#10;Castellón&#10;Valencia">${esc((r.stops || []).join('\n'))}</textarea></label>
       <div class="grid g3"><label class="field"><span>Precio billete</span><input type="number" id="rt-fare" min="0" step="0.5" value="${r.fare ?? 3}"></label>
         <label class="field"><span>Pago extra al completar</span><input type="number" id="rt-bonus" min="0" step="100" value="${r.bonus ?? 500}"></label>
+        <label class="field"><span>Pago por km</span><input type="number" id="rt-km" min="0" max="30" step="0.5" value="${r.perKm ?? 8}"></label>
+        <label class="field"><span>Plazas del autobús</span><input type="number" id="rt-cap" min="8" max="120" value="${r.capacity ?? 55}"></label>
         <label class="field"><span>Juego</span><select id="rt-game"><option value="any">Cualquiera</option><option value="ets2" ${r.game === 'ets2' ? 'selected' : ''}>ETS2</option><option value="ats" ${r.game === 'ats' ? 'selected' : ''}>ATS</option></select></label></div>
       <div class="grid g2"><label class="field"><span>Color</span>${colorInput('rt-color', r.color || '#FF9F1C')}</label>
         <label class="row" style="align-self:end"><span class="switch"><input type="checkbox" id="rt-active" ${r.active === false ? '' : 'checked'}><i></i></span> Ruta activa</label></div>
       <label class="field"><span>Descripción</span><textarea id="rt-desc" rows="2" maxlength="600" placeholder="Servicio diario, salida a las 21:00 en Simulation 1">${esc(r.description || '')}</textarea></label>`,
-    async (bg) => { await K.call('company:busroute', { id: r.id, code: $('#rt-code', bg).value, name: $('#rt-name', bg).value, stops: $('#rt-stops', bg).value, fare: $('#rt-fare', bg).value, bonus: $('#rt-bonus', bg).value, game: $('#rt-game', bg).value, color: $('#rt-color', bg).value, active: $('#rt-active', bg).checked, description: $('#rt-desc', bg).value });
+    async (bg) => { await K.call('company:busroute', { id: r.id, code: $('#rt-code', bg).value, name: $('#rt-name', bg).value, stops: $('#rt-stops', bg).value, fare: $('#rt-fare', bg).value, perKm: $('#rt-km', bg).value, capacity: $('#rt-cap', bg).value, bonus: $('#rt-bonus', bg).value, game: $('#rt-game', bg).value, color: $('#rt-color', bg).value, active: $('#rt-active', bg).checked, description: $('#rt-desc', bg).value });
       toast({ title: 'Ruta guardada 🚌', body: $('#rt-name', bg).value }); }, r.id ? 'Guardar cambios' : 'Crear ruta');
   on('#route-new', async () => routeForm());
   $$('[data-editroute]', root).forEach((b) => b.onclick = () => routeForm((S.busRoutes || []).find((r) => r.id === b.dataset.editroute)));
