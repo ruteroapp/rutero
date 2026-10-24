@@ -430,6 +430,8 @@ const SECTIONS = {
     const done = (r) => c.jobs.filter((j) => j.routeId === r.id);
     S.busRoutes = routes;
     return head('Rutas de bus', 'Líneas de autobús de la empresa con sus paradas, billete y pago extra', S.mgr ? '<button class="btn primary" id="route-new">＋ Nueva ruta</button>' : '') +
+      bannerHero(info.busBanner, info.name, `${routes.length} ${routes.length === 1 ? 'ruta' : 'rutas'} · todo lo que se gana vale ×${nf(S.data.busBoost || 1.5, 1)}`,
+        S.mgr ? `<button class="btn sm" id="bus-cbanner">🖼️ ${info.busBanner ? 'Cambiar' : 'Poner'} banner de buses</button>${info.busBanner ? '<button class="btn sm ghost" id="bus-cbanner-del">Quitar</button>' : ''}` : '', 'Rutas de bus') +
       (routes.length ? `<div class="grid g2">${routes.map((r) => { const d = done(r); const full = d.filter((j) => j.routeDone).length;
         return `<div class="card route-card" style="--rc:${esc(r.color || '#FF9F1C')}">
         <div class="row between" style="align-items:flex-start"><div class="row" style="gap:10px;flex-wrap:nowrap;min-width:0"><span class="route-code">${esc(r.code || '🚌')}</span>
@@ -573,7 +575,7 @@ function mountCompany(root) {
 
   // ----- lobby
   let newLogo = '';
-  on('#c-logo', async () => { const img = await pickImage(); if (img) { newLogo = img; $('#c-logo-prev').innerHTML = companyLogo({ logo: img }, 64); } });
+  on('#c-logo', async () => { const img = await pickLogo(); if (img) { newLogo = img; $('#c-logo-prev').innerHTML = companyLogo({ logo: img }, 64); } });
   on('#c-create', async () => {
     const name = $('#c-name').value.trim(); if (name.length < 3) throw new Error('Pon un nombre de al menos 3 letras');
     await K.call('company:create', { name, tag: $('#c-tag').value || name.slice(0, 3), description: $('#c-desc').value, commission: $('#c-com').value, color: $('#c-color').value, logo: newLogo });
@@ -597,9 +599,11 @@ function mountCompany(root) {
   on('#c-leave', async () => { if (!confirm('¿Seguro que quieres salir de la empresa?')) return; await K.call('company:leave'); S.companyTab = 'dashboard'; await reload(); });
   on('#code-copy', async () => { await navigator.clipboard.writeText(info.joinCode); toast({ title: 'Código copiado', body: info.joinCode }); });
   on('#code-new', async () => { await K.call('company:newCode'); render(); });
-  on('#e-logo', async () => { const img = await pickImage(); if (!img) return; await K.call('company:update', { logo: img }); toast({ title: 'Logo actualizado', body: '' }); render(); });
+  on('#e-logo', async () => { const img = await pickLogo(); if (!img) return; try { await K.call('company:update', { logo: img }); toast({ title: 'Logo actualizado', body: '' }); render(); } catch (e) { err(e); } });
   on('#e-logo-del', async () => { await K.call('company:update', { logo: '' }); render(); });
-  on('#e-banner', async () => { const img = await pickBanner(); if (!img) return; await K.call('company:update', { banner: img }); toast({ title: 'Banner actualizado', body: '' }); render(); });
+  on('#e-banner', async () => { const img = await pickBanner(1200, 300, 'Banner de la empresa'); if (!img) return; try { await K.call('company:update', { banner: img }); toast({ title: 'Banner actualizado', body: '' }); render(); } catch (e) { err(e); } });
+  on('#bus-cbanner', async () => { const img = await pickBanner(1200, 300, 'Banner del apartado de buses'); if (!img) return; try { await K.call('company:update', { busBanner: img }); toast({ title: 'Banner de buses actualizado', body: '' }); render(); } catch (e) { err(e); } });
+  on('#bus-cbanner-del', async () => { try { await K.call('company:update', { busBanner: '' }); render(); } catch (e) { err(e); } });
   on('#e-banner-del', async () => { await K.call('company:update', { banner: '' }); render(); });
   on('#pp-save', async () => {
     await K.call('company:update', { joinMode: $('#pp-mode').value, rules: $('#pp-rules').value,

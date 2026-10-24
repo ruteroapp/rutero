@@ -58,48 +58,94 @@ function modal(html, onMount) {
 }
 
 // ------------------------------------------------------------------ fotos
-// Abre el selector de archivos, recorta la imagen en cuadrado y la reduce (para guardarla online)
-function pickImage(size = 192) {
-  return new Promise((resolve, reject) => {
+// Lee el archivo como data: (las URL blob: estaban bloqueadas por la CSP y por eso no se podían subir fotos)
+function chooseFile() {
+  return new Promise((resolve) => {
     const inp = document.createElement('input');
-    inp.type = 'file'; inp.accept = 'image/png,image/jpeg,image/webp,image/gif';
-    inp.onchange = () => {
-      const f = inp.files[0]; if (!f) return resolve(null);
-      const img = new Image();
-      img.onload = () => {
-        const c = document.createElement('canvas'); c.width = c.height = size;
-        const side = Math.min(img.width, img.height);
-        c.getContext('2d').drawImage(img, (img.width - side) / 2, (img.height - side) / 2, side, side, 0, 0, size, size);
-        resolve(c.toDataURL('image/jpeg', 0.85));
-        URL.revokeObjectURL(img.src);
-      };
-      img.onerror = () => reject(new Error('No se pudo leer la imagen'));
-      img.src = URL.createObjectURL(f);
-    };
+    inp.type = 'file'; inp.accept = 'image/png,image/jpeg,image/webp,image/gif,image/bmp';
+    inp.style.display = 'none'; document.body.appendChild(inp);
+    inp.onchange = () => { const f = inp.files[0]; inp.remove(); resolve(f || null); };
     inp.click();
   });
 }
-// banner: recorte panorámico (4:1) para la ficha de la empresa
-function pickBanner(w = 1200, h = 300) {
+function fileToImage(f) {
   return new Promise((resolve, reject) => {
-    const inp = document.createElement('input');
-    inp.type = 'file'; inp.accept = 'image/png,image/jpeg,image/webp,image/gif';
-    inp.onchange = () => {
-      const f = inp.files[0]; if (!f) return resolve(null);
-      const img = new Image();
-      img.onload = () => {
-        const c = document.createElement('canvas'); c.width = w; c.height = h;
-        const r = w / h; let sw = img.width, sh = img.width / r;
-        if (sh > img.height) { sh = img.height; sw = sh * r; }
-        c.getContext('2d').drawImage(img, (img.width - sw) / 2, (img.height - sh) / 2, sw, sh, 0, 0, w, h);
-        resolve(c.toDataURL('image/jpeg', 0.8));
-        URL.revokeObjectURL(img.src);
-      };
-      img.onerror = () => reject(new Error('No se pudo leer la imagen'));
-      img.src = URL.createObjectURL(f);
-    };
-    inp.click();
+    if (!f) return resolve(null);
+    if (!/^image\//.test(f.type)) return reject(new Error('Ese archivo no es una imagen'));
+    if (f.size > 25 * 1024 * 1024) return reject(new Error('La imagen pesa demasiado (máx. 25 MB)'));
+    const fr = new FileReader();
+    fr.onerror = () => reject(new Error('No se pudo leer la imagen'));
+    fr.onload = () => { const img = new Image(); img.onload = () => resolve(img); img.onerror = () => reject(new Error('No se pudo abrir la imagen')); img.src = fr.result; };
+    fr.readAsDataURL(f);
   });
+}
+// Encaja el JPEG por debajo de un tamaño máximo (Firestore admite ~1 MB por documento)
+function exportCanvas(c, maxKB) {
+  let q = 0.9, out = c.toDataURL('image/jpeg', q);
+  while (out.length * 0.75 > maxKB * 1024 && q > 0.45) { q -= 0.08; out = c.toDataURL('image/jpeg', q); }
+  return out;
+}
+// Recortador: el usuario elige qué parte se ve (arrastrar = mover, rueda o barra = zoom)
+function cropImage({ w, h, round = false, title = 'Ajusta la imagen', maxKB = 300, file = null }) {
+  return new Promise(async (resolve) => {
+    let img;
+    try { img = await fileToImage(file || await chooseFile()); } catch (e) { err(e); return resolve(null); }
+    if (!img) return resolve(null);
+    const VW = Math.round(Math.min(640, window.innerWidth * 0.8, window.innerHeight * 0.55 * w / h)), VH = VW * h / w;
+    const base = Math.max(VW / img.width, VH / img.height); // escala mínima que cubre el marco
+    let zoom = 1, x = 0, y = 0, done = false;
+    const clamp = () => {
+      const s = base * zoom, iw = img.width * s, ih = img.height * s;
+      x = Math.min(0, Math.max(VW - iw, x)); y = Math.min(0, Math.max(VH - ih, y));
+    };
+    const center = () => { const s = base * zoom; x = (VW - img.width * s) / 2; y = (VH - img.height * s) / 2; };
+    center();
+    modal(`<div class="card-title"><h2>${esc(title)}</h2><button class="btn sm ghost" data-close>✕</button></div>
+      <div class="muted" style="margin:-4px 0 12px">Arrastra la imagen para elegir qué parte se ve. Usa la rueda del ratón o la barra para hacer zoom.</div>
+      <div class="crop-stage ${round ? 'round' : ''}" style="width:${VW}px;height:${VH}px"><canvas width="${Math.round(VW * 2)}" height="${Math.round(VH * 2)}"></canvas><div class="crop-grid"></div></div>
+      <div class="row crop-tools"><span>➖</span><input type="range" id="cz" min="1" max="4" step="0.01" value="1"><span>➕</span>
+        <button class="btn sm ghost" id="cr-reset">↺ Centrar</button><button class="btn sm ghost" id="cr-other">📁 Otra imagen</button></div>
+      <div class="row" style="justify-content:flex-end;margin-top:16px"><button class="btn ghost" data-close>Cancelar</button><button class="btn primary" id="cr-ok">✔ Usar imagen</button></div>`,
+    (bg, close) => {
+      bg.querySelector('.modal').classList.add('wide', 'crop-modal');
+      const cv = bg.querySelector('canvas'), ctx = cv.getContext('2d'), stage = bg.querySelector('.crop-stage'), zr = bg.querySelector('#cz');
+      const draw = () => { clamp(); ctx.clearRect(0, 0, cv.width, cv.height); const s = base * zoom * 2; ctx.imageSmoothingQuality = 'high'; ctx.drawImage(img, x * 2, y * 2, img.width * s, img.height * s); };
+      const setZoom = (z, cx = VW / 2, cy = VH / 2) => {
+        z = Math.min(4, Math.max(1, z)); const k = z / zoom;
+        x = cx - (cx - x) * k; y = cy - (cy - y) * k; zoom = z; zr.value = z; draw();
+      };
+      draw();
+      let drag = null;
+      stage.onpointerdown = (e) => { drag = { px: e.clientX, py: e.clientY, x, y }; stage.setPointerCapture(e.pointerId); stage.classList.add('drag'); };
+      stage.onpointermove = (e) => { if (!drag) return; x = drag.x + e.clientX - drag.px; y = drag.y + e.clientY - drag.py; draw(); };
+      stage.onpointerup = stage.onpointercancel = () => { drag = null; stage.classList.remove('drag'); };
+      stage.onwheel = (e) => { e.preventDefault(); const r = stage.getBoundingClientRect(); setZoom(zoom * (e.deltaY < 0 ? 1.1 : 1 / 1.1), e.clientX - r.left, e.clientY - r.top); };
+      zr.oninput = () => setZoom(Number(zr.value));
+      bg.querySelector('#cr-reset').onclick = () => { zoom = 1; zr.value = 1; center(); draw(); };
+      bg.querySelector('#cr-other').onclick = async () => {
+        const f = await chooseFile(); if (!f) return;
+        done = true; close(); resolve(await cropImage({ w, h, round, title, maxKB, file: f }));
+      };
+      bg.querySelector('#cr-ok').onclick = () => {
+        const out = document.createElement('canvas'); out.width = w; out.height = h;
+        const k = w / VW, s = base * zoom * k, o = out.getContext('2d');
+        o.imageSmoothingQuality = 'high'; o.fillStyle = '#111'; o.fillRect(0, 0, w, h);
+        o.drawImage(img, x * k, y * k, img.width * s, img.height * s);
+        done = true; close(); resolve(exportCanvas(out, maxKB));
+      };
+      new MutationObserver((_, ob) => { if (!bg.isConnected) { ob.disconnect(); if (!done) resolve(null); } }).observe(document.body, { childList: true });
+    });
+  });
+}
+const pickImage = (size = 256, title = 'Ajusta tu foto') => cropImage({ w: size, h: size, title, maxKB: 90 });
+const pickLogo = () => cropImage({ w: 256, h: 256, title: 'Ajusta el logo de la empresa', maxKB: 90 });
+// banner panorámico 4:1 (ficha de la empresa, apartado de buses…)
+const pickBanner = (w = 1200, h = 300, title = 'Elige qué parte del banner se ve') => cropImage({ w, h, title, maxKB: 260 });
+// cabecera con banner (apartado de buses)
+function bannerHero(img, title, sub, actions = '', kicker = 'Modo autobús') {
+  return `<div class="bus-hero ${img ? 'has-img' : ''}" ${img ? `style="--banner:url('${esc(img)}')"` : ''}>
+    <div class="bh-txt"><div class="bh-kicker">🚌 ${esc(kicker)}</div><h1>${esc(title)}</h1><div class="bh-sub">${esc(sub)}</div></div>
+    ${actions ? `<div class="bh-act">${actions}</div>` : ''}</div>`;
 }
 const avatar = (photo, name, size = 38, bg = 'var(--panel2)', color = 'var(--text)') =>
   `<div class="avatar" style="width:${size}px;height:${size}px;background:${bg};color:${color};font-size:${Math.round(size / 2.6)}px">${photo ? `<img src="${esc(photo)}" alt="">` : esc(initials(name))}</div>`;
@@ -173,6 +219,19 @@ function arcPath() {
   const [x0, y0] = p(a0); const [x1, y1] = p(a1);
   return `M ${x0} ${y0} A ${r} ${r} 0 1 1 ${x1} ${y1}`;
 }
+// resumen de los últimos 7 días comparado con la semana anterior
+function weekStrip(d) {
+  const now = Date.now(), W = 7 * 864e5;
+  const pick = (a, b) => (d.jobs || []).filter((j) => j.status !== 'cancelled' && j.finishedAt > now - a && j.finishedAt <= now - b);
+  const thisW = pick(W, 0), prev = pick(2 * W, W);
+  const sum = (l, f) => l.reduce((t, j) => t + (Number(f(j)) || 0), 0);
+  const avg = (l) => l.length ? Math.round(sum(l, (j) => j.score) / l.length) : 0;
+  const cell = (k, v, a, b, f) => { const dv = b ? Math.round((a - b) / b * 100) : null;
+    return `<div class="wk"><span class="k">${k}</span><b class="mono">${f(v)}</b>${dv === null ? '<i class="muted">—</i>' : `<i class="${dv >= 0 ? 'pos' : 'neg'}">${dv >= 0 ? '▲' : '▼'} ${Math.abs(dv)}%</i>`}</div>`; };
+  const km = sum(thisW, (j) => j.km), kmP = sum(prev, (j) => j.km), earn = sum(thisW, (j) => j.net ?? j.revenue), earnP = sum(prev, (j) => j.net ?? j.revenue);
+  return `<div class="week-strip"><div class="wk-title"><b>Tu semana</b><span class="muted">últimos 7 días</span></div>
+    ${cell('Viajes', thisW.length, thisW.length, prev.length, (v) => v)}${cell('Distancia', km, km, kmP, (v) => dist(v))}${cell('Ganado', earn, earn, earnP, (v) => money(v))}${cell('Puntuación media', avg(thisW), avg(thisW), avg(prev), (v) => v || '—')}</div>`;
+}
 const PAGE_DASH = {
   id: 'dash',
   async html() {
@@ -181,6 +240,7 @@ const PAGE_DASH = {
     <div class="page-head"><div><h1>Panel de conducción</h1><div class="subtitle" id="lv-sub">Datos en directo desde el juego</div></div>
       <div class="row"><button class="btn" id="ov-btn">🖥️ Overlay en el juego</button></div></div>
     <div id="lv-banner"></div>
+    ${weekStrip(d)}
     <div class="dash">
       <div class="card gauge-wrap">
         <div class="gauge">
@@ -217,7 +277,7 @@ const PAGE_DASH = {
           <div class="card stat"><span class="k">Camión</span><span class="v" id="lv-truck" style="font-size:18px">—</span></div>
         </div>
         <div class="card"><div class="card-title"><h2>Desgaste</h2><span class="muted" id="lv-plate"></span></div>
-          <div class="grid g4" id="lv-wear"></div></div>
+          <div class="grid g4" id="lv-wear"><div class="muted" style="grid-column:1/-1">Arranca el juego para ver el estado del camión.</div></div></div>
       </div>
     </div>
     <div class="grid g2" style="margin-top:16px">
@@ -555,11 +615,15 @@ const PAGE_BUS = {
     const b = S.bus; const trips = S.data.jobs.filter((j) => j.type === 'bus');
     const me = (S.profile && S.profile.online) || {};
     let routes = [];
-    if (!b && me.companyId) { try { const c = S.company && S.company.info && S.company.info.id === me.companyId ? S.company : await K.call('company:get'); routes = c && c.info && c.info.busUnlocked ? (c.busRoutes || []).filter((r) => r.active !== false) : []; } catch { routes = []; } }
+    if (!b && me.companyId) { try { const c = S.company && S.company.info && S.company.info.id === me.companyId ? S.company : await K.call('company:get'); routes = c && c.info && c.info.busUnlocked ? (c.busRoutes || []).filter((r) => r.active !== false) : []; S.busCompanyBanner = (c && c.info && c.info.busBanner) || ''; S.busCompanyName = (c && c.info && c.info.name) || ''; } catch { routes = []; } }
+    if (!me.companyId) { S.busCompanyBanner = ''; S.busCompanyName = ''; }
     S.busRoutes = routes;
     S.busView = trips;
     const isBus = S.live && /bus|coach|autob|setra|irizar|intercity|citaro|lion|neoplan|solaris|urbino/i.test(`${S.live.truck.brand} ${S.live.truck.name}`);
-    return `<div class="page-head"><div><h1>Modo autobús</h1><div class="subtitle">Rutas de pasajeros con paradas, billetes y puntuación</div></div></div>
+    const mine = S.data.settings.busBanner || '';
+    const hero = mine || S.busCompanyBanner || '';
+    return `${bannerHero(hero, 'Modo autobús', S.busCompanyName && !mine && S.busCompanyBanner ? 'Con las líneas de tu empresa' : 'Rutas de pasajeros con paradas, billetes y puntuación',
+      `<button class="btn sm" id="bus-banner">🖼️ ${mine ? 'Cambiar' : 'Poner'} banner</button>${mine ? '<button class="btn sm ghost" id="bus-banner-del">Quitar</button>' : ''}`)}
     ${isBus && !b ? '<div class="notice" style="margin-bottom:16px">🚌 Parece que conduces un autobús. ¡Empieza una ruta!</div>' : ''}
     ${b ? `<div class="card"><div class="card-title"><h2>${esc(b.line)} · ${esc(b.from || '?')} → ${esc(b.to || '?')}</h2><span class="pill ok"><span class="dot"></span>En servicio</span></div>
       <div class="grid g4" id="bus-live"></div>
@@ -585,6 +649,10 @@ const PAGE_BUS = {
     const ca = $('#bus-cancel');
     if (ca) ca.onclick = async () => { await K.call('bus:cancel'); S.bus = null; render(); };
     $$('[data-pickroute]', root).forEach((b) => b.onclick = () => act(b, () => startCompanyRoute(S.busRoutes.find((r) => r.id === b.dataset.pickroute))));
+    const bb = $('#bus-banner');
+    if (bb) bb.onclick = async () => { const img = await pickBanner(1200, 300, 'Banner del modo autobús'); if (!img) return; await K.call('settings:set', { busBanner: img }); await refreshState(); render(); };
+    const bd = $('#bus-banner-del');
+    if (bd) bd.onclick = async () => { await K.call('settings:set', { busBanner: '' }); await refreshState(); render(); };
     bindTrips(root, S.busView);
     updateBus();
   },

@@ -359,3 +359,38 @@ input[type=range] { accent-color: var(--accent); width: 100%; }
 .loan-opt b { font-family: var(--display); font-size: 20px; } .loan-opt span { font-size: 12px; color: var(--muted); }
 .bus-lock { text-align: center; padding: 34px 24px; background: radial-gradient(500px 200px at 50% 0, rgba(255,159,28,.15), transparent), var(--panel); }
 .bus-lock .big { font-size: 48px; }
+/* recortador de imágenes */
+.crop-modal { width: auto !important; max-width: 94vw; }
+.crop-stage { position: relative; margin: 0 auto; border-radius: 12px; overflow: hidden; background: repeating-conic-gradient(#1a2033 0 25%, #141a2c 0 50%) 0 0/20px 20px; cursor: grab; touch-action: none; box-shadow: 0 0 0 2px var(--accent), 0 10px 40px rgba(0,0,0,.5); }
+.crop-stage.drag { cursor: grabbing; }
+.crop-stage canvas { width: 100%; height: 100%; display: block; }
+.crop-stage .crop-grid { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(90deg, transparent 33.1%, rgba(255,255,255,.22) 33.3%, transparent 33.6%, transparent 66.4%, rgba(255,255,255,.22) 66.6%, transparent 66.9%), linear-gradient(0deg, transparent 33.1%, rgba(255,255,255,.22) 33.3%, transparent 33.6%, transparent 66.4%, rgba(255,255,255,.22) 66.6%, transparent 66.9%); opacity: 0; transition: opacity .2s; }
+.crop-stage.drag .crop-grid { opacity: 1; }
+.crop-stage.round::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(circle at center, transparent 49.3%, rgba(255,255,255,.7) 49.5%, rgba(255,255,255,.7) 49.9%, rgba(5,7,12,.72) 50.1%); }
+.crop-tools { justify-content: center; margin-top: 14px; gap: 10px; }
+.crop-tools input[type=range] { width: 260px; accent-color: var(--accent); }
+/* cabecera con banner del apartado de buses */
+.bus-hero { position: relative; min-height: 150px; border-radius: 18px; overflow: hidden; margin-bottom: 18px; padding: 22px 24px; display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+  background: radial-gradient(120% 140% at 100% 100%, rgba(255,159,28,.35), transparent 55%), linear-gradient(135deg, #1B2A6B, #2A1C7A 60%, #0E1230); border: 1px solid var(--line); }
+.bus-hero.has-img { min-height: 190px; background: linear-gradient(180deg, rgba(8,10,20,.05) 0%, rgba(8,10,20,.82) 100%), var(--banner) center/cover no-repeat; }
+.bus-hero:not(.has-img)::after { content: ''; position: absolute; right: -40px; bottom: -30px; width: 340px; height: 120px; background: repeating-linear-gradient(90deg, rgba(255,255,255,.12) 0 40px, transparent 40px 70px); transform: skewX(-35deg); opacity: .5; pointer-events: none; }
+.bus-hero .bh-txt { position: relative; z-index: 1; text-shadow: 0 2px 12px rgba(0,0,0,.5); }
+.bus-hero .bh-kicker { font-family: var(--display); font-weight: 700; letter-spacing: .14em; text-transform: uppercase; font-size: 12px; color: var(--amber); margin-bottom: 4px; }
+.bus-hero h1 { font-size: 38px; }
+.bus-hero .bh-sub { color: #D5DCEB; margin-top: 6px; }
+.bus-hero .bh-act { position: relative; z-index: 1; display: flex; gap: 8px; }
+.bus-hero .bh-act .btn { background: rgba(10,13,24,.6); backdrop-filter: blur(6px); }
+/* los banners se ven tal y como se recortaron (4:1) */
+.bus-hero.has-img { aspect-ratio: 4 / 1; min-height: 0; }
+.cp-banner { height: auto; aspect-ratio: 4 / 1; }
+.banner-prev { height: auto; aspect-ratio: 4 / 1; }
+/* resumen semanal del panel */
+.week-strip { display: grid; grid-template-columns: 1.1fr repeat(4, 1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; margin-bottom: 16px; }
+.week-strip > div { background: var(--panel); padding: 12px 16px; display: flex; flex-direction: column; gap: 2px; justify-content: center; }
+.week-strip .wk-title { background: linear-gradient(135deg, rgba(76,141,255,.18), rgba(90,61,240,.12)); }
+.week-strip .wk-title b { font-family: var(--display); font-size: 20px; letter-spacing: .04em; }
+.week-strip .k { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.week-strip .wk b { font-family: var(--display); font-size: 24px; line-height: 1.1; }
+.week-strip i { font-style: normal; font-size: 12px; }
+.week-strip i.pos { color: var(--teal); } .week-strip i.neg { color: var(--red); }
+@media (max-width: 1100px) { .week-strip { grid-template-columns: repeat(2, 1fr); } .week-strip .wk-title { grid-column: 1 / -1; } }

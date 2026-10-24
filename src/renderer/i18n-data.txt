@@ -843,3 +843,31 @@ Ya puedes crear rutas | You can now create routes | Tu peux maintenant créer de
 Primero devuelve el préstamo que ya tienes | Repay your current loan first | Rembourse d'abord ton prêt actuel | Zahle zuerst deinen aktuellen Kredit zurück | Restituisci prima il prestito attuale | Devolva primeiro o empréstimo atual | Najpierw spłać obecną pożyczkę
 La empresa no tiene préstamos | The company has no loans | L'entreprise n'a pas de prêt | Die Firma hat keine Kredite | L'azienda non ha prestiti | A empresa não tem empréstimos | Firma nie ma pożyczek
 Saldo | Balance | Solde | Kontostand | Saldo | Saldo | Saldo
+Arrastra la imagen para elegir qué parte se ve. Usa la rueda del ratón o la barra para hacer zoom. | Drag the image to choose which part is shown. Use the mouse wheel or the slider to zoom. | Fais glisser l'image pour choisir la partie visible. Utilise la molette ou le curseur pour zoomer. | Ziehe das Bild, um den sichtbaren Ausschnitt zu wählen. Zoome mit dem Mausrad oder dem Regler. | Trascina l'immagine per scegliere quale parte si vede. Usa la rotella o la barra per lo zoom. | Arraste a imagem para escolher que parte aparece. Use a roda do mouse ou a barra para dar zoom. | Przeciągnij obraz, aby wybrać widoczną część. Użyj kółka myszy lub suwaka, aby powiększyć.
+Ajusta tu foto | Adjust your photo | Ajuste ta photo | Foto anpassen | Regola la tua foto | Ajuste sua foto | Dopasuj zdjęcie
+Ajusta el logo de la empresa | Adjust the company logo | Ajuste le logo de l'entreprise | Firmenlogo anpassen | Regola il logo dell'azienda | Ajuste o logo da empresa | Dopasuj logo firmy
+Elige qué parte del banner se ve | Choose which part of the banner is shown | Choisis la partie visible de la bannière | Wähle den sichtbaren Bannerausschnitt | Scegli quale parte del banner si vede | Escolha que parte do banner aparece | Wybierz widoczną część banera
+Banner de la empresa | Company banner | Bannière de l'entreprise | Firmenbanner | Banner dell'azienda | Banner da empresa | Baner firmy
+Banner del modo autobús | Bus mode banner | Bannière du mode bus | Busmodus-Banner | Banner modalità autobus | Banner do modo ônibus | Baner trybu autobusu
+Banner del apartado de buses | Bus section banner | Bannière de la section bus | Banner des Busbereichs | Banner della sezione bus | Banner da seção de ônibus | Baner sekcji autobusów
+Banner de buses actualizado | Bus banner updated | Bannière bus mise à jour | Busbanner aktualisiert | Banner bus aggiornato | Banner de ônibus atualizado | Baner autobusów zaktualizowany
+Centrar | Center | Centrer | Zentrieren | Centra | Centralizar | Wyśrodkuj
+Otra imagen | Another image | Autre image | Anderes Bild | Altra immagine | Outra imagem | Inny obraz
+Usar imagen | Use image | Utiliser l'image | Bild verwenden | Usa immagine | Usar imagem | Użyj obrazu
+Poner banner | Add banner | Ajouter une bannière | Banner hinzufügen | Aggiungi banner | Pôr banner | Dodaj baner
+Cambiar banner | Change banner | Changer la bannière | Banner ändern | Cambia banner | Trocar banner | Zmień baner
+Poner banner de buses | Add bus banner | Ajouter une bannière bus | Busbanner hinzufügen | Aggiungi banner bus | Pôr banner de ônibus | Dodaj baner autobusów
+Cambiar banner de buses | Change bus banner | Changer la bannière bus | Busbanner ändern | Cambia banner bus | Trocar banner de ônibus | Zmień baner autobusów
+Tu semana | Your week | Ta semaine | Deine Woche | La tua settimana | Sua semana | Twój tydzień
+últimos 7 días | last 7 days | 7 derniers jours | letzte 7 Tage | ultimi 7 giorni | últimos 7 dias | ostatnie 7 dni
+Puntuación media | Average score | Note moyenne | Durchschnittliche Punktzahl | Punteggio medio | Pontuação média | Średni wynik
+Arranca el juego para ver el estado del camión. | Start the game to see the truck's condition. | Lance le jeu pour voir l'état du camion. | Starte das Spiel, um den Zustand des Lkw zu sehen. | Avvia il gioco per vedere lo stato del camion. | Inicie o jogo para ver o estado do caminhão. | Uruchom grę, aby zobaczyć stan ciężarówki.
+Ese archivo no es una imagen | That file is not an image | Ce fichier n'est pas une image | Diese Datei ist kein Bild | Quel file non è un'immagine | Esse arquivo não é uma imagem | Ten plik nie jest obrazem
+La imagen pesa demasiado (máx. # MB) | The image is too large (max. # MB) | L'image est trop lourde (max. # Mo) | Das Bild ist zu groß (max. # MB) | L'immagine è troppo pesante (max. # MB) | A imagem é grande demais (máx. # MB) | Obraz jest za duży (maks. # MB)
+No se pudo abrir la imagen | Couldn't open the image | Impossible d'ouvrir l'image | Bild konnte nicht geöffnet werden | Impossibile aprire l'immagine | Não foi possível abrir a imagem | Nie udało się otworzyć obrazu
+Viajes | Trips | Trajets | Fahrten | Viaggi | Viagens | Przejazdy
+Quitar | Remove | Retirer | Entfernen | Rimuovi | Remover | Usuń
+# rutas | # routes | # lignes | # Linien | # linee | # rotas | # tras
+# ruta | # route | # ligne | # Linie | # linea | # rota | # trasa
+todo lo que se gana vale ×# | everything earned is worth ×# | tout ce qui est gagné vaut ×# | alle Einnahmen zählen ×# | tutto ciò che si guadagna vale ×# | tudo o que se ganha vale ×# | wszystkie zarobki są warte ×#
+Con las líneas de tu empresa | With your company's lines | Avec les lignes de ton entreprise | Mit den Linien deiner Firma | Con le linee della tua azienda | Com as linhas da sua empresa | Z liniami twojej firmy
