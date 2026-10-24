@@ -460,13 +460,14 @@ const SECTIONS = {
         <h2>Servicio de autobuses</h2><div class="muted" style="max-width:560px;margin:6px auto 16px">Activa el servicio de autobuses para que la empresa pueda crear sus propias líneas con paradas.</div>
         <div class="grid g3" style="max-width:720px;margin:0 auto 18px;text-align:left">
           <div class="mini-stat"><span>Precio</span><b>${money(price)}</b></div><div class="mini-stat"><span>Las rutas pagan</span><b>×${nf(S.data.busBoost || 1.5, 1)}</b></div><div class="mini-stat"><span>Saldo</span><b>${money(info.balance || 0)}</b></div></div>
-        <div class="muted" style="font-size:13px;margin-bottom:16px">✓ Rutas propias con paradas y pago extra · ✓ Todo lo que se gana en ellas vale un 50% más · ✓ Para siempre, se paga una vez</div>
+        <div class="muted" style="font-size:13px;margin-bottom:16px">🎁 Incluye un autobús Mercedes-Benz Travego de regalo · ✓ Rutas propias con paradas y pago extra · ✓ Todo lo que se gana en ellas vale un 50% más · ✓ Para siempre, se paga una vez</div>
         ${S.mgr ? `<button class="btn primary" id="bus-unlock" ${(info.balance || 0) < price ? 'disabled' : ''}>Activar por ${money(price)}</button>${(info.balance || 0) < price ? '<div class="muted" style="font-size:12px;margin-top:8px">No hay saldo suficiente: puedes pedir un préstamo en Saldo.</div>' : ''}` : '<div class="muted">Solo el fundador o un gerente pueden activarlo.</div>'}</div>`;
     }
     const routes = c.busRoutes || [];
     const done = (r) => c.jobs.filter((j) => j.routeId === r.id);
     S.busRoutes = routes;
     return head('Rutas de bus', 'Líneas de autobús de la empresa con sus paradas, billete y pago extra', S.mgr ? '<button class="btn primary" id="route-new">＋ Nueva ruta</button>' : '') +
+      (!info.busGiftClaimed && S.mgr ? '<div class="notice" style="margin-bottom:16px;display:flex;align-items:center;gap:12px"><span style="font-size:26px">🎁</span><div style="flex:1"><b>Tenéis un autobús de regalo</b><div class="muted">El servicio de autobuses incluye un Mercedes-Benz Travego para la flota.</div></div><button class="btn primary" id="bus-gift">Recoger autobús</button></div>' : '') +
       bannerHero(info.busBanner, info.name, `${routes.length} ${routes.length === 1 ? 'ruta' : 'rutas'} · todo lo que se gana vale ×${nf(S.data.busBoost || 1.5, 1)}`,
         S.mgr ? `<button class="btn sm" id="bus-cbanner">🖼️ ${info.busBanner ? 'Cambiar' : 'Poner'} banner de buses</button>${info.busBanner ? '<button class="btn sm ghost" id="bus-cbanner-del">Quitar</button>' : ''}` : '', 'Rutas de bus') +
       (routes.length ? `<div class="grid g2">${routes.map((r) => { const d = done(r); const full = d.filter((j) => j.routeDone).length;
@@ -789,9 +790,10 @@ function mountCompany(root) {
   on('#pm-photo', async () => { const img = await cropImage({ w: 1280, h: 720, title: 'Foto de la promoción', maxKB: 450 }); if (img) { S.promo.photo = img; render(); } });
   on('#pm-photo-del', async () => { S.promo.photo = ''; render(); });
   on('#dc-promo', async () => { const r = await K.call('company:discord', 'promo', { text: S.promo.text, photo: S.promo.photo }); S.promo = null; toast({ title: 'Promoción publicada', body: r && r.posted ? 'Ya está en #promociona-tu-empresa' : 'Aparecerá en #promociona-tu-empresa en unos minutos', kind: 'money' }); await reload(); });
+  on('#bus-gift', async () => { const g = await K.call('company:busGift'); toast({ title: 'Autobús recibido 🎁', body: `${g} ya está en la flota de la empresa`, kind: 'achievement' }); await reload(); });
   on('#bus-unlock', async () => {
     if (!confirm(`¿Activar el servicio de autobuses por ${money(S.data.busUnlockPrice || 700000)}?`)) return;
-    await K.call('company:unlockBus'); toast({ title: 'Servicio de autobuses activado 🚌', body: 'Ya puedes crear rutas', kind: 'achievement' }); render();
+    const gift = await K.call('company:unlockBus'); toast({ title: 'Servicio de autobuses activado 🚌', body: gift ? `🎁 Te regalamos un ${gift} para la flota. Ya puedes crear rutas` : 'Ya puedes crear rutas', kind: 'achievement' }); render();
   });
   // rutas de bus
   const routeForm = (r = {}) => formModal(r.id ? 'Editar ruta' : 'Nueva ruta de bus', `

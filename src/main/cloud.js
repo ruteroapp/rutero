@@ -609,13 +609,30 @@ class Cloud {
     ]);
   }
   // ---------- servicio de autobuses ----------
-  async unlockBus(cid, me) {
+  // gift = autobús de regalo que viene con el servicio (no ocupa plaza de garaje al recibirlo)
+  async unlockBus(cid, me, gift) {
     const c = await this.getDoc(`companies/${cid}`);
     if (c && c.busUnlocked) return;
     if ((c.balance || 0) < BUS_UNLOCK_PRICE) throw new Error('No hay saldo suficiente en esa cuenta');
-    await this.commit([
-      this.upd(`companies/${cid}`, { busUnlocked: true, busUnlockedAt: new Date(), lastActivity: new Date() }, [inc('balance', -BUS_UNLOCK_PRICE)]),
+    const writes = [
+      this.upd(`companies/${cid}`, { busUnlocked: true, busUnlockedAt: new Date(), lastActivity: new Date(), busGiftClaimed: !!gift }, [inc('balance', -BUS_UNLOCK_PRICE)]),
       this.create(`companies/${cid}/bank/${newId()}`, { kind: 'purchase', amount: -BUS_UNLOCK_PRICE, by: me.name || '', note: 'Servicio de autobuses de la empresa', at: new Date() }),
+    ];
+    if (gift) {
+      writes.push(this.create(`companies/${cid}/fleet/${newId()}`, { model: `${gift.brand ? gift.brand + ' ' : ''}${gift.name}`, modelId: gift.id, brand: gift.brand || '', kind: 'Autobús', price: gift.price, color: gift.color || '', assignedTo: '', garageId: '', condition: 100, km: 0, boughtBy: 'Regalo del servicio de autobuses', gift: true, boughtAt: new Date() }));
+      writes.push(this.create(`companies/${cid}/bank/${newId()}`, { kind: 'info', amount: 0, by: me.name || '', note: `Regalo: ${gift.brand ? gift.brand + ' ' : ''}${gift.name}`, at: new Date() }));
+    }
+    await this.commit(writes);
+  }
+  // para las empresas que activaron el servicio antes de que existiera el regalo
+  async claimBusGift(cid, me, gift) {
+    const c = await this.getDoc(`companies/${cid}`);
+    if (!c || !c.busUnlocked) throw new Error('Primero activa el servicio de autobuses');
+    if (c.busGiftClaimed) throw new Error('Esta empresa ya recibió su autobús de regalo');
+    await this.commit([
+      this.upd(`companies/${cid}`, { busGiftClaimed: true }),
+      this.create(`companies/${cid}/fleet/${newId()}`, { model: `${gift.brand ? gift.brand + ' ' : ''}${gift.name}`, modelId: gift.id, brand: gift.brand || '', kind: 'Autobús', price: gift.price, color: gift.color || '', assignedTo: '', garageId: '', condition: 100, km: 0, boughtBy: 'Regalo del servicio de autobuses', gift: true, boughtAt: new Date() }),
+      this.create(`companies/${cid}/bank/${newId()}`, { kind: 'info', amount: 0, by: me.name || '', note: `Regalo: ${gift.brand ? gift.brand + ' ' : ''}${gift.name}`, at: new Date() }),
     ]);
   }
   async fleetOf(cid) { return this.query(`companies/${cid}`, { from: [{ collectionId: 'fleet' }], limit: 500 }); }

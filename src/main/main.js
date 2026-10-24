@@ -626,7 +626,8 @@ function registerIpc() {
   h('company:busrouteDel', (id) => cloud.deleteBusRoute(me.companyId, id));
   h('company:loan', async (amount) => { await cloud.takeLoan(me.companyId, amount, me); await refreshOnline(); });
   h('company:repay', async (amount) => { await cloud.repayLoan(me.companyId, amount, me); await refreshOnline(); });
-  h('company:unlockBus', async () => { await cloud.unlockBus(me.companyId, me); await refreshOnline(); });
+  h('company:busGift', async () => { const gift = TRUCK_SHOP.find((m) => m.id === 'mb-travego16') || TRUCK_SHOP.find((m) => m.kind === 'Autobús'); await cloud.claimBusGift(me.companyId, me, gift); await refreshOnline(); return `${gift.brand || ''} ${gift.name}`.trim(); });
+  h('company:unlockBus', async () => { const gift = TRUCK_SHOP.find((m) => m.id === 'mb-travego16') || TRUCK_SHOP.find((m) => m.kind === 'Autobús'); await cloud.unlockBus(me.companyId, me, gift); await refreshOnline(); return gift ? `${gift.brand || ''} ${gift.name}`.trim() : ''; });
   // ---- Discord: conductores
   h('discord:link', async () => {
     if (!cloud.uid) throw new Error('Inicia sesión primero');
