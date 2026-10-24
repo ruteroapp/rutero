@@ -953,3 +953,12 @@ Gira a la derecha | Turn right | Tourne à droite | Rechts abbiegen | Gira a des
 Gira a la izquierda | Turn left | Tourne à gauche | Links abbiegen | Gira a sinistra | Vire à esquerda | Skręć w lewo
 La parada está detrás | The stop is behind you | L'arrêt est derrière toi | Die Haltestelle ist hinter dir | La fermata è dietro di te | A parada está atrás | Przystanek jest za tobą
 Próxima parada | Next stop | Prochain arrêt | Nächste Haltestelle | Prossima fermata | Próxima parada | Następny przystanek
+Teclas en el juego | In-game keys | Touches en jeu | Tasten im Spiel | Tasti nel gioco | Teclas no jogo | Klawisze w grze
+Abrir / cerrar puertas | Open / close doors | Ouvrir / fermer les portes | Türen öffnen / schließen | Apri / chiudi porte | Abrir / fechar portas | Otwórz / zamknij drzwi
+Grabar una ruta nueva | Record a new route | Enregistrer une nouvelle ligne | Neue Linie aufnehmen | Registra una nuova linea | Gravar uma nova rota | Nagraj nową trasę
+Guardar paradas 1 a 10 | Save stops 1 to 10 | Enregistrer les arrêts 1 à 10 | Haltestellen 1 bis 10 speichern | Salva fermate da 1 a 10 | Salvar paradas 1 a 10 | Zapisz przystanki 1–10
+Guía en el overlay | Overlay guidance | Guidage dans l'overlay | Führung im Overlay | Guida nell'overlay | Guia no overlay | Prowadzenie w nakładce
+Cancelar grabación | Cancel recording | Annuler l'enregistrement | Aufnahme abbrechen | Annulla registrazione | Cancelar gravação | Anuluj nagrywanie
+F1–F11 activadas | F1–F11 enabled | F1–F11 activées | F1–F11 aktiv | F1–F11 attivi | F1–F11 ativadas | F1–F11 włączone
+Grabando ruta | Recording route | Enregistrement de la ligne | Linie wird aufgenommen | Registrazione linea | Gravando rota | Nagrywanie trasy
+Ruta guardada | Route saved | Ligne enregistrée | Linie gespeichert | Linea salvata | Rota salva | Trasa zapisana

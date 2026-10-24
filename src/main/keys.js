@@ -16,7 +16,7 @@ function load() {
   } catch (e) { console.warn('teclas', e.message); api = false; }
   return api;
 }
-const VK = (k) => { k = String(k || 'U').toUpperCase(); if (/^[A-Z0-9]$/.test(k)) return k.charCodeAt(0); const map = { SPACE: 0x20, ENTER: 0x0D, F1: 0x70, F2: 0x71, F3: 0x72, F4: 0x73, F5: 0x74, F6: 0x75, F7: 0x76, F8: 0x77, F9: 0x78, F10: 0x79 }; return map[k] || 0x55; };
+const VK = (k) => { k = String(k || 'U').toUpperCase(); if (/^[A-Z0-9]$/.test(k)) return k.charCodeAt(0); const map = { SPACE: 0x20, ENTER: 0x0D, F1: 0x70, F2: 0x71, F3: 0x72, F4: 0x73, F5: 0x74, F6: 0x75, F7: 0x76, F8: 0x77, F9: 0x78, F10: 0x79, F11: 0x7A, F12: 0x7B }; return map[k] || 0x55; };
 function gameFocused(a) {
   try {
     const h = a.fg(); if (!h) return false;
@@ -36,4 +36,19 @@ function watchKey(getKey, isActive, onPress) {
   }, 60);
   return () => clearInterval(t);
 }
-module.exports = { watchKey };
+// varias teclas a la vez: onPress(nombre) con el juego delante
+function watchKeys(getKeys, isActive, onPress) {
+  const a = load(); if (!a) return () => {};
+  const down = {};
+  const t = setInterval(() => {
+    if (!isActive()) return;
+    let focused = null;
+    for (const k of getKeys()) {
+      const pressed = (a.key(VK(k)) & 0x8000) !== 0;
+      if (pressed && !down[k]) { if (focused === null) focused = gameFocused(a); if (focused) onPress(k); }
+      down[k] = pressed;
+    }
+  }, 60);
+  return () => clearInterval(t);
+}
+module.exports = { watchKey, watchKeys };

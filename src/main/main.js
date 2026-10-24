@@ -10,7 +10,7 @@ const plugin = require('./plugin');
 const { Photos } = require('./photos');
 const { setupUpdater } = require('./updater');
 const P = require('./progress');
-const { watchKey } = require('./keys');
+const { watchKey, watchKeys } = require('./keys');
 const { DiscordBot, buildRegister, buildPromo, postWebhook, announceRelease } = require('./discordbot');
 const DISCORD_CLIENT = '1563527823522533426';
 const DISCORD_REDIRECT = 'https://ruteroapp.github.io/rutero/discord.html';
@@ -495,6 +495,37 @@ function handleProtocolUrl(u) {
   if (q.get('state') !== discordPending.state || !q.get('access_token')) return discordPending.reject(new Error('No se pudo conectar con Discord, inténtalo otra vez'));
   discordPending.resolve(q.get('access_token'));
 }
+// ---------------------------------------------------------------- grabar una ruta de autobús conduciendo
+let recording = null; // { startedAt, game, points: { 0: {x,z}, 1..10: {x,z} } }
+function notify(title, body) { sendOverlay('toast', { title, body }); send('rec', recording ? publicRec() : null); toast(title, body); }
+const publicRec = () => ({ startedAt: recording.startedAt, count: Object.keys(recording.points).length, stops: Object.keys(recording.points).map(Number).sort((a, b) => a - b) });
+function recordKey(k) {
+  const p = last && last.pos;
+  if (!p) return;
+  const here = { x: Math.round(p.x * 10) / 10, z: Math.round(p.z * 10) / 10 };
+  if (k === 'F1') {
+    if (!recording) {
+      recording = { startedAt: Date.now(), game: last.game || '', points: { 0: here } };
+      return notify('⏺ Grabando ruta', 'Salida guardada. Pulsa F2–F11 en cada parada y F1 al terminar');
+    }
+    const idx = Object.keys(recording.points).map(Number).sort((a, b) => a - b);
+    if (idx.length < 2) { recording = null; return notify('Grabación cancelada', 'Hacen falta la salida y al menos una parada'); }
+    const names = idx.map((i, n) => (i === 0 ? 'Salida' : n === idx.length - 1 ? 'Destino' : `Parada ${i}`));
+    const d = new Date();
+    const route = { id: `r${Date.now().toString(36)}`, code: '', name: `Ruta grabada ${d.toLocaleDateString(I18N.locale(), { day: '2-digit', month: '2-digit' })} ${d.toLocaleTimeString(I18N.locale(), { hour: '2-digit', minute: '2-digit' })}`,
+      stops: names, color: '#19C3B1', fare: 5, perKm: 8, capacity: 55, recorded: true,
+      stopPos: idx.map((i, n) => ({ name: names[n], ...recording.points[i], g: recording.game })) };
+    store.set('busRoutes', [route, ...(store.get('busRoutes') || [])].slice(0, 50));
+    recording = null;
+    send('busRoutes', store.get('busRoutes'));
+    return notify('✅ Ruta guardada', `${names.length} paradas. Ponle nombre en Rutero → Autobús → Mis rutas`);
+  }
+  if (!recording) return; // F2–F11 solo cuentan mientras se graba
+  const n = Number(k.slice(1)) - 1; // F2 = parada 1 … F11 = parada 10
+  const again = !!recording.points[n];
+  recording.points[n] = here;
+  notify(`📍 Parada ${n} ${again ? 'actualizada' : 'guardada'}`, `${Object.keys(recording.points).length - 1} paradas · F1 para terminar`);
+}
 async function maybeStartBot() {
   if (!bot || !store.get('settings').botToken || !cloud.uid) return;
   try {
@@ -560,6 +591,8 @@ function registerIpc() {
   h('bus:end', () => tracker.endBus());
   h('bus:doors', () => tracker.toggleDoors());
   h('bus:routes', () => store.get('busRoutes') || []);
+  h('bus:rec', () => (recording ? publicRec() : null));
+  h('bus:recCancel', () => { recording = null; send('rec', null); return null; });
   h('bus:routeSave', (r) => {
     const stops = (Array.isArray(r.stops) ? r.stops : String(r.stops || '').split('\n')).map((x) => String(x).trim()).filter(Boolean).slice(0, 60);
     if (!String(r.name || '').trim()) throw new Error('Pon un nombre a la ruta');
@@ -567,7 +600,11 @@ function registerIpc() {
     const route = { id: r.id || `r${Date.now().toString(36)}`, code: String(r.code || '').trim().slice(0, 8), name: String(r.name).trim().slice(0, 60), stops, color: r.color || '#4C8DFF',
       fare: Math.max(0, Math.min(100, Number(r.fare ?? 5) || 0)), perKm: Math.max(0, Math.min(30, Number(r.perKm ?? 8) || 0)), capacity: Math.max(8, Math.min(120, Math.round(Number(r.capacity) || 55))) };
     const prev = (store.get('busRoutes') || []).find((x) => x.id === route.id);
-    route.stopPos = ((prev && prev.stopPos) || []).filter((p) => stops.includes(p.name)); // se conservan las paradas ya ubicadas
+    // se conservan las paradas ya ubicadas (si solo se han renombrado, se siguen por su posición en la lista)
+    const old = (prev && prev.stopPos) || [];
+    route.stopPos = prev && prev.stops && prev.stops.length === stops.length
+      ? old.map((p) => { const i = prev.stops.indexOf(p.name); return i >= 0 ? { ...p, name: stops[i] } : null; }).filter(Boolean)
+      : old.filter((p) => stops.includes(p.name));
     const list = (store.get('busRoutes') || []).filter((x) => x.id !== route.id);
     store.set('busRoutes', [route, ...list].slice(0, 50));
     return store.get('busRoutes');
@@ -729,6 +766,9 @@ app.whenReady().then(async () => {
   store = new Store(app.getPath('userData'));
   cloud = new Cloud(loadCloudConfig(), store);
   photos = new Photos(store, [path.join(RES, 'config'), path.join(ROOT, 'config')]);
+  // grabar rutas conduciendo: F1 empieza/termina, F2–F11 guardan las paradas 1–10 donde estás
+  const REC_KEYS = ['F1', 'F2', 'F3', 'F4', 'F5', 'F6', 'F7', 'F8', 'F9', 'F10', 'F11'];
+  watchKeys(() => REC_KEYS, () => store.get('settings').busHotkeys !== false && status === 'driving', (k) => recordKey(k));
   // tecla de puertas del autobús (U por defecto) mientras haya una ruta en marcha
   watchKey(() => store.get('settings').busDoorKey || 'U', () => !!(tracker && tracker.bus), () => tracker.toggleDoors());
   bot = new DiscordBot({ store, getCloud: () => cloud, root: ROOT, log: (...a) => console.warn('[bot]', ...a) });

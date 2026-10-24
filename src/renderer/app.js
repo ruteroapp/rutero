@@ -639,6 +639,8 @@ async function loadBotCard() {
   on('#bot-forget', async () => { await K.call('bot:forget'); loadBotCard(); });
   on('#cf-go', async () => { await K.call('bot:cloudflare', $('#cf-url').value); toast({ title: 'Bot pasado a Cloudflare', body: 'En 1–2 minutos empezará a funcionar las 24 horas', kind: 'money' }); setTimeout(loadBotCard, 90000); loadBotCard(); });
 }
+K.on('rec', () => { if (S.page === 'bus') render(); });
+K.on('busRoutes', () => { if (S.page === 'bus') render(); });
 K.on('bot:progress', (t) => { const el = $('#bot-prog'); if (el) el.textContent = t; });
 const openDiscord = () => { const u = S.data.links && S.data.links.discordInvite; if (u) K.call('open', u); else toast({ title: 'Discord', body: 'El servidor de Discord estará disponible muy pronto' }); };
 
@@ -661,12 +663,14 @@ const PAGE_BUS = {
     S.busRoutes = routes;
     S.busView = trips;
     S.myRoutes = await K.call('bus:routes').catch(() => []);
+    S.rec = await K.call('bus:rec').catch(() => null);
     const key = (S.data.settings.busDoorKey || 'U').toUpperCase();
     const isBus = S.live && /bus|coach|autob|setra|irizar|intercity|citaro|lion|neoplan|solaris|urbino/i.test(`${S.live.truck.brand} ${S.live.truck.name}`);
     const mine = S.data.settings.busBanner || '';
     const hero = mine || S.busCompanyBanner || '';
     return `${bannerHero(hero, 'Modo autobús', S.busCompanyName && !mine && S.busCompanyBanner ? 'Con las líneas de tu empresa' : 'Rutas de pasajeros con paradas, billetes y puntuación',
       `<button class="btn sm" id="bus-banner">🖼️ ${mine ? 'Cambiar' : 'Poner'} banner</button>${mine ? '<button class="btn sm ghost" id="bus-banner-del">Quitar</button>' : ''}`)}
+    ${S.rec ? `<div class="rec-bar"><span class="rec-dot"></span><div style="flex:1"><b>Grabando ruta · ${S.rec.count - 1} ${S.rec.count - 1 === 1 ? 'parada' : 'paradas'}</b><div class="muted">Pulsa F2–F11 en cada parada y <b class="kbd">F1</b> al terminar para guardarla.</div></div><button class="btn sm ghost" id="rec-cancel">Cancelar grabación</button></div>` : ''}
     ${isBus && !b ? '<div class="notice" style="margin-bottom:16px">🚌 Parece que conduces un autobús. ¡Empieza una ruta!</div>' : ''}
     ${b ? `<div class="card"><div class="card-title"><h2>${esc(b.line)} · ${esc(b.from || '?')} → ${esc(b.to || '?')}</h2><span class="pill ok"><span class="dot"></span>En servicio</span></div>
       <div class="door-bar ${b.doors ? 'open' : ''}" id="bus-doorbar"></div>
@@ -688,6 +692,16 @@ const PAGE_BUS = {
         <label class="field"><span>Destino</span><input type="text" id="b-to" placeholder="Valencia"></label>
         <label class="field"><span>Precio billete</span><input type="number" id="b-fare" value="5" step="0.5" min="0"></label></div>
         <div class="row" style="margin-top:14px"><button class="btn primary" id="bus-start">▶ Empezar ruta</button><span class="muted">Funciona con cualquier mod de autobús o con un camión.</span></div></div>`}
+    <div class="card keys-card" style="margin-top:16px"><div class="card-title"><h2>⌨️ Teclas en el juego</h2>
+        <label class="row" style="gap:8px"><span class="switch"><input type="checkbox" id="bus-hk" ${S.data.settings.busHotkeys !== false ? 'checked' : ''}><i></i></span><span class="muted">F1–F11 activadas</span></label></div>
+      <div class="muted" style="margin-bottom:12px">Funcionan con la ventana de ETS2 o ATS delante. Rutero solo «escucha» la tecla: el juego también la recibe, así que si usas F1–F11 para otra cosa del juego puedes desactivarlas aquí.</div>
+      <div class="keys-grid">
+        <div class="kk"><b class="kbd">${esc(key)}</b><div><b>Abrir / cerrar puertas</b><span>Con el autobús parado en la parada: primero bajan y luego suben pasajeros. Al cerrar cuenta la parada y se guarda dónde está.</span></div></div>
+        <div class="kk"><b class="kbd">F1</b><div><b>Grabar una ruta nueva</b><span>Púlsala en la salida: guarda dónde estás y empieza a grabar. Vuelve a pulsarla al final para terminar y guardar la ruta.</span></div></div>
+        <div class="kk"><b class="kbd">F2–F11</b><div><b>Guardar paradas 1 a 10</b><span>Mientras grabas, al llegar a cada parada pulsa F2 (parada 1), F3 (parada 2)… hasta F11 (parada 10). Si te equivocas, vuelve a pulsar la misma tecla en el sitio correcto.</span></div></div>
+        <div class="kk"><b class="kbd">🧭</b><div><b>Guía en el overlay</b><span>Cuando conduces una ruta con paradas guardadas, el overlay muestra una flecha, «gira a la derecha / sigue recto» y los metros que faltan.</span></div></div>
+      </div>
+      <div class="muted" style="font-size:12px;margin-top:10px">Las rutas grabadas aparecen en «Mis rutas» como «Ruta grabada…»: pulsa Editar para ponerles nombre a la línea y a cada parada.</div></div>
     <div class="card" style="margin-top:16px"><h2>Historial de rutas</h2>${!trips.length ? '<div class="empty"><div class="big">🚏</div>Aún no has hecho rutas</div>' : `
       <table><thead><tr><th>Fecha</th><th>Línea</th><th>Ruta</th><th class="num">Paradas</th><th class="num">Pasajeros</th><th class="num">Distancia</th><th class="num">Ganado</th><th class="num">Puntos</th></tr></thead>
       <tbody>${trips.map((j, i) => `<tr class="click" data-trip="${i}"><td class="muted">${dateStr(j.finishedAt)}</td><td>${esc(j.line)}</td><td>${esc(j.from)} → ${esc(j.to)}</td><td class="num">${j.stops}</td><td class="num">${j.passengers}</td><td class="num">${dist(j.km)}</td><td class="num pos">${money(j.net ?? j.revenue)}</td><td class="num">${j.score}</td></tr>`).join('')}</tbody></table>`}</div>`;
@@ -700,6 +714,8 @@ const PAGE_BUS = {
     const ca = $('#bus-cancel');
     if (ca) ca.onclick = async () => { await K.call('bus:cancel'); S.bus = null; render(); };
     $$('[data-pickroute]', root).forEach((b) => b.onclick = () => act(b, () => startCompanyRoute(S.busRoutes.find((r) => r.id === b.dataset.pickroute))));
+    const hk = $('#bus-hk'); if (hk) hk.onchange = async () => { await K.call('settings:set', { busHotkeys: hk.checked }); await refreshState(); };
+    const rc = $('#rec-cancel'); if (rc) rc.onclick = async () => { await K.call('bus:recCancel'); render(); };
     const dr = $('#bus-door');
     if (dr) dr.onclick = () => act(dr, async () => { S.bus = await K.call('bus:doors'); render(); });
     const myForm = (r = {}) => formModal(r.id ? 'Editar ruta' : 'Nueva ruta con paradas', `
