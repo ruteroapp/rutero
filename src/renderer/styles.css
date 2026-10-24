@@ -410,3 +410,4 @@ input[type=range] { accent-color: var(--accent); width: 100%; }
 .promo-prev .pp-img { margin-top: 10px; border-radius: 8px; aspect-ratio: 16 / 9; background: #1E1F22 center/cover no-repeat; display: grid; place-items: center; color: #80848E; }
 .promo-prev .pp-fields { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px 12px; margin-top: 8px; }
 .promo-prev .pp-fields b { display: block; color: #fff; font-size: 12px; }
+.cf-box { margin-top: 14px; padding: 14px; border-radius: 12px; border: 1px solid rgba(243,128,32,.35); background: linear-gradient(135deg, rgba(243,128,32,.12), rgba(243,128,32,.03)); }

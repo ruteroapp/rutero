@@ -154,7 +154,6 @@ class DiscordBot {
         ws.send(JSON.stringify({ op: 2, d: { token: this.token, intents: 1 | 2, properties: { os: 'windows', browser: 'rutero', device: 'rutero' },
           presence: { status: 'online', afk: false, activities: [{ name: 'Rutero · ETS2 & ATS', type: 0 }] } } }));
       } else if (m.op === 0 && m.t === 'READY') { this.state.online = true; }
-      else if (m.op === 0 && m.t === 'GUILD_MEMBER_ADD' && m.d.guild_id === GUILD) { this.welcome(m.d.user).catch(() => {}); }
       else if (m.op === 7 || m.op === 9) { try { ws.close(4000); } catch { /* */ } }
     };
     ws.onclose = (ev) => {
@@ -244,7 +243,7 @@ class DiscordBot {
       progress('Enlaces de publicación…');
       await this.ensureHooks(ids);
       // servidor: canal del sistema y nivel de verificación (correo verificado)
-      await this.api('PATCH', `/guilds/${GUILD}`, { system_channel_id: null, verification_level: 2, default_message_notifications: 1, explicit_content_filter: 2 }).catch(() => {});
+      await this.api('PATCH', `/guilds/${GUILD}`, { system_channel_id: ids.general, system_channel_flags: 0, verification_level: 2, default_message_notifications: 1, explicit_content_filter: 2 }).catch(() => {});
       progress('Sincronizando…');
       this.applied.clear();
       await this.sync();
@@ -339,9 +338,14 @@ class DiscordBot {
     try {
       if (!this.roles) await this.roleMap();
       if (!(this.mem.channels || {}).general) { this.state.error = 'Pulsa «Organizar el servidor» una vez'; }
-      await this.processQueue(cloud);
-      await this.syncCompanies(cloud);
-      await this.syncMembers(cloud);
+      // si el bot de Cloudflare está funcionando, él se encarga de sedes y rangos (24 h, sin depender de este PC)
+      const cfg = await cloud.discordConfig().catch(() => null);
+      this.state.worker = !!(cfg && cfg.workerBeat && Date.now() - Date.parse(cfg.workerBeat) < 12 * 60e3);
+      if (!this.state.worker) {
+        await this.processQueue(cloud);
+        await this.syncCompanies(cloud);
+        await this.syncMembers(cloud);
+      }
       await this.announceRelease();
       this.state.lastSync = Date.now();
       if (this.state.error === 'Pulsa «Organizar el servidor» una vez' && (this.mem.channels || {}).general) this.state.error = '';
@@ -385,7 +389,8 @@ class DiscordBot {
       hooks[k] = `https://discord.com/api/webhooks/${w.id}/${w.token}`;
     }
     const cloud = this.getCloud();
-    if (cloud && cloud.uid) await cloud.setDiscordConfig({ hooks, guild: GUILD, updatedAt: new Date() });
+    if (cloud && cloud.uid) await cloud.setDiscordConfig({ hooks, guild: GUILD, updatedAt: new Date(), hq: (this.mem.cats || {}).hq || '',
+      channels: { register: ids.register || '', promo: ids.promo || '', updates: ids.updates || '' }, modRole: (this.findRole(ROLE.mod) || {}).id || '' });
     return hooks;
   }
   // rol + sede (texto y voz) de cada empresa registrada

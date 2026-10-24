@@ -495,7 +495,7 @@ async function maybeStartBot() {
 }
 async function botInfo() {
   let cfg = null; try { cfg = cloud.uid ? await cloud.discordConfig() : null; } catch { /* */ }
-  return { ...bot.status(), admin: !cfg || !cfg.adminUid ? 'none' : cfg.adminUid === cloud.uid ? 'me' : 'other' };
+  return { ...bot.status(), admin: !cfg || !cfg.adminUid ? 'none' : cfg.adminUid === cloud.uid ? 'me' : 'other', workerUrl: store.get('settings').botWorker || loadLinks().botWorker || '', workerBeat: (cfg && cfg.workerBeat) || '' };
 }
 function registerIpc() {
   const NEEDS_ME = /^(company:|cloud:send|cloud:linkTmp)/;
@@ -669,6 +669,24 @@ function registerIpc() {
   });
   h('bot:setup', async () => { if (!bot.state.running) await bot.start(); const r = await bot.setup((t) => send('bot:progress', t)); return { ...r, info: await botInfo() }; });
   h('bot:sync', async () => { await bot.sync(); return botInfo(); });
+  // pasa el bot a Cloudflare (funciona 24 h sin este PC). Las claves van directas de este PC al Worker.
+  h('bot:cloudflare', async (url) => {
+    const base = String(url || loadLinks().botWorker || '').trim().replace(/\/+$/, '');
+    if (!/^https:\/\/[\w.-]+\.workers\.dev$/.test(base)) throw new Error('Dirección del Worker no válida');
+    const token = store.get('settings').botToken;
+    if (!token) throw new Error('Pon primero el token del bot');
+    if (!cloud.auth || !cloud.auth.refreshToken) throw new Error('Inicia sesión primero');
+    const r = await fetch(`${base}/setup`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ botToken: token, refreshToken: cloud.auth.refreshToken, apiKey: cloud.cfg.apiKey }) });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok || !j.ok) throw new Error(j.error || `Cloudflare respondió ${r.status}`);
+    store.patch('settings', { botWorker: base });
+    return botInfo();
+  });
+  h('bot:workerStatus', async () => {
+    const base = store.get('settings').botWorker || loadLinks().botWorker;
+    if (!base) return null;
+    try { const r = await fetch(`${base}/status`); return await r.json(); } catch { return { ok: false, error: 'No responde' }; }
+  });
   h('bot:forget', async () => { bot.stop(); store.patch('settings', { botToken: '' }); return botInfo(); });
   h('report:send', async (r) => {
     if (!cloud.uid) throw new Error('Inicia sesión primero');

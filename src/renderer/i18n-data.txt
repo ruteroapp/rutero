@@ -907,3 +907,8 @@ Registra tu empresa en el servidor de Rutero y promociónala con foto y estrella
 Sede privada para tu empresa, rol con vuestro color, rangos sincronizados y promociones. | A private HQ for your company, a role in your colour, synced ranks and promotions. | Un QG privé pour ton entreprise, un rôle à vos couleurs, des rangs synchronisés et des promotions. | Privates HQ für deine Firma, Rolle in eurer Farbe, synchronisierte Ränge und Werbung. | Sede privata per la tua azienda, ruolo con il vostro colore, gradi sincronizzati e promozioni. | Sede privada para sua empresa, cargo com sua cor, patentes sincronizadas e promoções. | Prywatna siedziba firmy, rola w waszym kolorze, zsynchronizowane rangi i promocje.
 Otra en # días | Next in # days | Prochaine dans # jours | Nächste in # Tagen | Prossima tra # giorni | Outra em # dias | Następna za # dni
 Otra en # día | Next in # day | Prochaine dans # jour | Nächste in # Tag | Prossima tra # giorno | Outra em # dia | Następna za # dzień
+Cloudflare · 24 horas | Cloudflare · 24 hours | Cloudflare · 24 heures | Cloudflare · 24 Stunden | Cloudflare · 24 ore | Cloudflare · 24 horas | Cloudflare · 24 godziny
+Funcionando 24 h | Running 24/7 | Actif 24 h/24 | Läuft rund um die Uhr | Attivo 24 h | Funcionando 24 h | Działa 24 h
+Sin activar | Not enabled | Non activé | Nicht aktiviert | Non attivo | Não ativado | Nieaktywne
+Pasar a Cloudflare | Move to Cloudflare | Passer sur Cloudflare | Zu Cloudflare verschieben | Passa a Cloudflare | Passar para Cloudflare | Przenieś do Cloudflare
+Volver a enviar | Send again | Renvoyer | Erneut senden | Invia di nuovo | Enviar de novo | Wyślij ponownie

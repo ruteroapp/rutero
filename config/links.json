@@ -1,4 +1,5 @@
 {
   "discordInvite": "https://discord.gg/sUF5GBagG4",
-  "website": "https://ruteroapp.github.io/rutero/"
+  "website": "https://ruteroapp.github.io/rutero/",
+  "botWorker": "https://rutero-bot.elimtroper.workers.dev"
 }

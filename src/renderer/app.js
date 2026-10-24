@@ -619,13 +619,17 @@ async function loadBotCard() {
   if (b.admin === 'other') return; // solo lo ve el administrador del bot (o nadie mientras no se haya configurado)
   card.style.display = '';
   const ago = b.lastSync ? Math.round((Date.now() - b.lastSync) / 60000) : null;
+  const cfOn = !!(b.workerBeat && Date.now() - Date.parse(b.workerBeat) < 12 * 60000);
   card.innerHTML = `<div class="card-title"><h2>🤖 Bot de Discord <span class="tag">ADMIN</span></h2>
       ${b.running ? `<span class="pill ${b.online ? 'ok' : 'warn'}"><span class="dot"></span>${b.online ? 'En línea' : 'Conectando…'}</span>` : '<span class="pill">Apagado</span>'}</div>
     <div class="muted" style="margin-bottom:12px">El bot funciona mientras esta app está abierta en tu PC: sincroniza rangos, crea las sedes de empresas, publica promociones y avisa de cada versión nueva.</div>
     ${b.hasToken ? `<div class="grid g3" style="margin-bottom:12px"><div class="mini-stat"><span>Bot</span><b>${esc((b.user && b.user.username) || 'Rutero Bot')}</b></div><div class="mini-stat"><span>Conductores enlazados</span><b>${b.synced || 0}</b></div><div class="mini-stat"><span>Última sincronización</span><b>${ago === null ? '—' : ago < 1 ? 'ahora' : `hace ${ago} min`}</b></div></div>
       ${b.error ? `<div class="notice warn" style="margin-bottom:12px">${esc(b.error)}</div>` : ''}
       <div class="row"><button class="btn primary" id="bot-setup">🛠️ Organizar el servidor</button><button class="btn" id="bot-sync">🔄 Sincronizar ahora</button><button class="btn ghost" id="bot-forget">Quitar token</button></div>
-      <div class="muted" id="bot-prog" style="font-size:12px;margin-top:8px">«Organizar el servidor» crea o actualiza canales, permisos, rangos y mensajes fijos. Puedes repetirlo cuando quieras.</div>`
+      <div class="muted" id="bot-prog" style="font-size:12px;margin-top:8px">«Organizar el servidor» crea o actualiza canales, permisos, rangos y mensajes fijos. Puedes repetirlo cuando quieras.</div>
+      <div class="cf-box"><div class="row between" style="margin-bottom:8px"><b>☁️ Cloudflare · 24 horas</b>${cfOn ? '<span class="pill ok"><span class="dot"></span>Funcionando 24 h</span>' : '<span class="pill">Sin activar</span>'}</div>
+        <div class="muted" style="font-size:12px;margin-bottom:10px">${cfOn ? 'Las sedes de empresa y los rangos se hacen en Cloudflare aunque este PC esté apagado.' : 'Pásalo a Cloudflare (gratis) para que sedes y rangos funcionen aunque este PC esté apagado.'}</div>
+        <div class="row" style="flex-wrap:nowrap"><input type="text" id="cf-url" placeholder="https://rutero-bot.tu-usuario.workers.dev" value="${esc(b.workerUrl || '')}"><button class="btn ${cfOn ? '' : 'primary'}" id="cf-go">${cfOn ? 'Volver a enviar' : 'Pasar a Cloudflare'}</button></div></div>`
     : `<label class="field"><span>Token del bot (portal de Discord → Bot → Restablecer token → Copiar)</span><div class="row" style="flex-wrap:nowrap"><input type="password" id="bot-token" placeholder="Pega aquí el token" autocomplete="off"><button class="btn primary" id="bot-save">Guardar y encender</button></div></label>
       <div class="muted" style="font-size:12px">El token solo se guarda en este PC y nunca se sube a internet.</div>`}`;
   const on = (id, fn) => { const el = $(id, card); if (el) el.onclick = () => act(el, fn); };
@@ -633,6 +637,7 @@ async function loadBotCard() {
   on('#bot-setup', async () => { const r = await K.call('bot:setup'); toast({ title: 'Servidor organizado', body: `${r.channels} canales revisados`, kind: 'money' }); loadBotCard(); });
   on('#bot-sync', async () => { await K.call('bot:sync'); loadBotCard(); });
   on('#bot-forget', async () => { await K.call('bot:forget'); loadBotCard(); });
+  on('#cf-go', async () => { await K.call('bot:cloudflare', $('#cf-url').value); toast({ title: 'Bot pasado a Cloudflare', body: 'En 1–2 minutos empezará a funcionar las 24 horas', kind: 'money' }); setTimeout(loadBotCard, 90000); loadBotCard(); });
 }
 K.on('bot:progress', (t) => { const el = $('#bot-prog'); if (el) el.textContent = t; });
 const openDiscord = () => { const u = S.data.links && S.data.links.discordInvite; if (u) K.call('open', u); else toast({ title: 'Discord', body: 'El servidor de Discord estará disponible muy pronto' }); };
