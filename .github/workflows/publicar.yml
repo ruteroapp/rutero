@@ -27,11 +27,11 @@ jobs:
         shell: pwsh
         env:
           FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY || vars.FIREBASE_API_KEY }}
-          DISCORD_REPORTS_WEBHOOK: ${{ secrets.DISCORD_REPORTS_WEBHOOK || vars.DISCORD_REPORTS_WEBHOOK }}
+          DISCORD_REPORTS_WEBHOOK: ${{ secrets.DISCORD_REPORTS_WEBHOOK || vars.DISCORD_REPORTS_WEBHOOK || vars.RUTERO }}
         run: |
           if (-not $env:FIREBASE_API_KEY) { Write-Error "Falta el secreto FIREBASE_API_KEY en Settings > Secrets and variables > Actions"; exit 1 }
           $cfg = @{ apiKey = $env:FIREBASE_API_KEY.Trim(); projectId = 'rutero-a0abb' }
-          if ($env:DISCORD_REPORTS_WEBHOOK) { $cfg.discordWebhook = $env:DISCORD_REPORTS_WEBHOOK.Trim() }
+          if ($env:DISCORD_REPORTS_WEBHOOK -and $env:DISCORD_REPORTS_WEBHOOK.Trim() -match "^https://(canary\.|ptb\.)?discord(app)?\.com/api/webhooks/") { $cfg.discordWebhook = $env:DISCORD_REPORTS_WEBHOOK.Trim(); Write-Host "Webhook de reportes: OK" } else { Write-Host "::warning::No hay webhook de Discord valido" }
           $json = $cfg | ConvertTo-Json -Compress
           Set-Content -Path config/cloud.json -Value $json -Encoding utf8NoBOM
 
