@@ -184,7 +184,7 @@ class DiscordBot {
       if (m.op === 10) {
         clearInterval(this.hb);
         this.hb = setInterval(() => { try { ws.send(JSON.stringify({ op: 1, d: seq })); } catch { /* */ } }, m.d.heartbeat_interval);
-        ws.send(JSON.stringify({ op: 2, d: { token: this.token, intents: 1 | 2, properties: { os: 'windows', browser: 'rutero', device: 'rutero' },
+        ws.send(JSON.stringify({ op: 2, d: { token: this.token, intents: 1, properties: { os: 'windows', browser: 'rutero', device: 'rutero' },
           presence: { status: 'online', afk: false, activities: [{ name: 'Rutero · ETS2 & ATS', type: 0 }] } } }));
       } else if (m.op === 0 && m.t === 'READY') { this.state.online = true; }
       else if (m.op === 7 || m.op === 9) { try { ws.close(4000); } catch { /* */ } }
