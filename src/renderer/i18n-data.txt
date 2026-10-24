@@ -912,3 +912,4 @@ Funcionando 24 h | Running 24/7 | Actif 24 h/24 | Läuft rund um die Uhr | Attiv
 Sin activar | Not enabled | Non activé | Nicht aktiviert | Non attivo | Não ativado | Nieaktywne
 Pasar a Cloudflare | Move to Cloudflare | Passer sur Cloudflare | Zu Cloudflare verschieben | Passa a Cloudflare | Passar para Cloudflare | Przenieś do Cloudflare
 Volver a enviar | Send again | Renvoyer | Erneut senden | Invia di nuovo | Enviar de novo | Wyślij ponownie
+Se ha abierto tu navegador: acepta en Discord y vuelve a Rutero | Your browser has opened: accept in Discord and come back to Rutero | Ton navigateur s'est ouvert : accepte dans Discord et reviens sur Rutero | Dein Browser wurde geöffnet: bestätige in Discord und kehre zu Rutero zurück | Si è aperto il browser: accetta su Discord e torna a Rutero | Seu navegador foi aberto: aceite no Discord e volte ao Rutero | Otworzyła się przeglądarka: zaakceptuj w Discordzie i wróć do Rutero

@@ -16,6 +16,9 @@ const DISCORD_REDIRECT = 'https://ruteroapp.github.io/rutero/discord.html';
 
 if (!app.requestSingleInstanceLock()) { app.quit(); process.exit(0); }
 app.setAppUserModelId('com.rutero.app');
+// enlace rutero:// (para volver a la app después de conectar Discord en el navegador)
+if (process.defaultApp && process.argv.length >= 2) app.setAsDefaultProtocolClient('rutero', process.execPath, [path.resolve(process.argv[1])]);
+else app.setAsDefaultProtocolClient('rutero');
 
 const ROOT = path.join(__dirname, '..', '..');
 const RES = app.isPackaged ? process.resourcesPath : ROOT;
@@ -463,28 +466,27 @@ async function ensureMe() {
 const safeSettings = () => { const { botToken, ...rest } = store.get('settings'); return { ...rest, hasBotToken: !!botToken }; };
 // ---------------------------------------------------------------- Discord
 // Enlaza la cuenta de Discord del conductor (OAuth en una ventanita; solo pide «identify»)
+// Se abre en el navegador normal (Chrome, Edge…): Discord vuelve a la web de Rutero y esta abre la app con rutero://discord
+let discordPending = null;
 function discordLogin() {
+  if (discordPending) discordPending.reject(new Error('Se ha empezado otra conexión'));
   return new Promise((resolve, reject) => {
-    const state = Math.random().toString(36).slice(2);
+    const state = Math.random().toString(36).slice(2) + Date.now().toString(36);
     const url = `https://discord.com/oauth2/authorize?client_id=${DISCORD_CLIENT}&response_type=token&scope=identify&prompt=consent&state=${state}&redirect_uri=${encodeURIComponent(DISCORD_REDIRECT)}`;
-    const w = new BrowserWindow({ width: 520, height: 800, parent: win, modal: false, autoHideMenuBar: true, title: 'Conectar Discord', icon: ICON, backgroundColor: '#0A0D18', webPreferences: { partition: 'persist:discord-login' } });
-    let done = false;
-    const check = (e, u) => {
-      if (done || !String(u).startsWith(DISCORD_REDIRECT)) return;
-      if (e && e.preventDefault) e.preventDefault();
-      done = true;
-      const q = new URLSearchParams(String(u).split('#')[1] || String(u).split('?')[1] || '');
-      setTimeout(() => { if (!w.isDestroyed()) w.close(); }, 50);
-      if (q.get('error')) return reject(new Error('Has cancelado la conexión con Discord'));
-      if (q.get('state') !== state || !q.get('access_token')) return reject(new Error('No se pudo conectar con Discord'));
-      resolve(q.get('access_token'));
-    };
-    w.webContents.on('will-redirect', check);
-    w.webContents.on('will-navigate', check);
-    w.webContents.on('did-navigate', (e, u) => check(null, u));
-    w.on('closed', () => { if (!done) reject(new Error('Has cerrado la ventana de Discord')); });
-    w.loadURL(url);
+    const timer = setTimeout(() => { if (discordPending && discordPending.state === state) { discordPending = null; reject(new Error('No se ha completado la conexión con Discord (5 minutos)')); } }, 5 * 60 * 1000);
+    discordPending = { state, resolve: (t) => { clearTimeout(timer); discordPending = null; resolve(t); }, reject: (e) => { clearTimeout(timer); discordPending = null; reject(e); } };
+    shell.openExternal(url);
   });
+}
+// rutero://discord?access_token=…&state=…  (llega al abrir el enlace desde el navegador)
+function handleProtocolUrl(u) {
+  if (!u || !/^rutero:\/\//i.test(u)) return;
+  if (win) { win.show(); win.focus(); }
+  const q = new URLSearchParams(String(u).replace(/^rutero:\/\/[^?#]*[?#]?/i, ''));
+  if (!discordPending) return;
+  if (q.get('error')) return discordPending.reject(new Error('Has cancelado la conexión con Discord'));
+  if (q.get('state') !== discordPending.state || !q.get('access_token')) return discordPending.reject(new Error('No se pudo conectar con Discord, inténtalo otra vez'));
+  discordPending.resolve(q.get('access_token'));
 }
 async function maybeStartBot() {
   if (!bot || !store.get('settings').botToken || !cloud.uid) return;
@@ -722,7 +724,8 @@ app.whenReady().then(async () => {
   setInterval(announce, 3 * 3600_000);
   setInterval(() => updater.check(), 6 * 3600_000);
 });
-app.on('second-instance', () => { if (win) { win.show(); win.focus(); } });
+app.on('second-instance', (e, argv) => { if (win) { win.show(); win.focus(); } handleProtocolUrl((argv || []).find((a) => /^rutero:\/\//i.test(a))); });
+app.on('open-url', (e, u) => { e.preventDefault(); handleProtocolUrl(u); });
 app.on('before-quit', () => { app.isQuitting = true; store && store.flush(); reader && reader.disconnect(); });
 app.on('will-quit', () => globalShortcut.unregisterAll());
 app.on('window-all-closed', (e) => e.preventDefault());

@@ -609,7 +609,7 @@ function discordLinkBox() {
 }
 function bindDiscordLink(root) {
   const l = $('#dc-link', root);
-  if (l) l.onclick = () => act(l, async () => { S.profile = await K.call('discord:link'); toast({ title: 'Discord conectado', body: 'En unos minutos recibirás tu rango en el servidor', kind: 'money' }); render(); });
+  if (l) l.onclick = () => act(l, async () => { toast({ title: 'Conectar Discord', body: 'Se ha abierto tu navegador: acepta en Discord y vuelve a Rutero' }); S.profile = await K.call('discord:link'); toast({ title: 'Discord conectado', body: 'En unos minutos recibirás tu rango en el servidor', kind: 'money' }); render(); });
   const u = $('#dc-unlink', root);
   if (u) u.onclick = () => act(u, async () => { S.profile = await K.call('discord:unlink'); render(); });
 }
