@@ -709,8 +709,11 @@ function registerIpc() {
     if (hook) {
       const c = await cloud.getDoc(`companies/${me.companyId}`);
       const q = { text: extra.text || '', photo: extra.photo || '', by: cloud.uid, byDiscord: me.discordId || '' };
-      const { msg, files } = type === 'register' ? buildRegister(c, q, null) : buildPromo(c, q);
-      await postWebhook(hook, msg, files);
+      const build = (lang) => (type === 'register' ? buildRegister(c, q, null, lang) : buildPromo(c, q, lang));
+      { const { msg, files } = build('es'); await postWebhook(hook, msg, files); }
+      // y lo mismo en el canal en inglés
+      const hookEn = cfg.hooks[`${type}En`];
+      if (hookEn) { const { msg, files } = build('en'); await postWebhook(hookEn, msg, files).catch(() => {}); }
     }
     if (bot && bot.state.running) setTimeout(() => bot.sync().catch(() => {}), 1000);
     return { posted: !!hook };

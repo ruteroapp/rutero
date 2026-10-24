@@ -106,11 +106,12 @@ const dataUrlFile = (u, name) => { const m = /^data:(image\/[\w+.-]+);base64,(.+
 const linkBtn = (label, url, emoji) => (/^https?:\/\//i.test(url || '') ? { type: 2, style: 5, label, url: String(url).slice(0, 512), emoji: { name: emoji } } : null);
 const row = (...b) => { const c = b.filter(Boolean); return c.length ? [{ type: 1, components: c }] : []; };
 const stars = (sum, n) => { if (!n) return '☆☆☆☆☆ · sin valoraciones'; const a = sum / n, f = Math.round(a); return `${'★'.repeat(f)}${'☆'.repeat(5 - f)} · ${a.toFixed(1).replace('.', ',')} (${n})`; };
-function companyEmbed(c, q, title) {
+function companyEmbed(c, q, title, en) {
+  const st = en ? stars(c.ratingSum, c.ratingCount).replace('sin valoraciones', 'no ratings yet').replace(',', '.') : stars(c.ratingSum, c.ratingCount);
   return { color: hex(c.color), title: `${title}${c.name} [${c.tag || ''}]`.slice(0, 256),
-    description: [q && q.text ? q.text : (c.description || ''), '', `**${stars(c.ratingSum, c.ratingCount)}**`].join('\n').trim().slice(0, 4000),
-    fields: [{ name: '👥 Conductores', value: nf(c.membersCount || 1), inline: true }, { name: '🛣️ Km', value: nf(c.km), inline: true }, { name: '📦 Entregas', value: nf(c.jobs), inline: true }],
-    footer: { text: 'Búscala en Rutero → Empresas' }, timestamp: new Date().toISOString() };
+    description: [q && q.text ? q.text : (c.description || ''), '', `**${st}**`].join('\n').trim().slice(0, 4000),
+    fields: [{ name: en ? '👥 Drivers' : '👥 Conductores', value: nf(c.membersCount || 1), inline: true }, { name: '🛣️ Km', value: nf(c.km), inline: true }, { name: en ? '📦 Deliveries' : '📦 Entregas', value: nf(c.jobs), inline: true }],
+    footer: { text: en ? 'Find it in Rutero → Companies' : 'Búscala en Rutero → Empresas' }, timestamp: new Date().toISOString() };
 }
 
 // ---------------------------------------------------------------- trabajo de cada minuto
@@ -130,7 +131,9 @@ async function tick(env) {
       if (c && q.type === 'register') {
         maps = maps || await loadMaps(run);
         const m = await ensureHq(run, cfg, c, maps);
-        if (!q.posted && cfg.channels && cfg.channels.register) await run.dc('POST', `/channels/${cfg.channels.register}/messages`, { content: `🎉 ¡Damos la bienvenida a **${c.name}**! <@&${m.roleId}>`, embeds: [companyEmbed(c, q, '🏢 Nueva empresa · ')], allowed_mentions: { parse: [] } });
+        const chs = cfg.channels || {};
+        if (!q.posted && chs.register) await run.dc('POST', `/channels/${chs.register}/messages`, { content: `🎉 ¡Damos la bienvenida a **${c.name}**! <@&${m.roleId}>`, embeds: [companyEmbed(c, q, '🏢 Nueva empresa · ')], allowed_mentions: { parse: [] } });
+        if (!q.posted && chs.registerEn) await run.dc('POST', `/channels/${chs.registerEn}/messages`, { content: `🎉 Please welcome **${c.name}**! <@&${m.roleId}>`, embeds: [companyEmbed(c, q, '🏢 New company · ', true)], allowed_mentions: { parse: [] } });
         await run.dc('POST', `/channels/${m.textId}/messages`, { content: `🏠 **Sede de ${c.name}** · <@&${m.roleId}>`, embeds: [{ color: hex(c.color), description: 'Este canal y su canal de voz solo los ve vuestra empresa (y los moderadores).\nCada conductor recibe el rol al conectar su Discord en Rutero (Ajustes → Comunidad y ayuda).' }], allowed_mentions: { roles: [m.roleId] } }).catch(() => {});
         state.lastUsers = 0; // repasa los conductores para darles el rol nuevo
       }
@@ -138,6 +141,10 @@ async function tick(env) {
         const files = []; const e = companyEmbed(c, q, '📢 ');
         const ph = dataUrlFile(q.photo, 'foto.jpg') || dataUrlFile(c.banner, 'foto.jpg'); if (ph) { files.push(ph); e.image = { url: 'attachment://foto.jpg' }; }
         await run.dc('POST', `/channels/${cfg.channels.promo}/messages`, { content: q.byDiscord ? `Promoción de <@${q.byDiscord}>` : '', embeds: [e], allowed_mentions: { parse: [] }, components: row(linkBtn('Discord de la empresa', c.discord, '💬'), linkBtn('Web', c.website, '🌐'), linkBtn('Descargar Rutero', SITE, '🚚')) }, files);
+        if (cfg.channels.promoEn) {
+          const e2 = companyEmbed(c, q, '📢 ', true); if (ph) e2.image = { url: 'attachment://foto.jpg' };
+          await run.dc('POST', `/channels/${cfg.channels.promoEn}/messages`, { content: q.byDiscord ? `Promotion by <@${q.byDiscord}>` : '', embeds: [e2], allowed_mentions: { parse: [] }, components: row(linkBtn('Company Discord', c.discord, '💬'), linkBtn('Website', c.website, '🌐'), linkBtn('Download Rutero', SITE, '🚚')) }, files);
+        }
       }
       await run.del(`discordQueue/${q.id}`);
     }
@@ -284,7 +291,7 @@ async function setLanguage(env, i) {
     const uid = i.member.user.id;
     await run.dc('PUT', `/guilds/${GUILD}/members/${uid}/roles/${add.id}`);
     if (i.member.roles.includes(rem.id)) await run.dc('DELETE', `/guilds/${GUILD}/members/${uid}/roles/${rem.id}`);
-    return reply(lang === 'es' ? '🇪🇸 ¡Listo! Ahora ves los canales en **español**. Puedes cambiarlo cuando quieras.' : '🇬🇧 Done! You now see the channels in **English**. You can change it anytime.');
+    return reply(lang === 'es' ? '🇪🇸 ¡Listo! Ahora ves los canales en **español**. Puedes cambiarlo cuando quieras.' : '🇬🇧 Done! You now see the channels in **English**. You can change it anytime.\n_(Server admins always see every channel.)_');
   } catch (e) { return reply(`⚠️ ${String(e.message || e).slice(0, 200)}`); }
 }
 async function interactions(req, env, ctx) {

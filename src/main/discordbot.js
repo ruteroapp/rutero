@@ -33,6 +33,8 @@ const ROLE = { verified: '✅ Verificado', owner: '🏢 Dueño de empresa', mod:
 
 // Estructura del servidor. «m» = expresión para reconocer el canal aunque ya exista con otro emoji.
 const CATS = {
+  // la única categoría que ve todo el mundo: elegir idioma
+  start: { name: '🌐 ɪᴅɪᴏᴍᴀ · ʟᴀɴɢᴜᴀɢᴇ', m: /^🌐 ?(ɪᴅɪᴏᴍᴀ|idioma)/i },
   info: { name: '📌 ɪɴꜰᴏʀᴍᴀᴄɪᴏɴ', m: /informaci|ɪɴꜰᴏʀᴍᴀᴄɪ/i },
   news: { name: '📢 ɴᴏᴠᴇᴅᴀᴅᴇꜱ', m: /novedades|ɴᴏᴠᴇᴅᴀᴅᴇꜱ/i },
   community: { name: '💬 ᴄᴏᴍᴜɴɪᴅᴀᴅ', m: /comunidad|ᴄᴏᴍᴜɴɪᴅᴀᴅ/i },
@@ -41,15 +43,17 @@ const CATS = {
   hq: { name: '🏠 ꜱᴇᴅᴇꜱ ᴅᴇ ᴇᴍᴘʀᴇꜱᴀꜱ', m: /sedes|ꜱᴇᴅᴇꜱ/i },
   voice: { name: '🔊 ᴠᴏᴢ', m: /^🔊 ?(voz|ᴠᴏᴢ)$/i },
   // versión en inglés (solo la ve quien elige 🇬🇧 English)
+  infoEn: { name: '📌 ɪɴꜰᴏ', m: /^📌 ?(info|ɪɴꜰᴏ)$/i, lang: 'en' },
+  newsEn: { name: '📢 ɴᴇᴡꜱ', m: /^📢 ?(news|ɴᴇᴡꜱ)$/i, lang: 'en' },
   communityEn: { name: '💬 ᴄᴏᴍᴍᴜɴɪᴛʏ', m: /community|ᴄᴏᴍᴍᴜɴɪᴛʏ/i, lang: 'en' },
   ruteroEn: { name: '🚚 ʀᴜᴛᴇʀᴏ ꜱᴜᴘᴘᴏʀᴛ', m: /support|ꜱᴜᴘᴘᴏʀᴛ/i, lang: 'en' },
   companiesEn: { name: '🏢 ᴄᴏᴍᴘᴀɴɪᴇꜱ', m: /companies|ᴄᴏᴍᴘᴀɴɪᴇꜱ/i, lang: 'en' },
   voiceEn: { name: '🔊 ᴠᴏɪᴄᴇ', m: /voice|ᴠᴏɪᴄᴇ/i, lang: 'en' },
 };
-CATS.community.lang = CATS.rutero.lang = CATS.companies.lang = CATS.voice.lang = 'es';
+CATS.info.lang = CATS.news.lang = CATS.community.lang = CATS.rutero.lang = CATS.companies.lang = CATS.voice.lang = 'es';
 // lock = solo lectura para todos; verified = hace falta ✅ Verificado para escribir
 const CHANNELS = [
-  { key: 'lang', cat: 'info', name: '🌐┃ɪᴅɪᴏᴍᴀ-ʟᴀɴɢᴜᴀɢᴇ', m: /ɪᴅɪᴏᴍᴀ|idioma|language/i, lock: true, topic: 'Elige tu idioma · Choose your language' },
+  { key: 'lang', cat: 'start', name: '🌐┃ɪᴅɪᴏᴍᴀ-ʟᴀɴɢᴜᴀɢᴇ', m: /ɪᴅɪᴏᴍᴀ|idioma|language/i, lock: true, topic: 'Elige tu idioma · Choose your language' },
   { key: 'welcome', cat: 'info', name: '👋┃ʙɪᴇɴᴠᴇɴɪᴅᴀ', m: /ʙɪᴇɴᴠᴇɴɪᴅᴀ|bienvenida/i, lock: true, topic: 'Bienvenido a la comunidad oficial de Rutero, la app para ETS2 y ATS.' },
   { key: 'verify', cat: 'info', name: '✅┃ᴠᴇʀɪꜰɪᴄᴀᴄɪᴏɴ', m: /ᴠᴇʀɪꜰɪᴄᴀᴄɪ|verificaci/i, lock: true, topic: 'Enlaza tu cuenta de Rutero para verificarte y recibir tu rango.' },
   { key: 'rules', cat: 'info', name: '📜┃ɴᴏʀᴍᴀꜱ', m: /ɴᴏʀᴍᴀꜱ|normas/i, lock: true, topic: 'Léelas antes de escribir. Saltártelas puede costarte un aviso o la expulsión.' },
@@ -70,6 +74,15 @@ const CHANNELS = [
   { key: 'lookDrivers', cat: 'companies', name: '🧑‍✈️┃ʙᴜꜱᴄᴏ-ᴄᴏɴᴅᴜᴄᴛᴏʀᴇꜱ', m: /ʙᴜꜱᴄᴏ-ᴄᴏɴᴅᴜᴄᴛᴏʀᴇꜱ|busco-conductores/i, verified: true, slow: 600, topic: 'Empresas que buscan conductores. Un mensaje cada 10 minutos.' },
   { key: 'convoys', cat: 'companies', name: '🚛┃ᴄᴏɴᴠᴏʏᴇꜱ-ʏ-ᴇᴠᴇɴᴛᴏꜱ', m: /ᴄᴏɴᴠᴏʏᴇꜱ|convoyes/i, verified: true, topic: 'Organiza convoyes y eventos: servidor, hora, salida y destino.' },
   // English
+  { key: 'welcomeEn', cat: 'infoEn', name: '👋┃ᴡᴇʟᴄᴏᴍᴇ', m: /ᴡᴇʟᴄᴏᴍᴇ|welcome/i, lock: true, topic: 'Welcome to the official community of Rutero, the app for ETS2 and ATS.' },
+  { key: 'verifyEn', cat: 'infoEn', name: '✅┃ᴠᴇʀɪꜰɪᴄᴀᴛɪᴏɴ', m: /ᴠᴇʀɪꜰɪᴄᴀᴛɪᴏɴ|verification/i, lock: true, topic: 'Link your Rutero account to get verified and receive your rank.' },
+  { key: 'rulesEn', cat: 'infoEn', name: '📜┃ʀᴜʟᴇꜱ', m: /ʀᴜʟᴇꜱ|rules/i, lock: true, topic: 'Read them before chatting. Breaking them can get you a warning or a ban.' },
+  { key: 'webEn', cat: 'infoEn', name: '🌐┃ᴡᴇʙꜱɪᴛᴇ-ᴀɴᴅ-ᴅᴏᴡɴʟᴏᴀᴅ', m: /ᴡᴇʙꜱɪᴛᴇ|website|download/i, lock: true, topic: `Download Rutero for free: ${SITE}` },
+  { key: 'rolesEn', cat: 'infoEn', name: '🎭┃ʀᴀɴᴋꜱ', m: /ʀᴀɴᴋꜱ|ranks/i, lock: true, topic: 'Your Discord rank goes up by itself as you level up in Rutero.' },
+  { key: 'announceEn', cat: 'newsEn', name: '📣┃ᴀɴɴᴏᴜɴᴄᴇᴍᴇɴᴛꜱ', m: /ᴀɴɴᴏᴜɴᴄᴇᴍᴇɴᴛꜱ|announcements/i, lock: true, topic: 'Important announcements from the Rutero team.' },
+  { key: 'updatesEn', cat: 'newsEn', name: '🆕┃ᴜᴘᴅᴀᴛᴇꜱ', m: /ᴜᴘᴅᴀᴛᴇꜱ|updates/i, lock: true, topic: 'The bot posts every new Rutero version here.' },
+  { key: 'registerEn', cat: 'newsEn', name: '📝┃ᴄᴏᴍᴘᴀɴʏ-ʀᴇɢɪꜱᴛʀʏ', m: /ʀᴇɢɪꜱᴛʀʏ|registry/i, lock: true, topic: 'Companies registered from the app. Each one gets its own private HQ.' },
+  { key: 'promoEn', cat: 'newsEn', name: '📢┃ᴘʀᴏᴍᴏᴛᴇ-ʏᴏᴜʀ-ᴄᴏᴍᴘᴀɴʏ', m: /ᴘʀᴏᴍᴏᴛᴇ|promote/i, lock: true, topic: 'Company promotions with photo and stars. Posted from Rutero (My company → Discord).' },
   { key: 'generalEn', cat: 'communityEn', name: '💬┃ɢᴇɴᴇʀᴀʟ', m: /ɢᴇɴᴇʀᴀʟ|^general$/i, verified: true, slow: 3, topic: 'General chat about trucks, routes and TruckersMP. Good vibes only!' },
   { key: 'shotsEn', cat: 'communityEn', name: '📸┃ꜱᴄʀᴇᴇɴꜱʜᴏᴛꜱ', m: /ꜱᴄʀᴇᴇɴꜱʜᴏᴛꜱ|screenshots/i, verified: true, slow: 10, topic: 'Your best ETS2 & ATS screenshots.' },
   { key: 'clipsEn', cat: 'communityEn', name: '🎬┃ᴄʟɪᴘꜱ', m: /ᴄʟɪᴘꜱ|clips/i, verified: true, slow: 10, topic: 'Videos, epic moments and road fails.' },
@@ -231,7 +244,7 @@ class DiscordBot {
       const ids = {};
       for (const c of CHANNELS) {
         const lang = CATS[c.cat].lang || '';
-        const enCats = new Set(Object.entries(CATS).filter(([, v]) => v.lang === 'en').map(([k]) => cats[k].id));
+        const enCats = new Set([...Object.entries(CATS).filter(([, v]) => v.lang === 'en').map(([k]) => cats[k].id), cats.hq.id]);
         let ch = all.find((x) => (x.type === 0 || x.type === 5) && c.m.test(x.name) && (lang === 'en' ? x.parent_id === cats[c.cat].id : !enCats.has(x.parent_id)));
         const deny = c.lock ? bits(P.SEND, P.PUB_THREADS, P.THREADS) : c.verified ? bits(P.SEND, P.PUB_THREADS, P.THREADS, P.ATTACH) : '0';
         // canales de un idioma: solo los ve quien tiene ese rol de idioma
@@ -270,7 +283,8 @@ class DiscordBot {
       // las categorías de cada idioma también se ocultan a quien no lo ha elegido
       for (const [k, c] of Object.entries(CATS)) if (c.lang) await this.api('PATCH', `/channels/${cats[k].id}`, { permission_overwrites: [{ id: GUILD, type: 0, allow: '0', deny: bits(P.VIEW) }, { id: langRole[c.lang].id, type: 0, allow: bits(P.VIEW), deny: '0' }, { id: mod.id, type: 0, allow: bits(P.VIEW), deny: '0' }] }).catch(() => {});
       // orden de las categorías
-      const order = ['info', 'news', 'community', 'voice', 'rutero', 'companies', 'communityEn', 'voiceEn', 'ruteroEn', 'companiesEn', 'hq'];
+      const order = ['start', 'info', 'news', 'community', 'voice', 'rutero', 'companies', 'infoEn', 'newsEn', 'communityEn', 'voiceEn', 'ruteroEn', 'companiesEn', 'hq'];
+      await this.api('PATCH', `/channels/${cats.start.id}`, { permission_overwrites: [{ id: GUILD, type: 0, allow: bits(P.VIEW, P.HISTORY), deny: bits(P.SEND) }] }).catch(() => {});
       await this.api('PATCH', `/guilds/${GUILD}/channels`, order.filter((k) => cats[k]).map((k, i) => ({ id: cats[k].id, position: i }))).catch(() => {});
       // sedes de empresas: categoría oculta (cada sede da acceso a su rol)
       await this.api('PATCH', `/channels/${cats.hq.id}`, { permission_overwrites: [{ id: GUILD, type: 0, allow: '0', deny: bits(P.VIEW) }] }).catch(() => {});
@@ -301,7 +315,6 @@ class DiscordBot {
   }
   // mensajes fijos: se editan si ya existen (no se duplican)
   async upsert(key, channelId, msg, files) {
-    if (this._en && this._en[key] && msg.embeds && msg.embeds.length < 10) msg = { ...msg, embeds: [...msg.embeds.map((e) => ({ ...e, title: e.title ? `🇪🇸 ${e.title}` : e.title })), { ...this._en[key], title: `🇬🇧 ${this._en[key].title}` }] };
     const msgs = this.mem.msgs || {};
     const prev = msgs[key];
     if (prev && prev.ch === channelId) {
@@ -318,23 +331,13 @@ class DiscordBot {
     // selector de idioma (los botones los atiende el bot de Cloudflare, 24 h)
     if (ch.lang) await this.upsert('lang', ch.lang, {
       embeds: [{ color: BLUE, title: '🌐 Elige tu idioma · Choose your language',
-        description: '🇪🇸 **Español** — verás los canales de comunidad, ayuda, empresas y voz en español.\n🇬🇧 **English** — you will see the community, help, companies and voice channels in English.\n🌍 **Automático / Automatic** — según el idioma de tu Discord · based on your Discord language.\n\nPuedes cambiarlo cuando quieras · You can change it anytime.' }],
+        description: '🇪🇸 **Español** — verás todo el servidor en español (solo los canales en español).\n🇬🇧 **English** — you will see the whole server in English (only the English channels).\n🌍 **Automático / Automatic** — según el idioma de tu Discord · based on your Discord language.\n\nPuedes cambiarlo cuando quieras · You can change it anytime.' }],
       components: [{ type: 1, components: [
         { type: 2, style: 2, label: 'Español', emoji: { name: '🇪🇸' }, custom_id: 'lang:es' },
         { type: 2, style: 2, label: 'English', emoji: { name: '🇬🇧' }, custom_id: 'lang:en' },
         { type: 2, style: 1, label: 'Automático · Auto', emoji: { name: '🌍' }, custom_id: 'lang:auto' },
       ] }],
     });
-    const EN = {
-      welcome: { color: AMBER, title: '🚚 Welcome to Rutero · ETS2 & ATS', description: `The official community of **Rutero**, the free companion app for **Euro Truck Simulator 2** and **American Truck Simulator**, connected to **TruckersMP**.\n\n1️⃣ Pick your language in <#${ch.lang}>\n2️⃣ Read the rules in <#${ch.rules}>\n3️⃣ Get verified in <#${ch.verify}>\n4️⃣ Download the app in <#${ch.web}>` },
-      verify: { color: 0x2ECC71, title: '✅ Verification', description: `To chat, join voice channels and get your rank you need <@&${verified.id}>. You get it by **linking your Rutero account** with Discord:\n\n**1.** Download Rutero for free in <#${ch.web}> and create your account.\n**2.** Open Settings → Community & help and press **Connect Discord**.\n**3.** In a few minutes you'll get ✅ Verified and your rank. If your company is registered, you'll also get its role and HQ.` },
-      rules: { color: 0xE74C3C, title: '📜 Server rules', description: ['**1.** Respect first: no insults, harassment, racism or discrimination.', '**2.** No spam, flood or ads outside the company channels.', '**3.** Keep it family friendly: no NSFW, gore or controversial topics.', '**4.** Use each channel for its purpose.', '**5.** On TruckersMP and convoys follow their rules: no ramming or trolling.', '**6.** Do not share personal data.', '**7.** Company promotions are posted from the app (one every 2 weeks).', '**8.** Moderators have the last word. Report problems from the app with 🚩.'].join('\n') },
-      web: { color: BLUE, title: '🌐 Rutero · website & download', url: SITE, description: `Download the latest version for Windows **for free**. It updates itself.\n\n⬇️ [Latest version](${dl0}) · 🌐 [ruteroapp.github.io/rutero](${SITE})` },
-      roles: { color: 0xB57BFF, title: '🎭 Ranks', description: 'Your Discord rank is the same as your Rutero rank and **goes up by itself** when you level up (link your account in the app).\n\n🇪🇸 / 🇬🇧 language roles · ✅ Verified · 🏢 Company owner · 🏢 TAG · Company (access to its HQ)' },
-      register: { color: AMBER, title: '📝 Register your company', description: 'In Rutero: **My company → Discord → Register company**. The bot creates a role with your company name and colour, a **private HQ** (text & voice) and gives the founder 🏢 Company owner.' },
-      promo: { color: AMBER, title: '📢 Promote your company', description: 'From Rutero: **My company → Discord → Promote**. Pick a photo and a text; your ⭐ stars, drivers, requirements and links are added automatically. One promotion every 2 weeks.' },
-    };
-    this._en = EN;
     const dl = 'https://github.com/ruteroapp/rutero/releases/latest';
     const links = (this.store.get('links') || {});
     const invite = links.discordInvite || 'https://discord.gg/sUF5GBagG4';
@@ -399,6 +402,72 @@ class DiscordBot {
     await this.upsert('promo', ch.promo, {
       embeds: [{ color: AMBER, title: '📢 Promociona tu empresa', description: 'Desde Rutero: **Mi empresa → Discord → Promocionar**. Puedes elegir una foto y un texto; el bot publica aquí la ficha con tus ⭐ estrellas, conductores, requisitos y enlaces.\n\nUna promoción cada 2 semanas por empresa.' }],
     });
+    await this.postStaticEn(ch, verified, dl, invite);
+  }
+  // los mismos mensajes fijos, en los canales en inglés
+  async postStaticEn(ch, verified, dl, invite) {
+    if (!ch.welcomeEn) return;
+    await this.upsert('welcomeEn', ch.welcomeEn, {
+      embeds: [{ color: AMBER, title: '🚚 Welcome to Rutero · ETS2 & ATS',
+        description: 'The official community of **Rutero**, the free companion app for **Euro Truck Simulator 2** and **American Truck Simulator**, connected to **TruckersMP**.\n\nLog your jobs automatically, create your company, earn money, rank up and compete in the weekly leaderboard.',
+        thumbnail: { url: 'attachment://rutero.png' },
+        fields: [
+          { name: '1️⃣ Read the rules', value: `<#${ch.rulesEn}>`, inline: true },
+          { name: '2️⃣ Get verified', value: `<#${ch.verifyEn}>`, inline: true },
+          { name: '3️⃣ Download the app', value: `<#${ch.webEn}>`, inline: true },
+          { name: '🏢 Got a company?', value: `Register it from the app and get your own private HQ. New ones are posted in <#${ch.registerEn}>.` },
+          { name: '💬 Questions?', value: `Ask in <#${ch.helpEn}>. Bugs go to <#${ch.bugsEn}>.` },
+        ], footer: { text: 'Rutero · made by and for virtual truckers' } }],
+      components: row(linkBtn('Download Rutero', dl, '⬇️'), linkBtn('Website', SITE, '🌐'), linkBtn('Invite friends', invite, '📨')),
+    }, [this.logoFile()]);
+    await this.upsert('verifyEn', ch.verifyEn, {
+      embeds: [{ color: 0x2ECC71, title: '✅ Verification',
+        description: `To chat in the community, join voice channels and get your rank you need the <@&${verified.id}> role.\nYou get it by **linking your Rutero account** with Discord:`,
+        fields: [
+          { name: '1. Download Rutero', value: `For free in <#${ch.webEn}> and create your account (email and password).` },
+          { name: '2. Open Settings → Community & help', value: 'Press **Connect Discord** and accept in the Discord window.' },
+          { name: '3. Done!', value: 'In a few minutes you will get ✅ Verified and your rank based on your level. If your company is registered, you also get its role and HQ.' },
+          { name: 'No app?', value: `You can read everything and ask for help in <#${ch.helpEn}> without verifying.` },
+        ] }],
+      components: row(linkBtn('Download Rutero', dl, '⬇️')),
+    });
+    await this.upsert('rulesEn', ch.rulesEn, {
+      embeds: [{ color: 0xE74C3C, title: '📜 Server rules', description: [
+        '**1.** Respect first: no insults, harassment, racism or discrimination.',
+        '**2.** No spam, flood or advertising outside the company channels.',
+        '**3.** Family-friendly content: no NSFW, gore or controversial topics.',
+        '**4.** Use each channel for its purpose (see the description at the top).',
+        '**5.** On TruckersMP and convoys, follow their rules: no ramming or trolling.',
+        '**6.** Do not share personal data, yours or anyone else\'s.',
+        '**7.** Company promotions are posted from the app (one every 2 weeks).',
+        '**8.** Moderators have the last word. If you see something wrong, report it from the app with 🚩.',
+      ].join('\n'), footer: { text: 'Breaking the rules = warning → mute → ban' } }],
+    });
+    await this.upsert('webEn', ch.webEn, {
+      embeds: [{ color: BLUE, title: '🌐 Rutero · website & download', url: SITE,
+        description: 'Download the latest version for Windows **for free**. It updates itself every time we release something new.',
+        thumbnail: { url: 'attachment://rutero.png' },
+        fields: [
+          { name: '⬇️ Download', value: `[Latest version](${dl})`, inline: true },
+          { name: '🌐 Website', value: `[ruteroapp.github.io/rutero](${SITE})`, inline: true },
+          { name: '📨 Invite', value: invite, inline: true },
+          { name: '✨ Features', value: 'Automatic job logging · companies with bank, fleet and salaries · bus mode · fines · weekly leaderboard · in-game overlay · 7 languages' },
+        ] }],
+      components: row(linkBtn('Download', dl, '⬇️'), linkBtn('Website', SITE, '🌐')),
+    }, [this.logoFile()]);
+    await this.upsert('rolesEn', ch.rolesEn, {
+      embeds: [{ color: 0xB57BFF, title: '🎭 Ranks', description: 'Your Discord rank is the same as your Rutero rank and **goes up by itself** when you level up (link your account in the app).',
+        fields: [
+          { name: 'Driver ranks', value: [...RANK_ROLES].reverse().map((r) => `${r.name} — level ${r.lvl}+`).join('\n') },
+          { name: 'Special', value: `${ROLE.verified} — Rutero account linked\n${ROLE.owner} — founder of a registered company\n🏢 TAG · Company — members of each registered company (access to its HQ)\n${ROLE.mod} / ${ROLE.support} — server staff` },
+        ] }],
+    });
+    await this.upsert('registerEn', ch.registerEn, {
+      embeds: [{ color: AMBER, title: '📝 Register your company', description: 'In Rutero: **My company → Discord → Register company**.\n\nWhen you register it, the bot creates:\n• a role with your company name and colour for all its drivers\n• a **private HQ** (text and voice) that only your company can see\n• the 🏢 Company owner role for the founder\n\nNew companies are announced in this channel.' }],
+    });
+    await this.upsert('promoEn', ch.promoEn, {
+      embeds: [{ color: AMBER, title: '📢 Promote your company', description: 'From Rutero: **My company → Discord → Promote**. You can pick a photo and a text; the bot posts your card here with your ⭐ stars, drivers, requirements and links.\n\nOne promotion every 2 weeks per company.' }],
+    });
   }
 
   // ---------------------------------------------------------------- sincronización periódica
@@ -439,18 +508,17 @@ class DiscordBot {
   async registerCompany(cloud, c, q) {
     const map = await this.ensureCompanyHq(cloud, c);
     const ch = this.mem.channels || {};
-    if (!q.posted && ch.register) { const { msg, files } = buildRegister(c, q, map.roleId); await this.api('POST', `/channels/${ch.register}/messages`, msg, files); }
+    if (!q.posted) for (const [id, lang] of [[ch.register, 'es'], [ch.registerEn, 'en']]) if (id) { const { msg, files } = buildRegister(c, q, map.roleId, lang); await this.api('POST', `/channels/${id}/messages`, msg, files); }
     if (map.textId) await this.api('POST', `/channels/${map.textId}/messages`, { content: `🏠 **Sede de ${c.name}** · <@&${map.roleId}>`, embeds: [{ color: hex(c.color), description: 'Este canal y su canal de voz solo los ve vuestra empresa (y los moderadores).\nLos conductores reciben el rol automáticamente al enlazar su cuenta de Rutero con Discord.' }], allowed_mentions: { roles: [map.roleId] } }).catch(() => {});
   }
   async promoteCompany(c, q) {
     const ch = this.mem.channels || {};
-    if (q.posted || !ch.promo) return;
-    const { msg, files } = buildPromo(c, q);
-    await this.api('POST', `/channels/${ch.promo}/messages`, msg, files);
+    if (q.posted) return;
+    for (const [id, lang] of [[ch.promo, 'es'], [ch.promoEn, 'en']]) if (id) { const { msg, files } = buildPromo(c, q, lang); await this.api('POST', `/channels/${id}/messages`, msg, files); }
   }
   // enlaces de publicación (webhooks) para que las apps de todos publiquen sin el token del bot
   async ensureHooks(ids) {
-    const want = { register: ids.register, promo: ids.promo, updates: ids.updates };
+    const want = { register: ids.register, promo: ids.promo, updates: ids.updates, registerEn: ids.registerEn, promoEn: ids.promoEn, updatesEn: ids.updatesEn };
     const hooks = {};
     const avatar = `data:image/png;base64,${fs.readFileSync(path.join(this.root, 'build', 'icon-256.png')).toString('base64')}`;
     for (const [k, chId] of Object.entries(want)) {
@@ -462,7 +530,7 @@ class DiscordBot {
     }
     const cloud = this.getCloud();
     if (cloud && cloud.uid) await cloud.setDiscordConfig({ hooks, guild: GUILD, updatedAt: new Date(), hq: (this.mem.cats || {}).hq || '',
-      channels: { register: ids.register || '', promo: ids.promo || '', updates: ids.updates || '' }, modRole: (this.findRole(ROLE.mod) || {}).id || '' });
+      channels: { register: ids.register || '', promo: ids.promo || '', updates: ids.updates || '', registerEn: ids.registerEn || '', promoEn: ids.promoEn || '', updatesEn: ids.updatesEn || '' }, modRole: (this.findRole(ROLE.mod) || {}).id || '' });
     return hooks;
   }
   // rol + sede (texto y voz) de cada empresa registrada
@@ -532,36 +600,42 @@ class DiscordBot {
 }
 
 // ---------------------------------------------------------------- mensajes (los usa el bot y las apps de todos)
-function companyEmbed(c, q, title) {
-  const links = [c.discord && `[Discord](${c.discord})`, c.website && `[Web](${c.website})`].filter(Boolean).join(' · ');
+const JOIN_EN = { open: '🟢 Open: anyone can join', apply: '🟡 By application', closed: '🔴 Closed' };
+const starsEn = (sum, n) => { if (!n) return '☆☆☆☆☆ · no ratings yet'; const a = sum / n, f = Math.round(a); return `${'★'.repeat(f)}${'☆'.repeat(5 - f)} · ${a.toFixed(1)} (${n} ${n === 1 ? 'rating' : 'ratings'})`; };
+function companyEmbed(c, q, title, en) {
+  const links = [c.discord && `[Discord](${c.discord})`, c.website && `[${en ? 'Website' : 'Web'}](${c.website})`].filter(Boolean).join(' · ');
   const req = c.requirements || {};
-  const reqs = [req.minLevel && `Nivel ${req.minLevel}+`, req.minKm && `${nf(req.minKm)} km`, req.tmp && 'Cuenta TruckersMP', req.game && req.game !== 'any' && (req.game === 'both' ? 'ETS2 y ATS' : req.game.toUpperCase()), req.language, req.age && `+${req.age} años`].filter(Boolean).join(' · ');
+  const reqs = [req.minLevel && `${en ? 'Level' : 'Nivel'} ${req.minLevel}+`, req.minKm && `${nf(req.minKm)} km`, req.tmp && (en ? 'TruckersMP account' : 'Cuenta TruckersMP'), req.game && req.game !== 'any' && (req.game === 'both' ? (en ? 'ETS2 & ATS' : 'ETS2 y ATS') : req.game.toUpperCase()), req.language, req.age && (en ? `${req.age}+ years old` : `+${req.age} años`)].filter(Boolean).join(' · ');
+  const join = en ? JOIN_EN : JOIN;
   return { color: hex(c.color), title: `${title}${c.name} [${c.tag || ''}]`.slice(0, 256),
-    description: [q && q.text ? q.text : (c.description || ''), '', `**${stars(c.ratingSum, c.ratingCount)}**`].join('\n').trim().slice(0, 4000),
+    description: [q && q.text ? q.text : (c.description || ''), '', `**${en ? starsEn(c.ratingSum, c.ratingCount) : stars(c.ratingSum, c.ratingCount)}**`].join('\n').trim().slice(0, 4000),
     fields: [
-      { name: '👥 Conductores', value: nf(c.membersCount || 1), inline: true },
+      { name: en ? '👥 Drivers' : '👥 Conductores', value: nf(c.membersCount || 1), inline: true },
       { name: '🛣️ Km', value: nf(c.km), inline: true },
-      { name: '📦 Entregas', value: nf(c.jobs), inline: true },
-      { name: '🚪 Entrada', value: JOIN[c.joinMode || (c.recruiting ? 'apply' : 'closed')] || JOIN.apply, inline: true },
-      { name: '💼 Comisión', value: `${c.commission || 0}%`, inline: true },
-      { name: '👑 Fundador', value: (q && q.byDiscord && q.by === c.ownerUid ? `<@${q.byDiscord}>` : c.ownerName) || '—', inline: true },
-      ...(reqs ? [{ name: '📋 Requisitos', value: reqs.slice(0, 1000) }] : []),
-      ...(links ? [{ name: '🔗 Enlaces', value: links }] : []),
-    ], footer: { text: 'Búscala en Rutero → Empresas' }, timestamp: new Date().toISOString() };
+      { name: en ? '📦 Deliveries' : '📦 Entregas', value: nf(c.jobs), inline: true },
+      { name: en ? '🚪 Joining' : '🚪 Entrada', value: join[c.joinMode || (c.recruiting ? 'apply' : 'closed')] || join.apply, inline: true },
+      { name: en ? '💼 Commission' : '💼 Comisión', value: `${c.commission || 0}%`, inline: true },
+      { name: en ? '👑 Founder' : '👑 Fundador', value: (q && q.byDiscord && q.by === c.ownerUid ? `<@${q.byDiscord}>` : c.ownerName) || '—', inline: true },
+      ...(reqs ? [{ name: en ? '📋 Requirements' : '📋 Requisitos', value: reqs.slice(0, 1000) }] : []),
+      ...(links ? [{ name: en ? '🔗 Links' : '🔗 Enlaces', value: links }] : []),
+    ], footer: { text: en ? 'Find it in Rutero → Companies' : 'Búscala en Rutero → Empresas' }, timestamp: new Date().toISOString() };
 }
-function buildRegister(c, q, roleId) {
-  const files = []; const embed = companyEmbed(c, q, '🏢 Nueva empresa · ');
+// lang: 'es' (por defecto) o 'en'
+function buildRegister(c, q, roleId, lang) {
+  const en = lang === 'en';
+  const files = []; const embed = companyEmbed(c, q, en ? '🏢 New company · ' : '🏢 Nueva empresa · ', en);
   const logo = dataUrlFile(c.logo, 'logo.jpg'); if (logo) { files.push(logo); embed.thumbnail = { url: 'attachment://logo.jpg' }; }
-  return { files, msg: { content: `🎉 ¡Damos la bienvenida a **${c.name}**!${roleId ? ` <@&${roleId}>` : ''}`, embeds: [embed], allowed_mentions: { parse: [] },
-    components: row(linkBtn('Discord de la empresa', c.discord, '💬'), linkBtn('Web', c.website, '🌐')) } };
+  return { files, msg: { content: en ? `🎉 Please welcome **${c.name}**!${roleId ? ` <@&${roleId}>` : ''}` : `🎉 ¡Damos la bienvenida a **${c.name}**!${roleId ? ` <@&${roleId}>` : ''}`, embeds: [embed], allowed_mentions: { parse: [] },
+    components: row(linkBtn(en ? 'Company Discord' : 'Discord de la empresa', c.discord, '💬'), linkBtn(en ? 'Website' : 'Web', c.website, '🌐')) } };
 }
-function buildPromo(c, q) {
-  const files = []; const embed = companyEmbed(c, q, '📢 ');
+function buildPromo(c, q, lang) {
+  const en = lang === 'en';
+  const files = []; const embed = companyEmbed(c, q, '📢 ', en);
   const photo = dataUrlFile(q.photo, 'foto.jpg') || dataUrlFile(c.banner, 'foto.jpg');
   if (photo) { files.push(photo); embed.image = { url: 'attachment://foto.jpg' }; }
   const logo = dataUrlFile(c.logo, 'logo.jpg'); if (logo) { files.push(logo); embed.thumbnail = { url: 'attachment://logo.jpg' }; }
-  return { files, msg: { content: q.byDiscord ? `Promoción de <@${q.byDiscord}>` : '', embeds: [embed], allowed_mentions: { parse: [] },
-    components: row(linkBtn('Discord de la empresa', c.discord, '💬'), linkBtn('Web', c.website, '🌐'), linkBtn('Descargar Rutero', SITE, '🚚')) } };
+  return { files, msg: { content: q.byDiscord ? (en ? `Promotion by <@${q.byDiscord}>` : `Promoción de <@${q.byDiscord}>`) : '', embeds: [embed], allowed_mentions: { parse: [] },
+    components: row(linkBtn(en ? 'Company Discord' : 'Discord de la empresa', c.discord, '💬'), linkBtn(en ? 'Website' : 'Web', c.website, '🌐'), linkBtn(en ? 'Download Rutero' : 'Descargar Rutero', SITE, '🚚')) } };
 }
 // publica con un webhook (no necesita el token del bot)
 async function postWebhook(url, msg, files = []) {
@@ -581,26 +655,47 @@ async function postWebhook(url, msg, files = []) {
   }
   throw new Error('Discord está ocupado, inténtalo en un momento');
 }
+// notas de la versión: lo que va tras una línea «EN:» es la parte en inglés
+function splitNotes(body) {
+  const t = String(body || '').replace(/\r/g, '').trim();
+  const m = /^\s*(?:-{3,}\s*\n\s*)?(?:🇬🇧\s*)?EN\s*:?\s*$/m.exec(t);
+  if (!m) return { es: t, en: '' };
+  return { es: t.slice(0, m.index).replace(/\n?\s*(?:🇪🇸\s*)?ES\s*:?\s*\n/, '\n').trim(), en: t.slice(m.index + m[0].length).trim() };
+}
 // cualquier app de Rutero puede anunciar la versión nueva; la primera que lo reclama en la base de datos la publica
 async function announceRelease(cloud, root) {
   const cfg = await cloud.discordConfig().catch(() => null);
-  const hook = cfg && cfg.hooks && cfg.hooks.updates;
-  if (!hook) return false;
+  const hooks = (cfg && cfg.hooks) || {};
+  if (!hooks.updates && !hooks.updatesEn) return false;
   const r = await fetch(`https://api.github.com/repos/${REPO}/releases/latest`, { headers: { 'User-Agent': 'Rutero' } });
   if (!r.ok) return false;
   const rel = await r.json();
   if (!rel.tag_name || rel.draft) return false;
-  if (!(await cloud.claimRelease(rel.tag_name))) return false; // otra app ya lo ha anunciado
   const exe = (rel.assets || []).find((a) => /\.exe$/i.test(a.name));
-  const notes = String(rel.body || '').replace(/\r/g, '').trim();
-  const logo = { name: 'rutero.png', type: 'image/png', buf: fs.readFileSync(path.join(root, 'build', 'icon-256.png')) };
-  await postWebhook(hook, {
-    embeds: [{ color: AMBER, title: `🆕 Rutero ${rel.tag_name} ya disponible`, url: rel.html_url,
-      description: `${notes ? `${notes.slice(0, 3500)}\n\n` : ''}La app se actualiza sola al abrirla. Si no, descárgala con el botón.`,
-      thumbnail: { url: 'attachment://rutero.png' }, timestamp: rel.published_at || new Date().toISOString(), footer: { text: 'Rutero · actualizaciones' } }],
-    components: row(linkBtn('Descargar', (exe && exe.browser_download_url) || rel.html_url, '⬇️'), linkBtn('Página web', SITE, '🌐')),
-  }, [logo]);
-  return true;
+  const notes = splitNotes(rel.body);
+  const logo = () => ({ name: 'rutero.png', type: 'image/png', buf: fs.readFileSync(path.join(root, 'build', 'icon-256.png')) });
+  const dlUrl = (exe && exe.browser_download_url) || rel.html_url;
+  let done = false;
+  // cada idioma se reclama por separado (así una app antigua que solo publica en español no deja sin aviso el canal inglés)
+  if (hooks.updates && await cloud.claimRelease(rel.tag_name)) {
+    await postWebhook(hooks.updates, {
+      embeds: [{ color: AMBER, title: `🆕 Rutero ${rel.tag_name} ya disponible`, url: rel.html_url,
+        description: `${notes.es ? `${notes.es.slice(0, 3500)}\n\n` : ''}La app se actualiza sola al abrirla. Si no, descárgala con el botón.`,
+        thumbnail: { url: 'attachment://rutero.png' }, timestamp: rel.published_at || new Date().toISOString(), footer: { text: 'Rutero · actualizaciones' } }],
+      components: row(linkBtn('Descargar', dlUrl, '⬇️'), linkBtn('Página web', SITE, '🌐')),
+    }, [logo()]);
+    done = true;
+  }
+  if (hooks.updatesEn && await cloud.claimRelease(`${rel.tag_name}-en`)) {
+    await postWebhook(hooks.updatesEn, {
+      embeds: [{ color: AMBER, title: `🆕 Rutero ${rel.tag_name} is out`, url: rel.html_url,
+        description: `${notes.en ? `${notes.en.slice(0, 3500)}\n\n` : ''}The app updates itself when you open it. If it doesn't, download it with the button.`,
+        thumbnail: { url: 'attachment://rutero.png' }, timestamp: rel.published_at || new Date().toISOString(), footer: { text: 'Rutero · updates' } }],
+      components: row(linkBtn('Download', dlUrl, '⬇️'), linkBtn('Website', SITE, '🌐')),
+    }, [logo()]);
+    done = true;
+  }
+  return done;
 }
 
 module.exports = { DiscordBot, GUILD, RANK_ROLES, buildRegister, buildPromo, postWebhook, announceRelease };
