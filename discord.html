@@ -14,20 +14,30 @@
   h1 { font-size:22px; margin:14px 0 6px; }
   p { color:var(--muted); margin:0 0 6px; }
   a { color:#8FB4FF; }
+  .btn { margin-top:14px; padding:12px 22px; border-radius:12px; background:#5865F2; color:#fff; text-decoration:none; font-weight:700; }
 </style>
 </head>
 <body>
   <div class="card">
     <img src="logo.svg" alt="">
-    <h1 id="t">Conectando con Rutero…</h1>
-    <p id="d">Ya puedes volver a la app.</p>
+    <h1 id="t">Volviendo a Rutero…</h1>
+    <p id="d">Si el navegador pregunta, pulsa <b>Abrir Rutero</b>.</p>
+    <a class="btn" id="b" href="#" style="display:none">Abrir Rutero</a>
+    <p id="f" style="font-size:13px;margin-top:14px">Después puedes cerrar esta pestaña.</p>
   </div>
 <script>
-  // La app de Rutero lee el resultado y cierra esta ventana sola. Si alguien abre esta página en el navegador, solo se muestra el mensaje.
-  var h = new URLSearchParams(location.hash.slice(1) || location.search.slice(1));
-  if (h.get('error')) { document.getElementById('t').textContent = 'Conexión cancelada'; document.getElementById('d').textContent = 'Puedes cerrar esta ventana e intentarlo de nuevo desde Rutero.'; }
-  else { document.getElementById('t').textContent = '¡Discord conectado!'; }
+  // Discord vuelve aquí con la clave en el «#». Se pasa a la app con rutero://discord (no se guarda en ningún sitio).
+  var raw = location.hash.slice(1) || location.search.slice(1);
+  var h = new URLSearchParams(raw);
+  var t = document.getElementById('t'), d = document.getElementById('d'), b = document.getElementById('b');
   if (location.hash) history.replaceState(null, '', location.pathname);
+  if (h.get('error')) { t.textContent = 'Conexión cancelada'; d.textContent = 'Puedes cerrar esta pestaña e intentarlo de nuevo desde Rutero.'; }
+  else if (h.get('access_token')) {
+    var url = 'rutero://discord?' + raw;
+    b.href = url; b.style.display = 'inline-block';
+    setTimeout(function () { location.href = url; }, 300);
+    setTimeout(function () { t.textContent = '¡Discord conectado!'; d.innerHTML = 'Vuelve a Rutero: ya tienes tu cuenta enlazada. Si no se ha abierto sola, pulsa el botón.'; }, 2500);
+  } else { t.textContent = 'Conectar Discord'; d.textContent = 'Abre Rutero y pulsa «Conectar Discord» en Ajustes.'; }
 </script>
 </body>
 </html>
