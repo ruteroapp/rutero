@@ -183,7 +183,7 @@ class DiscordBot {
   async ensureRole(name, opt = {}) {
     let r = this.findRole(name);
     if (!r) { r = await this.api('POST', `/guilds/${GUILD}/roles`, { name, color: opt.color || 0, hoist: !!opt.hoist, mentionable: !!opt.mentionable, permissions: '0' }); this.roles.push(r); }
-    else if (opt.color !== undefined && r.color !== opt.color) { r = await this.api('PATCH', `/guilds/${GUILD}/roles/${r.id}`, { color: opt.color }); }
+    else if (opt.color !== undefined && r.color !== opt.color) { r = await this.api('PATCH', `/guilds/${GUILD}/roles/${r.id}`, { color: opt.color }).catch(() => r); } // si el rol está por encima del bot, se deja como está
     return r;
   }
   async setup(progress = () => {}) {
@@ -243,7 +243,7 @@ class DiscordBot {
       progress('Enlaces de publicación…');
       await this.ensureHooks(ids);
       // servidor: canal del sistema y nivel de verificación (correo verificado)
-      await this.api('PATCH', `/guilds/${GUILD}`, { system_channel_id: ids.general, system_channel_flags: 0, verification_level: 2, default_message_notifications: 1, explicit_content_filter: 2 }).catch(() => {});
+      await this.api('PATCH', `/guilds/${GUILD}`, { verification_level: 2, default_message_notifications: 1, explicit_content_filter: 2 }).catch(() => {});
       progress('Sincronizando…');
       this.applied.clear();
       await this.sync();
