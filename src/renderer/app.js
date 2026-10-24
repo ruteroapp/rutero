@@ -236,6 +236,7 @@ const PAGE_DASH = {
   id: 'dash',
   async html() {
     const d = S.data; const daily = d.daily;
+    if (S.pluginOk === undefined) { try { const g = await K.call('plugin:status'); S.pluginOk = Object.values(g || {}).some((x) => x && x.installed); } catch { S.pluginOk = false; } }
     return `
     <div class="page-head"><div><h1>Panel de conducción</h1><div class="subtitle" id="lv-sub">Datos en directo desde el juego</div></div>
       <div class="row"><button class="btn" id="ov-btn">🖥️ Overlay en el juego</button></div></div>
@@ -372,7 +373,8 @@ function updateLive() {
   const t = S.live;
   const banner = $('#lv-banner');
   const st = t ? t.status : S.data.status;
-  if (st !== 'driving' && STATUS[st]) {
+  // con el plugin ya instalado no hace falta el aviso de «esperando al juego»
+  if (st !== 'driving' && STATUS[st] && !(st === 'waiting' && S.pluginOk)) {
     const [ic, a, b] = STATUS[st];
     banner.innerHTML = `<div class="status-banner"><span class="ic">${ic}</span><div><b>${a}</b><div class="muted">${b}</div></div>${st === 'waiting' ? '<button class="btn sm" style="margin-left:auto" id="go-plugin">Instalar plugin</button>' : ''}</div>`;
     const gp = $('#go-plugin'); if (gp) gp.onclick = () => go('settings');
@@ -921,6 +923,7 @@ const PAGE_SETTINGS = {
   async html() {
     const s = S.data.settings; const p = S.profile;
     const games = await K.call('plugin:status').catch(() => ({}));
+    S.pluginOk = Object.values(games || {}).some((x) => x && x.installed);
     const oc = await K.call('overlay:cfg').catch(() => null) || { widgets: {} };
     S.ovCfg = oc;
     const sw = (id, v, t, d) => `<div class="setting"><div><div>${t}</div><div class="d">${d}</div></div><label class="switch"><input type="checkbox" data-set="${id}" ${v ? 'checked' : ''}><i></i></label></div>`;
@@ -1011,7 +1014,7 @@ const PAGE_SETTINGS = {
     $('#ui-lang').onchange = async (e) => { await K.call('settings:set', { language: e.target.value }); location.reload(); };
     $('#ui-start').onchange = (e) => saveUi({ start: e.target.value });
     $('#ui-zoom').onchange = (e) => saveUi({ zoom: +e.target.value });
-    $$('[data-install]', root).forEach((b) => b.onclick = () => act(b, async () => { await K.call('plugin:install', b.dataset.install); toast({ title: 'Plugin instalado ✅', body: 'Abre el juego y Rutero se conectará solo', kind: 'money' }); render(); }));
+    $$('[data-install]', root).forEach((b) => b.onclick = () => act(b, async () => { await K.call('plugin:install', b.dataset.install); S.pluginOk = true; toast({ title: 'Plugin instalado ✅', body: 'Abre el juego y Rutero se conectará solo', kind: 'money' }); render(); }));
     $$('[data-choose]', root).forEach((b) => b.onclick = () => act(b, async () => { await K.call('plugin:choose', b.dataset.choose); render(); }));
     $('#p-photo').onclick = changePhoto;
     const pd = $('#p-photo-del'); if (pd) pd.onclick = async () => { S.profile = await K.call('profile:photo', ''); renderSide(); render(); };

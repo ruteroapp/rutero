@@ -962,3 +962,10 @@ Cancelar grabación | Cancel recording | Annuler l'enregistrement | Aufnahme abb
 F1–F11 activadas | F1–F11 enabled | F1–F11 activées | F1–F11 aktiv | F1–F11 attivi | F1–F11 ativadas | F1–F11 włączone
 Grabando ruta | Recording route | Enregistrement de la ligne | Linie wird aufgenommen | Registrazione linea | Gravando rota | Nagrywanie trasy
 Ruta guardada | Route saved | Ligne enregistrée | Linie gespeichert | Linea salvata | Rota salva | Trasa zapisana
+Esperando a Euro Truck Simulator 2 o American Truck Simulator | Waiting for Euro Truck Simulator 2 or American Truck Simulator | En attente d'Euro Truck Simulator 2 ou d'American Truck Simulator | Warte auf Euro Truck Simulator 2 oder American Truck Simulator | In attesa di Euro Truck Simulator 2 o American Truck Simulator | Aguardando Euro Truck Simulator 2 ou American Truck Simulator | Czekam na Euro Truck Simulator 2 lub American Truck Simulator
+El juego está en el menú | The game is in the menu | Le jeu est dans le menu | Das Spiel ist im Menü | Il gioco è nel menu | O jogo está no menu | Gra jest w menu
+Carga tu perfil y empieza a conducir. | Load your profile and start driving. | Charge ton profil et commence à conduire. | Lade dein Profil und fahr los. | Carica il tuo profilo e inizia a guidare. | Carregue seu perfil e comece a dirigir. | Wczytaj profil i zacznij jechać.
+Juego en pausa | Game paused | Jeu en pause | Spiel pausiert | Gioco in pausa | Jogo pausado | Gra wstrzymana
+Versión del plugin distinta | Different plugin version | Version du plugin différente | Andere Plugin-Version | Versione del plugin diversa | Versão do plugin diferente | Inna wersja wtyczki
+Plugin instalado | Plugin installed | Plugin installé | Plugin installiert | Plugin installato | Plugin instalado | Wtyczka zainstalowana
+Abre el juego y Rutero se conectará solo | Open the game and Rutero will connect by itself | Lance le jeu et Rutero se connectera tout seul | Starte das Spiel und Rutero verbindet sich von selbst | Apri il gioco e Rutero si collegherà da solo | Abra o jogo e o Rutero vai se conectar sozinho | Uruchom grę, a Rutero połączy się sam
