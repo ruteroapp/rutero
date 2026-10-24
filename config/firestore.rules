@@ -104,6 +104,9 @@ service cloud.firestore {
             || company(request.resource.data.cid).lastPromoAt < request.time - duration.value(14, 'd'));
       allow read, delete: if isBotAdmin();
     }
+    match /discordReleases/{tag} {
+      allow read, create: if signed();
+    }
     match /discordMap/{cid} {
       allow read: if signed();
       allow write: if isBotAdmin();

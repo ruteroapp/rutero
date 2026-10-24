@@ -679,11 +679,15 @@ class Cloud {
       if (now - last < WAIT) { const d = Math.ceil((WAIT - (now - last)) / 864e5); throw new Error(`Solo se puede promocionar una vez cada 2 semanas (faltan ${d} ${d === 1 ? 'día' : 'días'})`); }
     }
     const doc = { type, cid, by: this.uid, byName: me.name || '', byDiscord: me.discordId || '', at: new Date(),
-      text: String(extra.text || '').slice(0, 600), photo: type === 'promo' ? String(extra.photo || '').slice(0, 700000) : '' };
+      text: String(extra.text || '').slice(0, 600), photo: type === 'promo' && !extra.posted ? String(extra.photo || '').slice(0, 700000) : '', posted: !!extra.posted };
     const writes = [this.create(`discordQueue/${newId()}`, doc)];
     if (type === 'register') writes.push(this.upd(`companies/${cid}`, { discordRegistered: true, discordRegisteredAt: new Date() }));
     if (type === 'promo') writes.push(this.upd(`companies/${cid}`, { lastPromoAt: new Date() }));
     await this.commit(writes);
+  }
+  // la primera app que «reclama» una versión es la que la anuncia en Discord
+  async claimRelease(tag) {
+    try { await this.commit([this.create(`discordReleases/${String(tag).replace(/[^\w.-]/g, '_')}`, { by: this.uid, at: new Date() })]); return true; } catch { return false; }
   }
   // --- solo para el administrador del bot ---
   async discordQueue() { return this.query('', { from: [{ collectionId: 'discordQueue' }], orderBy: [{ field: { fieldPath: 'at' }, direction: 'ASCENDING' }], limit: 10 }); }

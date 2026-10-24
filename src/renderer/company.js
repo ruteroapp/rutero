@@ -783,12 +783,12 @@ function mountCompany(root) {
   on('#loan-pay-all', async () => { await K.call('company:repay', (info.loan && info.loan.owed) || 0); toast({ title: 'Préstamo devuelto ✅', body: '' }); render(); });
   on('#dc-join', async () => openDiscord());
   bindDiscordLink(root);
-  on('#dc-register', async () => { await K.call('company:discord', 'register'); toast({ title: 'Empresa registrada', body: 'El bot creará vuestro rol y vuestra sede en unos minutos', kind: 'money' }); await reload(); });
+  on('#dc-register', async () => { await K.call('company:discord', 'register'); toast({ title: 'Empresa registrada', body: 'Ya está anunciada en Discord. Vuestro rol y vuestra sede llegarán en cuanto el bot se sincronice', kind: 'money' }); await reload(); });
   const pmText = $('#pm-text', root);
   if (pmText) pmText.oninput = () => { S.promo.text = pmText.value; const pv = $('#pm-prev-text', root); if (pv) pv.textContent = pmText.value; };
   on('#pm-photo', async () => { const img = await cropImage({ w: 1280, h: 720, title: 'Foto de la promoción', maxKB: 450 }); if (img) { S.promo.photo = img; render(); } });
   on('#pm-photo-del', async () => { S.promo.photo = ''; render(); });
-  on('#dc-promo', async () => { await K.call('company:discord', 'promo', { text: S.promo.text, photo: S.promo.photo }); S.promo = null; toast({ title: 'Promoción enviada', body: 'Aparecerá en #promociona-tu-empresa en unos minutos', kind: 'money' }); await reload(); });
+  on('#dc-promo', async () => { const r = await K.call('company:discord', 'promo', { text: S.promo.text, photo: S.promo.photo }); S.promo = null; toast({ title: 'Promoción publicada', body: r && r.posted ? 'Ya está en #promociona-tu-empresa' : 'Aparecerá en #promociona-tu-empresa en unos minutos', kind: 'money' }); await reload(); });
   on('#bus-unlock', async () => {
     if (!confirm(`¿Activar el servicio de autobuses por ${money(S.data.busUnlockPrice || 700000)}?`)) return;
     await K.call('company:unlockBus'); toast({ title: 'Servicio de autobuses activado 🚌', body: 'Ya puedes crear rutas', kind: 'achievement' }); render();

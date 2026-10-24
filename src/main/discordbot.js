@@ -241,6 +241,8 @@ class DiscordBot {
 
       progress('Mensajes…');
       await this.postStatic(ids, verified);
+      progress('Enlaces de publicación…');
+      await this.ensureHooks(ids);
       // servidor: canal del sistema y nivel de verificación (correo verificado)
       await this.api('PATCH', `/guilds/${GUILD}`, { system_channel_id: null, verification_level: 2, default_message_notifications: 1, explicit_content_filter: 2 }).catch(() => {});
       progress('Sincronizando…');
@@ -358,41 +360,33 @@ class DiscordBot {
       await cloud.discordQueueDone(q.id).catch(() => {});
     }
   }
-  companyEmbed(c, q, title) {
-    const links = [c.discord && `[Discord](${c.discord})`, c.website && `[Web](${c.website})`].filter(Boolean).join(' · ');
-    const req = c.requirements || {};
-    const reqs = [req.minLevel && `Nivel ${req.minLevel}+`, req.minKm && `${nf(req.minKm)} km`, req.tmp && 'Cuenta TruckersMP', req.game && req.game !== 'any' && (req.game === 'both' ? 'ETS2 y ATS' : req.game.toUpperCase()), req.language, req.age && `+${req.age} años`].filter(Boolean).join(' · ');
-    return { color: hex(c.color), title: `${title}${c.name} [${c.tag || ''}]`.slice(0, 256),
-      description: [q && q.text ? q.text : (c.description || ''), '', `**${stars(c.ratingSum, c.ratingCount)}**`].join('\n').trim().slice(0, 4000),
-      fields: [
-        { name: '👥 Conductores', value: nf(c.membersCount || 1), inline: true },
-        { name: '🛣️ Km', value: nf(c.km), inline: true },
-        { name: '📦 Entregas', value: nf(c.jobs), inline: true },
-        { name: '🚪 Entrada', value: JOIN[c.joinMode || (c.recruiting ? 'apply' : 'closed')] || JOIN.apply, inline: true },
-        { name: '💼 Comisión', value: `${c.commission || 0}%`, inline: true },
-        { name: '👑 Fundador', value: (q && q.byDiscord && q.by === c.ownerUid ? `<@${q.byDiscord}>` : c.ownerName) || '—', inline: true },
-        ...(reqs ? [{ name: '📋 Requisitos', value: reqs.slice(0, 1000) }] : []),
-        ...(links ? [{ name: '🔗 Enlaces', value: links }] : []),
-      ], footer: { text: 'Búscala en Rutero → Empresas' }, timestamp: new Date().toISOString() };
-  }
   async registerCompany(cloud, c, q) {
     const map = await this.ensureCompanyHq(cloud, c);
     const ch = this.mem.channels || {};
-    const files = []; const embed = this.companyEmbed(c, q, '🏢 Nueva empresa · ');
-    const logo = dataUrlFile(c.logo, 'logo.jpg'); if (logo) { files.push(logo); embed.thumbnail = { url: 'attachment://logo.jpg' }; }
-    if (ch.register) await this.api('POST', `/channels/${ch.register}/messages`, { content: `🎉 ¡Damos la bienvenida a **${c.name}**!${map.roleId ? ` <@&${map.roleId}>` : ''}`, embeds: [embed], allowed_mentions: { parse: [] },
-      components: row(linkBtn('Discord de la empresa', c.discord, '💬'), linkBtn('Web', c.website, '🌐')) }, files);
+    if (!q.posted && ch.register) { const { msg, files } = buildRegister(c, q, map.roleId); await this.api('POST', `/channels/${ch.register}/messages`, msg, files); }
     if (map.textId) await this.api('POST', `/channels/${map.textId}/messages`, { content: `🏠 **Sede de ${c.name}** · <@&${map.roleId}>`, embeds: [{ color: hex(c.color), description: 'Este canal y su canal de voz solo los ve vuestra empresa (y los moderadores).\nLos conductores reciben el rol automáticamente al enlazar su cuenta de Rutero con Discord.' }], allowed_mentions: { roles: [map.roleId] } }).catch(() => {});
   }
   async promoteCompany(c, q) {
     const ch = this.mem.channels || {};
-    if (!ch.promo) return;
-    const files = []; const embed = this.companyEmbed(c, q, '📢 ');
-    const photo = dataUrlFile(q.photo, 'foto.jpg') || dataUrlFile(c.banner, 'foto.jpg');
-    if (photo) { files.push(photo); embed.image = { url: 'attachment://foto.jpg' }; }
-    const logo = dataUrlFile(c.logo, 'logo.jpg'); if (logo) { files.push(logo); embed.thumbnail = { url: 'attachment://logo.jpg' }; }
-    await this.api('POST', `/channels/${ch.promo}/messages`, { content: q.byDiscord ? `Promoción de <@${q.byDiscord}>` : '', embeds: [embed], allowed_mentions: { parse: [] },
-      components: row(linkBtn('Discord de la empresa', c.discord, '💬'), linkBtn('Web', c.website, '🌐'), linkBtn('Descargar Rutero', SITE, '🚚')) }, files);
+    if (q.posted || !ch.promo) return;
+    const { msg, files } = buildPromo(c, q);
+    await this.api('POST', `/channels/${ch.promo}/messages`, msg, files);
+  }
+  // enlaces de publicación (webhooks) para que las apps de todos publiquen sin el token del bot
+  async ensureHooks(ids) {
+    const want = { register: ids.register, promo: ids.promo, updates: ids.updates };
+    const hooks = {};
+    const avatar = `data:image/png;base64,${fs.readFileSync(path.join(this.root, 'build', 'icon-256.png')).toString('base64')}`;
+    for (const [k, chId] of Object.entries(want)) {
+      if (!chId) continue;
+      const list = await this.api('GET', `/channels/${chId}/webhooks`);
+      let w = list.find((x) => x.name === 'Rutero' && x.token);
+      if (!w) w = await this.api('POST', `/channels/${chId}/webhooks`, { name: 'Rutero', avatar });
+      hooks[k] = `https://discord.com/api/webhooks/${w.id}/${w.token}`;
+    }
+    const cloud = this.getCloud();
+    if (cloud && cloud.uid) await cloud.setDiscordConfig({ hooks, guild: GUILD, updatedAt: new Date() });
+    return hooks;
   }
   // rol + sede (texto y voz) de cada empresa registrada
   async ensureCompanyHq(cloud, c, mapAll) {
@@ -453,23 +447,83 @@ class DiscordBot {
     return n;
   }
   async announceRelease() {
-    const ch = (this.mem.channels || {}).updates;
-    if (!ch || Date.now() - (this.mem.relCheck || 0) < 10 * 60 * 1000) return;
-    this.setMem({ relCheck: Date.now() });
-    const r = await fetch(`https://api.github.com/repos/${REPO}/releases/latest`, { headers: { 'User-Agent': 'Rutero' } });
-    if (!r.ok) return;
-    const rel = await r.json();
-    if (!rel.tag_name || rel.tag_name === this.mem.lastRelease) return;
-    const exe = (rel.assets || []).find((a) => /\.exe$/i.test(a.name));
-    const notes = String(rel.body || '').replace(/\r/g, '').trim();
-    await this.api('POST', `/channels/${ch}/messages`, {
-      embeds: [{ color: AMBER, title: `🆕 Rutero ${rel.tag_name} ya disponible`, url: rel.html_url,
-        description: `${notes ? `${notes.slice(0, 3500)}\n\n` : ''}La app se actualiza sola al abrirla. Si no, descárgala con el botón.`,
-        thumbnail: { url: 'attachment://rutero.png' }, timestamp: rel.published_at || new Date().toISOString(), footer: { text: 'Rutero · actualizaciones' } }],
-      components: row(linkBtn('Descargar', (exe && exe.browser_download_url) || rel.html_url, '⬇️'), linkBtn('Página web', SITE, '🌐')),
-    }, [this.logoFile()]);
-    this.setMem({ lastRelease: rel.tag_name });
+    if (Date.now() - (this.relCheck || 0) < 10 * 60 * 1000) return;
+    this.relCheck = Date.now();
+    const cloud = this.getCloud();
+    if (cloud && cloud.uid) await announceRelease(cloud, this.root).catch((e) => this.log('versión', e.message));
   }
 }
 
-module.exports = { DiscordBot, GUILD, RANK_ROLES };
+// ---------------------------------------------------------------- mensajes (los usa el bot y las apps de todos)
+function companyEmbed(c, q, title) {
+  const links = [c.discord && `[Discord](${c.discord})`, c.website && `[Web](${c.website})`].filter(Boolean).join(' · ');
+  const req = c.requirements || {};
+  const reqs = [req.minLevel && `Nivel ${req.minLevel}+`, req.minKm && `${nf(req.minKm)} km`, req.tmp && 'Cuenta TruckersMP', req.game && req.game !== 'any' && (req.game === 'both' ? 'ETS2 y ATS' : req.game.toUpperCase()), req.language, req.age && `+${req.age} años`].filter(Boolean).join(' · ');
+  return { color: hex(c.color), title: `${title}${c.name} [${c.tag || ''}]`.slice(0, 256),
+    description: [q && q.text ? q.text : (c.description || ''), '', `**${stars(c.ratingSum, c.ratingCount)}**`].join('\n').trim().slice(0, 4000),
+    fields: [
+      { name: '👥 Conductores', value: nf(c.membersCount || 1), inline: true },
+      { name: '🛣️ Km', value: nf(c.km), inline: true },
+      { name: '📦 Entregas', value: nf(c.jobs), inline: true },
+      { name: '🚪 Entrada', value: JOIN[c.joinMode || (c.recruiting ? 'apply' : 'closed')] || JOIN.apply, inline: true },
+      { name: '💼 Comisión', value: `${c.commission || 0}%`, inline: true },
+      { name: '👑 Fundador', value: (q && q.byDiscord && q.by === c.ownerUid ? `<@${q.byDiscord}>` : c.ownerName) || '—', inline: true },
+      ...(reqs ? [{ name: '📋 Requisitos', value: reqs.slice(0, 1000) }] : []),
+      ...(links ? [{ name: '🔗 Enlaces', value: links }] : []),
+    ], footer: { text: 'Búscala en Rutero → Empresas' }, timestamp: new Date().toISOString() };
+}
+function buildRegister(c, q, roleId) {
+  const files = []; const embed = companyEmbed(c, q, '🏢 Nueva empresa · ');
+  const logo = dataUrlFile(c.logo, 'logo.jpg'); if (logo) { files.push(logo); embed.thumbnail = { url: 'attachment://logo.jpg' }; }
+  return { files, msg: { content: `🎉 ¡Damos la bienvenida a **${c.name}**!${roleId ? ` <@&${roleId}>` : ''}`, embeds: [embed], allowed_mentions: { parse: [] },
+    components: row(linkBtn('Discord de la empresa', c.discord, '💬'), linkBtn('Web', c.website, '🌐')) } };
+}
+function buildPromo(c, q) {
+  const files = []; const embed = companyEmbed(c, q, '📢 ');
+  const photo = dataUrlFile(q.photo, 'foto.jpg') || dataUrlFile(c.banner, 'foto.jpg');
+  if (photo) { files.push(photo); embed.image = { url: 'attachment://foto.jpg' }; }
+  const logo = dataUrlFile(c.logo, 'logo.jpg'); if (logo) { files.push(logo); embed.thumbnail = { url: 'attachment://logo.jpg' }; }
+  return { files, msg: { content: q.byDiscord ? `Promoción de <@${q.byDiscord}>` : '', embeds: [embed], allowed_mentions: { parse: [] },
+    components: row(linkBtn('Discord de la empresa', c.discord, '💬'), linkBtn('Web', c.website, '🌐'), linkBtn('Descargar Rutero', SITE, '🚚')) } };
+}
+// publica con un webhook (no necesita el token del bot)
+async function postWebhook(url, msg, files = []) {
+  if (!/^https:\/\/(canary\.|ptb\.)?discord(app)?\.com\/api\/webhooks\//.test(String(url || ''))) throw new Error('El servidor de Discord aún no está preparado');
+  const u = `${url}?wait=true&with_components=true`;
+  for (let tries = 0; tries < 4; tries++) {
+    let r;
+    if (files.length) {
+      const fd = new FormData();
+      fd.append('payload_json', JSON.stringify({ ...msg, attachments: files.map((f, i) => ({ id: i, filename: f.name })) }));
+      files.forEach((f, i) => fd.append(`files[${i}]`, new Blob([f.buf], { type: f.type }), f.name));
+      r = await fetch(u, { method: 'POST', body: fd });
+    } else r = await fetch(u, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(msg) });
+    if (r.status === 429) { const j = await r.json().catch(() => ({})); await new Promise((ok) => setTimeout(ok, Math.min(10, Number(j.retry_after) || 2) * 1000 + 200)); continue; }
+    if (!r.ok) { const j = await r.json().catch(() => ({})); throw new Error(`Discord: ${j.message || r.status}`); }
+    return r.json().catch(() => null);
+  }
+  throw new Error('Discord está ocupado, inténtalo en un momento');
+}
+// cualquier app de Rutero puede anunciar la versión nueva; la primera que lo reclama en la base de datos la publica
+async function announceRelease(cloud, root) {
+  const cfg = await cloud.discordConfig().catch(() => null);
+  const hook = cfg && cfg.hooks && cfg.hooks.updates;
+  if (!hook) return false;
+  const r = await fetch(`https://api.github.com/repos/${REPO}/releases/latest`, { headers: { 'User-Agent': 'Rutero' } });
+  if (!r.ok) return false;
+  const rel = await r.json();
+  if (!rel.tag_name || rel.draft) return false;
+  if (!(await cloud.claimRelease(rel.tag_name))) return false; // otra app ya lo ha anunciado
+  const exe = (rel.assets || []).find((a) => /\.exe$/i.test(a.name));
+  const notes = String(rel.body || '').replace(/\r/g, '').trim();
+  const logo = { name: 'rutero.png', type: 'image/png', buf: fs.readFileSync(path.join(root, 'build', 'icon-256.png')) };
+  await postWebhook(hook, {
+    embeds: [{ color: AMBER, title: `🆕 Rutero ${rel.tag_name} ya disponible`, url: rel.html_url,
+      description: `${notes ? `${notes.slice(0, 3500)}\n\n` : ''}La app se actualiza sola al abrirla. Si no, descárgala con el botón.`,
+      thumbnail: { url: 'attachment://rutero.png' }, timestamp: rel.published_at || new Date().toISOString(), footer: { text: 'Rutero · actualizaciones' } }],
+    components: row(linkBtn('Descargar', (exe && exe.browser_download_url) || rel.html_url, '⬇️'), linkBtn('Página web', SITE, '🌐')),
+  }, [logo]);
+  return true;
+}
+
+module.exports = { DiscordBot, GUILD, RANK_ROLES, buildRegister, buildPromo, postWebhook, announceRelease };

@@ -10,7 +10,7 @@ const plugin = require('./plugin');
 const { Photos } = require('./photos');
 const { setupUpdater } = require('./updater');
 const P = require('./progress');
-const { DiscordBot } = require('./discordbot');
+const { DiscordBot, buildRegister, buildPromo, postWebhook, announceRelease } = require('./discordbot');
 const DISCORD_CLIENT = '1563527823522533426';
 const DISCORD_REDIRECT = 'https://ruteroapp.github.io/rutero/discord.html';
 
@@ -639,9 +639,19 @@ function registerIpc() {
   h('discord:unlink', async () => { me = await cloud.unlinkDiscord(); send('profile', publicProfile()); return publicProfile(); });
   h('company:discord', async (type, extra) => {
     if (!['register', 'promo'].includes(type)) throw new Error('Petición no válida');
-    await cloud.discordRequest(me.companyId, type, extra || {}, me);
+    extra = extra || {};
+    // las apps de todos publican directamente con el enlace de publicación del canal (sin el token del bot)
+    const cfg = await cloud.discordConfig().catch(() => null);
+    const hook = cfg && cfg.hooks && cfg.hooks[type];
+    await cloud.discordRequest(me.companyId, type, { ...extra, posted: !!hook }, me);
+    if (hook) {
+      const c = await cloud.getDoc(`companies/${me.companyId}`);
+      const q = { text: extra.text || '', photo: extra.photo || '', by: cloud.uid, byDiscord: me.discordId || '' };
+      const { msg, files } = type === 'register' ? buildRegister(c, q, null) : buildPromo(c, q);
+      await postWebhook(hook, msg, files);
+    }
     if (bot && bot.state.running) setTimeout(() => bot.sync().catch(() => {}), 1000);
-    return true;
+    return { posted: !!hook };
   });
   h('company:discordInfo', async () => (me && me.companyId ? cloud.getDoc(`discordMap/${me.companyId}`) : null));
   // ---- Discord: administrador del bot
@@ -688,6 +698,10 @@ app.whenReady().then(async () => {
   setInterval(() => { refreshOnline(); flushCloud(); }, 5 * 60_000);
   // busca actualizaciones al arrancar y cada 6 horas
   setTimeout(() => updater.check(), 8000);
+  // anuncia en Discord la versión nueva (lo hace la primera app que la ve, sea de quien sea)
+  const announce = () => { if (cloud.uid) announceRelease(cloud, ROOT).catch(() => {}); };
+  setTimeout(announce, 60_000);
+  setInterval(announce, 3 * 3600_000);
   setInterval(() => updater.check(), 6 * 3600_000);
 });
 app.on('second-instance', () => { if (win) { win.show(); win.focus(); } });
