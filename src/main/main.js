@@ -400,6 +400,10 @@ function startTelemetry() {
       case 'bus:update': send('bus', data); sendOverlay('bus', data); break;
       case 'bus:stop': toast(data.name ? `Parada ${data.stop}: ${data.name}` : `Parada ${data.stop}`, `Suben ${data.on} · bajan ${data.off} · a bordo ${data.onBoard}${data.left ? ` · ${data.left} se quedan en tierra` : ''}`); sendOverlay('toast', { title: `🚏 ${data.name || `Parada ${data.stop}`}`, body: `+${data.on} / -${data.off} · ${data.onBoard} a bordo` }); break;
       case 'bus:doors': sendOverlay('toast', { title: '🚪 Puertas abiertas', body: `${data.alighting} bajan · ${data.waiting} esperando${data.name ? ` · ${data.name}` : ''}` }); break;
+      case 'bus:stopPos':
+        if (data.mine) { store.set('busRoutes', (store.get('busRoutes') || []).map((r) => (r.id === data.routeId ? { ...r, stopPos: [...(r.stopPos || []).filter((x) => !(x.name === data.pos.name && x.g === data.pos.g)), data.pos] } : r))); }
+        else if (data.routeId && me && me.companyId) cloud.saveStopPos(me.companyId, data.routeId, data.pos).catch((e) => console.warn('parada', e.message));
+        break;
       case 'bus:warn': sendOverlay('toast', { title: '⚠️ Autobús', body: data }); toast('Autobús', data); break;
       case 'expense': {
         const names = { fine: 'Multa', toll: 'Peaje', ferry: 'Ferry', train: 'Tren' };
@@ -562,6 +566,8 @@ function registerIpc() {
     if (stops.length < 2) throw new Error('La ruta necesita al menos 2 paradas (salida y destino)');
     const route = { id: r.id || `r${Date.now().toString(36)}`, code: String(r.code || '').trim().slice(0, 8), name: String(r.name).trim().slice(0, 60), stops, color: r.color || '#4C8DFF',
       fare: Math.max(0, Math.min(100, Number(r.fare ?? 5) || 0)), perKm: Math.max(0, Math.min(30, Number(r.perKm ?? 8) || 0)), capacity: Math.max(8, Math.min(120, Math.round(Number(r.capacity) || 55))) };
+    const prev = (store.get('busRoutes') || []).find((x) => x.id === route.id);
+    route.stopPos = ((prev && prev.stopPos) || []).filter((p) => stops.includes(p.name)); // se conservan las paradas ya ubicadas
     const list = (store.get('busRoutes') || []).filter((x) => x.id !== route.id);
     store.set('busRoutes', [route, ...list].slice(0, 50));
     return store.get('busRoutes');

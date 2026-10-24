@@ -416,3 +416,4 @@ input[type=range] { accent-color: var(--accent); width: 100%; }
 .door-bar .dk { font-size: 28px; }
 .door-bar.open { background: rgba(25,195,177,.12); border-color: rgba(25,195,177,.5); }
 .kbd { display: inline-block; min-width: 26px; padding: 1px 8px; border-radius: 6px; background: #0A0D18; border: 1px solid var(--line); border-bottom-width: 3px; font-family: var(--display); text-align: center; }
+.door-bar .nav-arrow { display: inline-block; transition: transform .25s linear; }

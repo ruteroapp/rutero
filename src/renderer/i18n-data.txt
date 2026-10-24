@@ -937,3 +937,19 @@ Para el autobús y pulsa | Stop the bus and press | Arrête le bus et appuie sur
 para abrir las puertas | to open the doors | pour ouvrir les portes | um die Türen zu öffnen | per aprire le porte | para abrir as portas | aby otworzyć drzwi
 para cerrar | to close | pour fermer | zum Schließen | per chiudere | para fechar | aby zamknąć
 Pulsa | Press | Appuie sur | Drücke | Premi | Aperte | Naciśnij
+Guía hacia la parada (autobús) | Stop guidance (bus) | Guidage vers l'arrêt (bus) | Haltestellen-Führung (Bus) | Guida alla fermata (autobus) | Guia até a parada (ônibus) | Prowadzenie do przystanku (autobus)
+Parada sin ubicar | Stop not located yet | Arrêt pas encore localisé | Haltestelle noch nicht erfasst | Fermata non ancora localizzata | Parada ainda não localizada | Przystanek jeszcze nieznany
+se guardará al abrir las puertas allí | it will be saved when you open the doors there | il sera enregistré en ouvrant les portes là-bas | wird gespeichert, wenn du dort die Türen öffnest | verrà salvata aprendo le porte lì | será salva ao abrir as portas lá | zapisze się, gdy otworzysz tam drzwi
+Parada sin ubicar: se guardará al abrir las puertas allí | Stop not located yet: it will be saved when you open the doors there | Arrêt pas encore localisé : il sera enregistré en ouvrant les portes là-bas | Haltestelle noch nicht erfasst: wird gespeichert, wenn du dort die Türen öffnest | Fermata non ancora localizzata: verrà salvata aprendo le porte lì | Parada ainda não localizada: será salva ao abrir as portas lá | Przystanek jeszcze nieznany: zapisze się, gdy otworzysz tam drzwi
+Has llegado: abre las puertas | You've arrived: open the doors | Tu es arrivé : ouvre les portes | Angekommen: öffne die Türen | Sei arrivato: apri le porte | Você chegou: abra as portas | Jesteś na miejscu: otwórz drzwi
+Sigue recto | Go straight | Tout droit | Geradeaus | Vai dritto | Siga em frente | Jedź prosto
+Ligeramente a la | Slightly to the | Légèrement à | Leicht nach | Leggermente a | Levemente à | Lekko w
+Gira a la | Turn | Tourne à | Biege ab nach | Gira a | Vire à | Skręć w
+derecha | right | droite | rechts | destra | direita | prawo
+izquierda | left | gauche | links | sinistra | esquerda | lewo
+Ligeramente a la derecha | Slightly to the right | Légèrement à droite | Leicht nach rechts | Leggermente a destra | Levemente à direita | Lekko w prawo
+Ligeramente a la izquierda | Slightly to the left | Légèrement à gauche | Leicht nach links | Leggermente a sinistra | Levemente à esquerda | Lekko w lewo
+Gira a la derecha | Turn right | Tourne à droite | Rechts abbiegen | Gira a destra | Vire à direita | Skręć w prawo
+Gira a la izquierda | Turn left | Tourne à gauche | Links abbiegen | Gira a sinistra | Vire à esquerda | Skręć w lewo
+La parada está detrás | The stop is behind you | L'arrêt est derrière toi | Die Haltestelle ist hinter dir | La fermata è dietro di te | A parada está atrás | Przystanek jest za tobą
+Próxima parada | Next stop | Prochain arrêt | Nächste Haltestelle | Prossima fermata | Próxima parada | Następny przystanek

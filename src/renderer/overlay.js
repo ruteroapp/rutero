@@ -39,6 +39,7 @@ K.on('telemetry', (t) => {
   else { l.textContent = '—'; l.style.opacity = .4; l.classList.remove('over'); }
   $('rpm').style.width = `${Math.min(100, (t.rpm / (t.rpmMax || 2500)) * 100)}%`;
   const j = t.job;
+  if (!bus) { const nb = $('nav'); if (nb.classList.contains('on')) { nb.classList.remove('on'); resize(); } }
   if (bus) $('j').textContent = `${bus.doors ? '🚪 ' + RI18N.tr('Puertas abiertas') + ' · ' + (bus.alighting ? `-${bus.alighting}` : `+${bus.waiting}`) : '🚌 ' + bus.line} · ${bus.next ? `${RI18N.tr('próxima')}: ${bus.next}` : `${RI18N.tr('parada')} ${bus.stops}`} · ${bus.onBoard} ${RI18N.tr('a bordo')}`;
   else $('j').textContent = j ? `📦 ${j.cargo} → ${j.to}` : 'Sin carga';
   $('r').textContent = t.routeKm > 0 ? `${c(t.routeKm).toLocaleString(LOC())} ${imperial ? 'mi' : 'km'}` : '—';
@@ -53,7 +54,35 @@ K.on('telemetry', (t) => {
   $('f').style.width = `${pct * 100}%`;
   $('f').style.background = pct < 0.15 ? '#FF5A5F' : '#19C3B1';
 });
-K.on('bus', (b) => { bus = b; });
+K.on('bus', (b) => { bus = b; drawNav(); });
+// flecha hacia la próxima parada (en línea recta) y metros que faltan
+const tr = (x) => (window.RI18N ? RI18N.tr(x) : x);
+function drawNav() {
+  const box = $('nav'); const n = bus && bus.nav;
+  const show = !!(n && !bus.doors && (!cfg || cfg.widgets.nav !== false));
+  if (box.classList.contains('on') !== show) { box.classList.toggle('on', show); resize(); }
+  if (!show) return;
+  const fmtD = (m) => (imperial ? (m < 300 ? `${Math.round(m * 3.28084 / 10) * 10} ft` : `${(m / 1609.34).toFixed(1)} mi`) : (m < 1000 ? `${Math.max(0, Math.round(m / 10) * 10)} m` : `${(m / 1000).toFixed(1).replace('.', ',')} km`));
+  if (!n.known) {
+    box.className = 'nav on'; $('arw').style.transform = 'rotate(0deg)';
+    $('nvi').textContent = tr('Parada sin ubicar'); $('nvd').textContent = '📍';
+    $('nvn').textContent = `${n.name} · ${tr('se guardará al abrir las puertas allí')}`; $('nvb').style.display = 'none'; return;
+  }
+  const a = Math.abs(n.rel), side = n.rel > 0 ? tr('derecha') : tr('izquierda');
+  let txt;
+  if (n.dist < 35) txt = tr('Has llegado: abre las puertas');
+  else if (a <= 22) txt = tr('Sigue recto');
+  else if (a <= 70) txt = `${tr('Ligeramente a la')} ${side}`;
+  else if (a <= 140) txt = `${tr('Gira a la')} ${side}`;
+  else txt = tr('La parada está detrás');
+  box.className = `nav on${n.dist < 35 ? ' here' : n.dist < 300 ? ' near' : ''}`;
+  $('arw').style.transform = `rotate(${n.dist < 35 ? 0 : n.rel}deg)`;
+  $('nvi').textContent = txt;
+  $('nvd').textContent = n.dist < 35 ? '🚏' : fmtD(n.dist);
+  $('nvn').textContent = `${tr('Próxima parada')}: ${n.name}`;
+  $('nvb').style.display = n.dist < 300 && n.dist >= 35 ? 'block' : 'none';
+  $('nvbi').style.width = `${Math.round((1 - n.dist / 300) * 100)}%`;
+}
 K.on('toast', ({ title, body }) => {
   const el = $('t');
   el.textContent = `${title}${body ? ' · ' + body : ''}`;

@@ -149,12 +149,13 @@ class Tracker {
   // ------------------------------------------------------------------ Autobús
   // Con puertas (tecla U en el juego): al abrir bajan y suben pasajeros poco a poco; al cerrar cuenta la parada.
   // Sin usar puertas: modo automático (detenido 12 s = parada), como antes.
-  startBus({ line, from, to, fare = 5, perKm = 8, capacity = 55, routeId = '', stopNames = [], bonus = 0, color = '', mine = false }) {
+  startBus({ line, from, to, fare = 5, perKm = 8, capacity = 55, routeId = '', stopNames = [], bonus = 0, color = '', mine = false, stopPos = [] }) {
     const names = (stopNames || []).map(String).filter(Boolean);
     this.bus = { line: line || 'Línea 1', from: from || names[0] || '', to: to || names[names.length - 1] || '', fare: Math.max(0, Number(fare) || 0), perKm: Math.max(0, Math.min(30, Number(perKm ?? 8) || 0)),
       capacity: Math.max(8, Math.min(120, Math.round(Number(capacity) || 55))), startedAt: Date.now(), mine: !!mine,
       routeId, stopNames: names, bonus: Math.max(0, Number(bonus) || 0), color, next: names[0] || '', km: 0, stops: 0, passengers: 0, onBoard: 0, stoppedSec: 0, sinceLastStopKm: 0, drivingSec: 0, speedingSec: 0, maxSpeed: 0, events: [],
-      doors: false, doorsUsed: false, waiting: 0, alighting: 0, stopOn: 0, stopOff: 0, flowSec: 0, ticketMoney: 0, stopName: '' };
+      doors: false, doorsUsed: false, waiting: 0, alighting: 0, stopOn: 0, stopOff: 0, flowSec: 0, ticketMoney: 0, stopName: '',
+      stopPos: Array.isArray(stopPos) ? stopPos.filter((p) => p && p.name) : [], nav: null };
     this.emit('bus:update', this.bus);
   }
   busFrame(t, dt, dKm) {
@@ -164,6 +165,7 @@ class Tracker {
     if (t.truck && t.truck.brand) b.truck = `${t.truck.brand} ${t.truck.name}`.trim();
     if (t.speedKmh > 3) { b.drivingSec += dt; b.stoppedSec = 0; }
     if (t.limitKmh > 5 && t.speedKmh > t.limitKmh + 5) b.speedingSec += dt;
+    if (t.pos) { this.busPos = { x: t.pos.x, z: t.pos.z, heading: t.pos.heading, g: t.game || '' }; b.nav = this.navTo(b); }
     if (b.doors) {
       if (t.speedKmh > 6) { this.toggleDoors(true); this.emit('bus:warn', 'Has arrancado con las puertas abiertas: se han cerrado solas'); }
       else {
@@ -183,6 +185,7 @@ class Tracker {
         const off = b.stops === 0 ? 0 : Math.min(b.onBoard, Math.floor(Math.random() * (b.onBoard + 1)));
         const on = Math.min(b.capacity - (b.onBoard - off), 2 + Math.floor(Math.random() * 18));
         b.onBoard = b.onBoard - off + on;
+        this.recordStop(b, b.stops);
         b.passengers += on; b.ticketMoney += on * b.fare; b.stops += 1; b.sinceLastStopKm = 0;
         const name = b.stopNames[b.stops - 1] || '';
         b.next = b.stopNames[b.stops] || '';
@@ -191,6 +194,26 @@ class Tracker {
       }
     }
     this.emit('bus:update', b);
+  }
+  // Guía hacia la próxima parada: distancia y ángulo respecto a hacia dónde mira el vehículo.
+  // SCS: x hacia el este, z hacia el sur; heading 0..1 en sentido antihorario con 0 = norte.
+  navTo(b) {
+    const p = this.busPos; const name = b.stopNames[b.stops];
+    if (!p || !name) return null;
+    const target = b.stopPos.find((s) => s.name === name && (!s.g || !p.g || s.g === p.g));
+    if (!target) return { name, known: false };
+    const dx = target.x - p.x, dz = target.z - p.z;
+    const dist = Math.hypot(dx, dz);
+    const th = p.heading * 2 * Math.PI, thd = Math.atan2(-dx, -dz);
+    let rel = ((thd - th) * 180 / Math.PI) % 360; if (rel > 180) rel -= 360; if (rel < -180) rel += 360;
+    return { name, known: true, dist: Math.round(dist), rel: Math.round(-rel) }; // rel > 0 = a la derecha
+  }
+  recordStop(b, index) {
+    const p = this.busPos; const name = b.stopNames[index];
+    if (!p || !name || b.stopPos.some((s) => s.name === name && (!s.g || s.g === p.g))) return;
+    const pos = { name, x: Math.round(p.x * 10) / 10, z: Math.round(p.z * 10) / 10, g: p.g };
+    b.stopPos.push(pos);
+    this.emit('bus:stopPos', { routeId: b.routeId, mine: b.mine, pos });
   }
   // abre o cierra las puertas (tecla U o botón de la app)
   toggleDoors(force = false) {
@@ -207,6 +230,7 @@ class Tracker {
       this.emit('bus:doors', { open: true, name: b.stopName, waiting: b.waiting, alighting: b.alighting });
     } else {
       b.doors = false;
+      this.recordStop(b, b.stops);
       b.stops += 1; b.sinceLastStopKm = 0;
       b.events.push({ stop: b.stops, name: b.stopName, on: b.stopOn, off: b.stopOff, at: Date.now() });
       b.next = b.stopNames[b.stops] || '';

@@ -70,7 +70,12 @@ service cloud.firestore {
       }
       match /garages/{g} { allow read: if signed(); allow write: if isManager(cid); }
       match /news/{n} { allow read: if signed(); allow write: if isManager(cid); }
-      match /busroutes/{r} { allow read: if signed(); allow write: if isManager(cid); }
+      match /busroutes/{r} {
+        allow read: if signed();
+        allow write: if isManager(cid);
+        // cualquier conductor de la empresa puede guardar dónde están las paradas
+        allow update: if isMember(cid) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['stopPos']);
+      }
       match /events/{e} {
         allow read: if signed();
         allow create, delete: if isManager(cid);

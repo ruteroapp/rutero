@@ -646,7 +646,7 @@ const openDiscord = () => { const u = S.data.links && S.data.links.discordInvite
 async function startCompanyRoute(r) {
   if (!r) return;
   if (S.bus) throw new Error('Ya tienes una ruta en marcha: termínala o cancélala en Modo autobús');
-  S.bus = await K.call('bus:start', { line: `${r.code ? r.code + ' · ' : ''}${r.name}`, from: r.stops[0], to: r.stops[r.stops.length - 1], fare: r.fare, perKm: r.perKm ?? 8, capacity: r.capacity || 55, routeId: r.id, stopNames: r.stops, bonus: r.bonus, color: r.color });
+  S.bus = await K.call('bus:start', { line: `${r.code ? r.code + ' · ' : ''}${r.name}`, from: r.stops[0], to: r.stops[r.stops.length - 1], fare: r.fare, perKm: r.perKm ?? 8, capacity: r.capacity || 55, routeId: r.id, stopNames: r.stops, bonus: r.bonus, color: r.color, stopPos: r.stopPos || [] });
   toast({ title: 'Ruta empezada 🚌', body: `${r.name} · ${r.stops.length} paradas` });
   go('bus');
 }
@@ -717,7 +717,7 @@ const PAGE_BUS = {
     $$('[data-mydel]', root).forEach((b) => b.onclick = () => act(b, async () => { if (!confirm('¿Borrar esta ruta?')) return; S.myRoutes = await K.call('bus:routeDel', b.dataset.mydel); render(); }));
     $$('[data-mydrive]', root).forEach((b) => b.onclick = () => act(b, async () => {
       const r = S.myRoutes.find((x) => x.id === b.dataset.mydrive); if (!r) return;
-      S.bus = await K.call('bus:start', { line: `${r.code ? r.code + ' · ' : ''}${r.name}`, from: r.stops[0], to: r.stops[r.stops.length - 1], fare: r.fare, perKm: r.perKm, capacity: r.capacity, routeId: r.id, stopNames: r.stops, color: r.color, mine: true });
+      S.bus = await K.call('bus:start', { line: `${r.code ? r.code + ' · ' : ''}${r.name}`, from: r.stops[0], to: r.stops[r.stops.length - 1], fare: r.fare, perKm: r.perKm, capacity: r.capacity, routeId: r.id, stopNames: r.stops, color: r.color, mine: true, stopPos: r.stopPos || [] });
       toast({ title: 'Ruta empezada 🚌', body: `${r.name} · ${r.stops.length} paradas` }); render();
     }));
     const bb = $('#bus-banner');
@@ -728,6 +728,7 @@ const PAGE_BUS = {
     updateBus();
   },
 };
+const navText = (n) => { const a = Math.abs(n.rel), side = n.rel > 0 ? 'derecha' : 'izquierda'; return a <= 22 ? 'Sigue recto' : a <= 70 ? `Ligeramente a la ${side}` : a <= 140 ? `Gira a la ${side}` : 'La parada está detrás'; };
 function updateBus() {
   const el = $('#bus-live'); if (!el || !S.bus) return;
   const b = S.bus;
@@ -740,7 +741,7 @@ function updateBus() {
     db.classList.toggle('open', !!b.doors);
     db.innerHTML = b.doors
       ? `<span class="dk">🚪</span><div style="flex:1"><b>Puertas abiertas${b.stopName ? ` · ${esc(b.stopName)}` : ''}</b><div class="muted">${b.alighting ? `Bajando… quedan ${b.alighting}` : b.waiting ? `Subiendo… ${b.waiting} esperando` : 'Ya han subido todos'} · ↓ ${b.stopOff} · ↑ ${b.stopOn}</div></div><span class="muted">Pulsa <b class="kbd">${esc(key)}</b> para cerrar</span>`
-      : `<span class="dk">🚌</span><div style="flex:1"><b>${b.next ? `Próxima parada: ${esc(b.next)}` : b.stopNames && b.stopNames.length ? 'Ruta completada: termina para cobrar' : `Parada ${b.stops + 1}`}</b><div class="muted">Para el autobús y pulsa <b class="kbd">${esc(key)}</b> para abrir las puertas</div></div>`;
+      : `<span class="dk nav-arrow" style="transform:rotate(${b.nav && b.nav.known && b.nav.dist >= 35 ? b.nav.rel : 0}deg)">${b.nav && b.nav.known ? '⬆️' : '🚌'}</span><div style="flex:1"><b>${b.next ? `Próxima parada: ${esc(b.next)}` : b.stopNames && b.stopNames.length ? 'Ruta completada: termina para cobrar' : `Parada ${b.stops + 1}`}</b><div class="muted">${b.nav && b.nav.known ? (b.nav.dist < 35 ? 'Has llegado: abre las puertas' : `${navText(b.nav)} · ${b.nav.dist < 1000 ? `${Math.round(b.nav.dist / 10) * 10} m` : `${nf(b.nav.dist / 1000, 1)} km`}`) : b.nav ? 'Parada sin ubicar: se guardará al abrir las puertas allí' : 'Para el autobús y pulsa'} ${b.nav && b.nav.known ? '' : `<b class="kbd">${esc(key)}</b> para abrir las puertas`}</div></div>`;
     const btn = $('#bus-door'); if (btn) btn.innerHTML = `🚪 ${b.doors ? 'Cerrar' : 'Abrir'} puertas`;
   }
   const st = $('#bus-stops');
@@ -897,7 +898,7 @@ function bindAuthForm(root, prefix = 'a', after) {
 
 // ------------------------------------------------------------------ AJUSTES
 const OV_WIDGETS = [['speed', 'Velocidad'], ['limit', 'Límite de velocidad'], ['gear', 'Marcha'], ['cruise', 'Control de crucero'], ['rpm', 'Barra de RPM'], ['job', 'Carga y destino'],
-  ['remaining', 'Distancia restante'], ['eta', 'Tiempo de llegada'], ['score', 'Puntuación'], ['damage', 'Daño de la carga'], ['fuel', 'Combustible'], ['clock', 'Hora del juego'], ['rest', 'Tiempo hasta descansar'], ['earnings', 'Ganado hoy']];
+  ['remaining', 'Distancia restante'], ['eta', 'Tiempo de llegada'], ['score', 'Puntuación'], ['damage', 'Daño de la carga'], ['fuel', 'Combustible'], ['clock', 'Hora del juego'], ['rest', 'Tiempo hasta descansar'], ['earnings', 'Ganado hoy'], ['nav', 'Guía hacia la parada (autobús)']];
 const ACCENTS = ['#4C8DFF', '#19C3B1', '#FF9F1C', '#FF5A8A', '#9B7BFF', '#E2231A', '#2ECC71', '#F1C40F'];
 const PAGE_SETTINGS = {
   id: 'settings',
@@ -924,7 +925,7 @@ const PAGE_SETTINGS = {
         <button class="btn sm ${s.overlay ? 'danger' : 'primary'}" id="ov-toggle">${s.overlay ? 'Ocultar overlay' : 'Mostrar overlay'}</button><button class="btn sm ghost" id="ov-reset">Restablecer</button></div></div>
         <div class="muted" style="margin-bottom:12px">Funciona con el juego en <b>ventana sin bordes</b>. Atajo: <b>Ctrl + Mayús + K</b>. Los cambios se ven al momento.</div>
         <div class="grid g2">
-          <div><h3>Qué mostrar</h3><div class="ov-checks">${OV_WIDGETS.map(([k, n]) => `<label class="ov-check"><input type="checkbox" data-ow="${k}" ${oc.widgets[k] ? 'checked' : ''}><span>${n}</span></label>`).join('')}</div></div>
+          <div><h3>Qué mostrar</h3><div class="ov-checks">${OV_WIDGETS.map(([k, n]) => `<label class="ov-check"><input type="checkbox" data-ow="${k}" ${(k === 'nav' ? oc.widgets[k] !== false : oc.widgets[k]) ? 'checked' : ''}><span>${n}</span></label>`).join('')}</div></div>
           <div class="grid" style="align-content:start;gap:12px">
             <label class="field"><span>Posición</span><select id="ov-pos">${[['tl', 'Arriba a la izquierda'], ['tc', 'Arriba en el centro'], ['tr', 'Arriba a la derecha'], ['bl', 'Abajo a la izquierda'], ['br', 'Abajo a la derecha'], ['free', 'Libre (arrástralo)']].map(([k, n]) => `<option value="${k}" ${oc.position === k ? 'selected' : ''}>${n}</option>`).join('')}</select></label>
             <label class="field"><span>Tamaño · <b id="ov-scale-v">${Math.round((oc.scale || 1) * 100)}%</b></span><input type="range" id="ov-scale" min="0.7" max="1.6" step="0.05" value="${oc.scale || 1}"></label>

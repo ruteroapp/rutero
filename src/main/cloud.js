@@ -659,6 +659,13 @@ class Cloud {
     if (r.id) await this.commit([this.upd(`companies/${cid}/busroutes/${r.id}`, data)]);
     else await this.commit([this.create(`companies/${cid}/busroutes/${newId()}`, { ...data, createdBy: me.name || '', createdAt: new Date() })]);
   }
+  // guarda dónde está una parada de una ruta de la empresa (lo hace el primer conductor que pasa por ella)
+  async saveStopPos(cid, rid, pos) {
+    const r = await this.getDoc(`companies/${cid}/busroutes/${rid}`);
+    if (!r) return;
+    const list = (r.stopPos || []).filter((x) => !(x.name === pos.name && x.g === pos.g));
+    await this.commit([this.upd(`companies/${cid}/busroutes/${rid}`, { stopPos: [...list, pos].slice(-80) })]);
+  }
   async deleteBusRoute(cid, rid) { await this.commit([{ delete: this.path(`companies/${cid}/busroutes/${rid}`) }]); }
   async deleteNews(id, nId) { await this.commit([{ delete: this.path(`companies/${id}/news/${nId}`) }]); }
 

@@ -32,6 +32,20 @@
   body.compact .rows { grid-template-columns: 1fr; }
   body.compact .brand { display: none; }
   .hide { display: none !important; }
+  /* guía hacia la próxima parada del autobús */
+  .nav { display: none; align-items: center; gap: 12px; margin-top: 10px; padding: 10px 12px; border-radius: 12px; background: var(--chip); border: 1px solid var(--line); }
+  .nav.on { display: flex; }
+  .nav .arw { width: 58px; height: 58px; flex: none; border-radius: 50%; display: grid; place-items: center; background: color-mix(in srgb, var(--acc) 22%, transparent); }
+  .nav .arw svg { width: 40px; height: 40px; transition: transform .25s linear; }
+  .nav .nvi { font-size: 16px; font-weight: 700; }
+  .nav .nvd { font-size: 28px; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; color: var(--acc); }
+  .nav .nvn { font-size: 12px; color: var(--mut); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 230px; }
+  .nav.near { background: color-mix(in srgb, #FF9F1C 20%, transparent); border-color: #FF9F1C; }
+  .nav.near .nvd { color: #FFB13B; }
+  .nav.here { background: color-mix(in srgb, #19C3B1 22%, transparent); border-color: #19C3B1; }
+  .nav.here .nvd { color: #19C3B1; }
+  .near-bar { height: 4px; border-radius: 4px; background: rgba(255,255,255,.12); margin-top: 6px; overflow: hidden; }
+  .near-bar i { display: block; height: 100%; background: #FFB13B; }
 </style>
 </head>
 <body>
@@ -44,6 +58,10 @@
     </div>
     <div class="rpm" data-w="rpm"><i id="rpm" style="width:0"></i></div>
     <div class="job" id="j" data-w="job">Sin carga</div>
+    <div class="nav" id="nav">
+      <div class="arw"><svg id="arw" viewBox="0 0 40 40"><path d="M20 3 L33 22 H24 V37 H16 V22 H7 Z" fill="currentColor"/></svg></div>
+      <div style="flex:1;min-width:0"><div class="nvi" id="nvi"></div><div class="nvd" id="nvd"></div><div class="nvn" id="nvn"></div><div class="near-bar" id="nvb" style="display:none"><i id="nvbi"></i></div></div>
+    </div>
     <div class="rows">
       <div class="row" data-w="remaining"><span>Restante</span><b id="r">—</b></div>
       <div class="row" data-w="eta"><span>Llegada</span><b id="e">—</b></div>
