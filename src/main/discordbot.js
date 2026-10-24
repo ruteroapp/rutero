@@ -28,6 +28,7 @@ const RANK_ROLES = [
   { lvl: 5, name: '🚚 Conductor', color: 0x7FD36B },
   { lvl: 1, name: '🔰 Novato', color: 0x9AA4B8 },
 ];
+const LANG_ROLES = { es: { name: '🇪🇸 Español', color: 0xF1BF00 }, en: { name: '🇬🇧 English', color: 0x3B82F6 } };
 const ROLE = { verified: '✅ Verificado', owner: '🏢 Dueño de empresa', mod: '🛡️ Moderador', support: '🧰 Soporte', founder: '👑 Fundador' };
 
 // Estructura del servidor. «m» = expresión para reconocer el canal aunque ya exista con otro emoji.
@@ -39,9 +40,16 @@ const CATS = {
   companies: { name: '🏢 ᴇᴍᴘʀᴇꜱᴀꜱ', m: /^🏢 ?(empresas|ᴇᴍᴘʀᴇꜱᴀꜱ)$/i },
   hq: { name: '🏠 ꜱᴇᴅᴇꜱ ᴅᴇ ᴇᴍᴘʀᴇꜱᴀꜱ', m: /sedes|ꜱᴇᴅᴇꜱ/i },
   voice: { name: '🔊 ᴠᴏᴢ', m: /^🔊 ?(voz|ᴠᴏᴢ)$/i },
+  // versión en inglés (solo la ve quien elige 🇬🇧 English)
+  communityEn: { name: '💬 ᴄᴏᴍᴍᴜɴɪᴛʏ', m: /community|ᴄᴏᴍᴍᴜɴɪᴛʏ/i, lang: 'en' },
+  ruteroEn: { name: '🚚 ʀᴜᴛᴇʀᴏ ꜱᴜᴘᴘᴏʀᴛ', m: /support|ꜱᴜᴘᴘᴏʀᴛ/i, lang: 'en' },
+  companiesEn: { name: '🏢 ᴄᴏᴍᴘᴀɴɪᴇꜱ', m: /companies|ᴄᴏᴍᴘᴀɴɪᴇꜱ/i, lang: 'en' },
+  voiceEn: { name: '🔊 ᴠᴏɪᴄᴇ', m: /voice|ᴠᴏɪᴄᴇ/i, lang: 'en' },
 };
+CATS.community.lang = CATS.rutero.lang = CATS.companies.lang = CATS.voice.lang = 'es';
 // lock = solo lectura para todos; verified = hace falta ✅ Verificado para escribir
 const CHANNELS = [
+  { key: 'lang', cat: 'info', name: '🌐┃ɪᴅɪᴏᴍᴀ-ʟᴀɴɢᴜᴀɢᴇ', m: /ɪᴅɪᴏᴍᴀ|idioma|language/i, lock: true, topic: 'Elige tu idioma · Choose your language' },
   { key: 'welcome', cat: 'info', name: '👋┃ʙɪᴇɴᴠᴇɴɪᴅᴀ', m: /ʙɪᴇɴᴠᴇɴɪᴅᴀ|bienvenida/i, lock: true, topic: 'Bienvenido a la comunidad oficial de Rutero, la app para ETS2 y ATS.' },
   { key: 'verify', cat: 'info', name: '✅┃ᴠᴇʀɪꜰɪᴄᴀᴄɪᴏɴ', m: /ᴠᴇʀɪꜰɪᴄᴀᴄɪ|verificaci/i, lock: true, topic: 'Enlaza tu cuenta de Rutero para verificarte y recibir tu rango.' },
   { key: 'rules', cat: 'info', name: '📜┃ɴᴏʀᴍᴀꜱ', m: /ɴᴏʀᴍᴀꜱ|normas/i, lock: true, topic: 'Léelas antes de escribir. Saltártelas puede costarte un aviso o la expulsión.' },
@@ -56,12 +64,24 @@ const CHANNELS = [
   { key: 'help', cat: 'rutero', name: '🆘┃ᴀʏᴜᴅᴀ', m: /ᴀʏᴜᴅᴀ|ayuda/i, topic: '¿Problemas instalando o usando Rutero? Pregunta aquí (no hace falta verificarse).' },
   { key: 'ideas', cat: 'rutero', name: '💡┃ꜱᴜɢᴇʀᴇɴᴄɪᴀꜱ', m: /ꜱᴜɢᴇʀᴇɴᴄɪᴀꜱ|sugerencias/i, verified: true, slow: 30, topic: 'Ideas para mejorar Rutero. Las mejores acaban en la app.' },
   { key: 'bugs', cat: 'rutero', name: '🐞┃ᴇʀʀᴏʀᴇꜱ', m: /ᴇʀʀᴏʀᴇꜱ|errores/i, topic: 'Cuenta qué falla, en qué versión y, si puedes, añade una captura.' },
-  { key: 'register', cat: 'companies', name: '📝┃ʀᴇɢɪꜱᴛʀᴏ-ᴅᴇ-ᴇᴍᴘʀᴇꜱᴀꜱ', m: /ʀᴇɢɪꜱᴛʀᴏ|registro/i, lock: true, topic: 'Empresas registradas desde la app. Cada una recibe su sede privada.' },
-  { key: 'promo', cat: 'companies', name: '📢┃ᴘʀᴏᴍᴏᴄɪᴏɴᴀ-ᴛᴜ-ᴇᴍᴘʀᴇꜱᴀ', m: /ᴘʀᴏᴍᴏᴄɪᴏɴᴀ|promociona/i, lock: true, topic: 'Promociones de empresas con foto y estrellas. Se publican desde Rutero (Mi empresa → Discord).' },
+  { key: 'register', cat: 'news', name: '📝┃ʀᴇɢɪꜱᴛʀᴏ-ᴅᴇ-ᴇᴍᴘʀᴇꜱᴀꜱ', m: /ʀᴇɢɪꜱᴛʀᴏ|registro/i, lock: true, topic: 'Empresas registradas desde la app. Cada una recibe su sede privada.' },
+  { key: 'promo', cat: 'news', name: '📢┃ᴘʀᴏᴍᴏᴄɪᴏɴᴀ-ᴛᴜ-ᴇᴍᴘʀᴇꜱᴀ', m: /ᴘʀᴏᴍᴏᴄɪᴏɴᴀ|promociona/i, lock: true, topic: 'Promociones de empresas con foto y estrellas. Se publican desde Rutero (Mi empresa → Discord).' },
   { key: 'lookCompany', cat: 'companies', name: '🔎┃ʙᴜꜱᴄᴏ-ᴇᴍᴘʀᴇꜱᴀ', m: /ʙᴜꜱᴄᴏ-ᴇᴍᴘʀᴇꜱᴀ|busco-empresa/i, verified: true, slow: 600, topic: 'Preséntate: juego, horario, km y qué buscas. Un mensaje cada 10 minutos.' },
   { key: 'lookDrivers', cat: 'companies', name: '🧑‍✈️┃ʙᴜꜱᴄᴏ-ᴄᴏɴᴅᴜᴄᴛᴏʀᴇꜱ', m: /ʙᴜꜱᴄᴏ-ᴄᴏɴᴅᴜᴄᴛᴏʀᴇꜱ|busco-conductores/i, verified: true, slow: 600, topic: 'Empresas que buscan conductores. Un mensaje cada 10 minutos.' },
   { key: 'convoys', cat: 'companies', name: '🚛┃ᴄᴏɴᴠᴏʏᴇꜱ-ʏ-ᴇᴠᴇɴᴛᴏꜱ', m: /ᴄᴏɴᴠᴏʏᴇꜱ|convoyes/i, verified: true, topic: 'Organiza convoyes y eventos: servidor, hora, salida y destino.' },
+  // English
+  { key: 'generalEn', cat: 'communityEn', name: '💬┃ɢᴇɴᴇʀᴀʟ', m: /ɢᴇɴᴇʀᴀʟ|^general$/i, verified: true, slow: 3, topic: 'General chat about trucks, routes and TruckersMP. Good vibes only!' },
+  { key: 'shotsEn', cat: 'communityEn', name: '📸┃ꜱᴄʀᴇᴇɴꜱʜᴏᴛꜱ', m: /ꜱᴄʀᴇᴇɴꜱʜᴏᴛꜱ|screenshots/i, verified: true, slow: 10, topic: 'Your best ETS2 & ATS screenshots.' },
+  { key: 'clipsEn', cat: 'communityEn', name: '🎬┃ᴄʟɪᴘꜱ', m: /ᴄʟɪᴘꜱ|clips/i, verified: true, slow: 10, topic: 'Videos, epic moments and road fails.' },
+  { key: 'offtopicEn', cat: 'communityEn', name: '🎲┃ᴏꜰꜰ-ᴛᴏᴘɪᴄ', m: /ᴏꜰꜰ|off-topic/i, verified: true, slow: 3, topic: 'Anything that is not about trucks.' },
+  { key: 'helpEn', cat: 'ruteroEn', name: '🆘┃ʜᴇʟᴘ', m: /ʜᴇʟᴘ|^help/i, topic: 'Trouble installing or using Rutero? Ask here (no verification needed).' },
+  { key: 'ideasEn', cat: 'ruteroEn', name: '💡┃ꜱᴜɢɢᴇꜱᴛɪᴏɴꜱ', m: /ꜱᴜɢɢᴇꜱᴛɪᴏɴꜱ|suggestions/i, verified: true, slow: 30, topic: 'Ideas to improve Rutero. The best ones end up in the app.' },
+  { key: 'bugsEn', cat: 'ruteroEn', name: '🐞┃ʙᴜɢꜱ', m: /ʙᴜɢꜱ|bugs/i, topic: 'Tell us what fails, in which version and, if you can, add a screenshot.' },
+  { key: 'lookCompanyEn', cat: 'companiesEn', name: '🔎┃ʟᴏᴏᴋɪɴɢ-ꜰᴏʀ-ᴀ-ᴄᴏᴍᴘᴀɴʏ', m: /ᴄᴏᴍᴘᴀɴʏ|for-a-company/i, verified: true, slow: 600, topic: 'Introduce yourself: game, schedule, km and what you are looking for. One message every 10 minutes.' },
+  { key: 'lookDriversEn', cat: 'companiesEn', name: '🧑‍✈️┃ʟᴏᴏᴋɪɴɢ-ꜰᴏʀ-ᴅʀɪᴠᴇʀꜱ', m: /ᴅʀɪᴠᴇʀꜱ|drivers/i, verified: true, slow: 600, topic: 'Companies looking for drivers. One message every 10 minutes.' },
+  { key: 'convoysEn', cat: 'companiesEn', name: '🚛┃ᴄᴏɴᴠᴏʏꜱ-ᴀɴᴅ-ᴇᴠᴇɴᴛꜱ', m: /ᴄᴏɴᴠᴏʏꜱ-ᴀɴᴅ|convoys/i, verified: true, topic: 'Organise convoys and events: server, time, start and destination.' },
 ];
+const VOICE_EN = ['🔊┃ɢᴇɴᴇʀᴀʟ', '🚛┃ᴄᴏɴᴠᴏʏ 𝟏', '🚛┃ᴄᴏɴᴠᴏʏ 𝟐', '🚌┃ʙᴜꜱ ʀᴏᴜᴛᴇ'];
 
 const slug = (s) => String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40) || 'empresa';
 const hex = (c) => { const n = parseInt(String(c || '').replace('#', ''), 16); return Number.isFinite(n) ? n : BLUE; };
@@ -197,6 +217,7 @@ class DiscordBot {
       await this.ensureRole(ROLE.owner, { color: AMBER, hoist: true, mentionable: true });
       const mod = this.findRole(ROLE.mod) || await this.ensureRole(ROLE.mod, { color: 0xE74C3C, hoist: true, mentionable: true });
       const everyone = this.roles.find((r) => r.id === GUILD);
+      const langRole = { es: await this.ensureRole(LANG_ROLES.es.name, { color: LANG_ROLES.es.color }), en: await this.ensureRole(LANG_ROLES.en.name, { color: LANG_ROLES.en.color }) };
 
       progress('Canales…');
       let all = await this.api('GET', `/guilds/${GUILD}/channels`);
@@ -209,11 +230,17 @@ class DiscordBot {
       }
       const ids = {};
       for (const c of CHANNELS) {
-        let ch = all.find((x) => (x.type === 0 || x.type === 5) && c.m.test(x.name));
+        const lang = CATS[c.cat].lang || '';
+        const enCats = new Set(Object.entries(CATS).filter(([, v]) => v.lang === 'en').map(([k]) => cats[k].id));
+        let ch = all.find((x) => (x.type === 0 || x.type === 5) && c.m.test(x.name) && (lang === 'en' ? x.parent_id === cats[c.cat].id : !enCats.has(x.parent_id)));
         const deny = c.lock ? bits(P.SEND, P.PUB_THREADS, P.THREADS) : c.verified ? bits(P.SEND, P.PUB_THREADS, P.THREADS, P.ATTACH) : '0';
-        const overwrites = [{ id: GUILD, type: 0, allow: bits(P.VIEW, P.HISTORY), deny }];
+        // canales de un idioma: solo los ve quien tiene ese rol de idioma
+        const overwrites = lang
+          ? [{ id: GUILD, type: 0, allow: '0', deny: (BigInt(deny) | P.VIEW).toString() }, { id: langRole[lang].id, type: 0, allow: bits(P.VIEW, P.HISTORY), deny: '0' }]
+          : [{ id: GUILD, type: 0, allow: bits(P.VIEW, P.HISTORY), deny }];
+        if (lang) overwrites.push({ id: mod.id, type: 0, allow: bits(P.VIEW, P.HISTORY), deny: '0' });
         if (c.verified) overwrites.push({ id: verified.id, type: 0, allow: bits(P.SEND, P.ATTACH, P.EMBED, P.THREADS, P.PUB_THREADS), deny: '0' });
-        if (c.lock || c.verified) overwrites.push({ id: mod.id, type: 0, allow: bits(P.SEND, P.ATTACH, P.EMBED), deny: '0' });
+        if (c.lock || c.verified) { const m = overwrites.find((o) => o.id === mod.id); if (m) m.allow = (BigInt(m.allow) | P.SEND | P.ATTACH | P.EMBED).toString(); else overwrites.push({ id: mod.id, type: 0, allow: bits(P.SEND, P.ATTACH, P.EMBED), deny: '0' }); }
         const body = { parent_id: cats[c.cat].id, topic: c.topic, permission_overwrites: overwrites, rate_limit_per_user: c.slow || 0 };
         if (!ch) { ch = await this.api('POST', `/guilds/${GUILD}/channels`, { name: c.name, type: 0, ...body }); all.push(ch); }
         else {
@@ -228,15 +255,26 @@ class DiscordBot {
         ids[c.key] = ch.id;
       }
       // voz: hace falta estar verificado para hablar
+      const voiceOw = (lang) => [{ id: GUILD, type: 0, allow: '0', deny: bits(P.VIEW, P.SPEAK) }, { id: langRole[lang].id, type: 0, allow: bits(P.VIEW), deny: '0' }, { id: verified.id, type: 0, allow: bits(P.CONNECT, P.SPEAK), deny: '0' }];
       for (const v of all.filter((x) => x.type === 2 && x.parent_id === cats.voice.id)) {
-        await this.api('PATCH', `/channels/${v.id}`, { permission_overwrites: [{ id: GUILD, type: 0, allow: bits(P.VIEW), deny: bits(P.SPEAK) }, { id: verified.id, type: 0, allow: bits(P.CONNECT, P.SPEAK), deny: '0' }] }).catch(() => {});
+        await this.api('PATCH', `/channels/${v.id}`, { permission_overwrites: voiceOw('es') }).catch(() => {});
       }
+      const vEn = all.filter((x) => x.type === 2 && x.parent_id === cats.voiceEn.id);
+      for (const name of VOICE_EN) {
+        const v = vEn.find((x) => x.name === name);
+        if (v) await this.api('PATCH', `/channels/${v.id}`, { permission_overwrites: voiceOw('en') }).catch(() => {});
+        else await this.api('POST', `/guilds/${GUILD}/channels`, { name, type: 2, parent_id: cats.voiceEn.id, permission_overwrites: voiceOw('en') }).catch(() => {});
+      }
+      // orden de los canales dentro de cada categoría
+      await this.api('PATCH', `/guilds/${GUILD}/channels`, CHANNELS.filter((c) => ids[c.key]).map((c, i) => ({ id: ids[c.key], position: i }))).catch(() => {});
+      // las categorías de cada idioma también se ocultan a quien no lo ha elegido
+      for (const [k, c] of Object.entries(CATS)) if (c.lang) await this.api('PATCH', `/channels/${cats[k].id}`, { permission_overwrites: [{ id: GUILD, type: 0, allow: '0', deny: bits(P.VIEW) }, { id: langRole[c.lang].id, type: 0, allow: bits(P.VIEW), deny: '0' }, { id: mod.id, type: 0, allow: bits(P.VIEW), deny: '0' }] }).catch(() => {});
       // orden de las categorías
-      const order = ['info', 'news', 'community', 'voice', 'rutero', 'companies', 'hq'];
+      const order = ['info', 'news', 'community', 'voice', 'rutero', 'companies', 'communityEn', 'voiceEn', 'ruteroEn', 'companiesEn', 'hq'];
       await this.api('PATCH', `/guilds/${GUILD}/channels`, order.filter((k) => cats[k]).map((k, i) => ({ id: cats[k].id, position: i }))).catch(() => {});
       // sedes de empresas: categoría oculta (cada sede da acceso a su rol)
       await this.api('PATCH', `/channels/${cats.hq.id}`, { permission_overwrites: [{ id: GUILD, type: 0, allow: '0', deny: bits(P.VIEW) }] }).catch(() => {});
-      this.setMem({ channels: ids, cats: Object.fromEntries(Object.entries(cats).map(([k, v]) => [k, v.id])) });
+      this.setMem({ langRoles: { es: langRole.es.id, en: langRole.en.id }, channels: ids, cats: Object.fromEntries(Object.entries(cats).map(([k, v]) => [k, v.id])) });
 
       progress('Mensajes…');
       await this.postStatic(ids, verified);
@@ -263,6 +301,7 @@ class DiscordBot {
   }
   // mensajes fijos: se editan si ya existen (no se duplican)
   async upsert(key, channelId, msg, files) {
+    if (this._en && this._en[key] && msg.embeds && msg.embeds.length < 10) msg = { ...msg, embeds: [...msg.embeds.map((e) => ({ ...e, title: e.title ? `🇪🇸 ${e.title}` : e.title })), { ...this._en[key], title: `🇬🇧 ${this._en[key].title}` }] };
     const msgs = this.mem.msgs || {};
     const prev = msgs[key];
     if (prev && prev.ch === channelId) {
@@ -274,6 +313,28 @@ class DiscordBot {
   }
   logoFile() { return { name: 'rutero.png', type: 'image/png', buf: fs.readFileSync(path.join(this.root, 'build', 'icon-256.png')) }; }
   async postStatic(ch, verified) {
+    const dl0 = 'https://github.com/ruteroapp/rutero/releases/latest';
+    const roles = this.mem.langRoles || {};
+    // selector de idioma (los botones los atiende el bot de Cloudflare, 24 h)
+    if (ch.lang) await this.upsert('lang', ch.lang, {
+      embeds: [{ color: BLUE, title: '🌐 Elige tu idioma · Choose your language',
+        description: '🇪🇸 **Español** — verás los canales de comunidad, ayuda, empresas y voz en español.\n🇬🇧 **English** — you will see the community, help, companies and voice channels in English.\n🌍 **Automático / Automatic** — según el idioma de tu Discord · based on your Discord language.\n\nPuedes cambiarlo cuando quieras · You can change it anytime.' }],
+      components: [{ type: 1, components: [
+        { type: 2, style: 2, label: 'Español', emoji: { name: '🇪🇸' }, custom_id: 'lang:es' },
+        { type: 2, style: 2, label: 'English', emoji: { name: '🇬🇧' }, custom_id: 'lang:en' },
+        { type: 2, style: 1, label: 'Automático · Auto', emoji: { name: '🌍' }, custom_id: 'lang:auto' },
+      ] }],
+    });
+    const EN = {
+      welcome: { color: AMBER, title: '🚚 Welcome to Rutero · ETS2 & ATS', description: `The official community of **Rutero**, the free companion app for **Euro Truck Simulator 2** and **American Truck Simulator**, connected to **TruckersMP**.\n\n1️⃣ Pick your language in <#${ch.lang}>\n2️⃣ Read the rules in <#${ch.rules}>\n3️⃣ Get verified in <#${ch.verify}>\n4️⃣ Download the app in <#${ch.web}>` },
+      verify: { color: 0x2ECC71, title: '✅ Verification', description: `To chat, join voice channels and get your rank you need <@&${verified.id}>. You get it by **linking your Rutero account** with Discord:\n\n**1.** Download Rutero for free in <#${ch.web}> and create your account.\n**2.** Open Settings → Community & help and press **Connect Discord**.\n**3.** In a few minutes you'll get ✅ Verified and your rank. If your company is registered, you'll also get its role and HQ.` },
+      rules: { color: 0xE74C3C, title: '📜 Server rules', description: ['**1.** Respect first: no insults, harassment, racism or discrimination.', '**2.** No spam, flood or ads outside the company channels.', '**3.** Keep it family friendly: no NSFW, gore or controversial topics.', '**4.** Use each channel for its purpose.', '**5.** On TruckersMP and convoys follow their rules: no ramming or trolling.', '**6.** Do not share personal data.', '**7.** Company promotions are posted from the app (one every 2 weeks).', '**8.** Moderators have the last word. Report problems from the app with 🚩.'].join('\n') },
+      web: { color: BLUE, title: '🌐 Rutero · website & download', url: SITE, description: `Download the latest version for Windows **for free**. It updates itself.\n\n⬇️ [Latest version](${dl0}) · 🌐 [ruteroapp.github.io/rutero](${SITE})` },
+      roles: { color: 0xB57BFF, title: '🎭 Ranks', description: 'Your Discord rank is the same as your Rutero rank and **goes up by itself** when you level up (link your account in the app).\n\n🇪🇸 / 🇬🇧 language roles · ✅ Verified · 🏢 Company owner · 🏢 TAG · Company (access to its HQ)' },
+      register: { color: AMBER, title: '📝 Register your company', description: 'In Rutero: **My company → Discord → Register company**. The bot creates a role with your company name and colour, a **private HQ** (text & voice) and gives the founder 🏢 Company owner.' },
+      promo: { color: AMBER, title: '📢 Promote your company', description: 'From Rutero: **My company → Discord → Promote**. Pick a photo and a text; your ⭐ stars, drivers, requirements and links are added automatically. One promotion every 2 weeks.' },
+    };
+    this._en = EN;
     const dl = 'https://github.com/ruteroapp/rutero/releases/latest';
     const links = (this.store.get('links') || {});
     const invite = links.discordInvite || 'https://discord.gg/sUF5GBagG4';

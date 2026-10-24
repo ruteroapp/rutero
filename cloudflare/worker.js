@@ -269,6 +269,24 @@ async function giveMoney(env, i) {
     return reply('', [{ color: hex(c.color), title: '💰 Dinero entregado', description: `**${nf(amount)} €** para **${c.name}** [${c.tag || ''}]${motivo ? `\n📝 ${motivo}` : ''}`, footer: { text: `Enviado por ${who}` }, timestamp: now.toISOString() }]);
   } catch (e) { return reply(`⚠️ No se pudo dar el dinero: ${String(e.message || e).slice(0, 200)}`); }
 }
+// botones de idioma del canal 🌐 idioma-language
+async function setLanguage(env, i) {
+  const run = new Run(env);
+  const pick = i.data.custom_id.split(':')[1];
+  const lang = pick === 'auto' ? (/^es/i.test(i.locale || '') ? 'es' : 'en') : pick;
+  const reply = (content) => fetch(`${API}/webhooks/${APP_ID}/${i.token}/messages/@original`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ content }) });
+  try {
+    if (!(await run.secrets())) return reply('⚠️ Bot sin configurar · Bot not configured');
+    const roles = await run.dc('GET', `/guilds/${GUILD}/roles`);
+    const es = roles.find((r) => r.name === '🇪🇸 Español'), en = roles.find((r) => r.name === '🇬🇧 English');
+    if (!es || !en) return reply('⚠️ Faltan los roles de idioma: el administrador debe pulsar «Organizar el servidor» · Language roles missing');
+    const add = lang === 'es' ? es : en, rem = lang === 'es' ? en : es;
+    const uid = i.member.user.id;
+    await run.dc('PUT', `/guilds/${GUILD}/members/${uid}/roles/${add.id}`);
+    if (i.member.roles.includes(rem.id)) await run.dc('DELETE', `/guilds/${GUILD}/members/${uid}/roles/${rem.id}`);
+    return reply(lang === 'es' ? '🇪🇸 ¡Listo! Ahora ves los canales en **español**. Puedes cambiarlo cuando quieras.' : '🇬🇧 Done! You now see the channels in **English**. You can change it anytime.');
+  } catch (e) { return reply(`⚠️ ${String(e.message || e).slice(0, 200)}`); }
+}
 async function interactions(req, env, ctx) {
   const body = await req.text();
   if (!(await verifySig(req, body))) return new Response('firma no válida', { status: 401 });
@@ -277,6 +295,10 @@ async function interactions(req, env, ctx) {
   if (i.type === 2 && i.data && i.data.name === 'dar-dinero') {
     ctx.waitUntil(giveMoney(env, i));
     return json({ type: 5 });                                // «pensando…» y luego se edita la respuesta
+  }
+  if (i.type === 3 && i.data && /^lang:(es|en|auto)$/.test(i.data.custom_id || '')) {
+    ctx.waitUntil(setLanguage(env, i));
+    return json({ type: 5, data: { flags: 64 } });          // respuesta privada «pensando…»
   }
   return json({ type: 4, data: { content: 'Comando desconocido', flags: 64 } });
 }
