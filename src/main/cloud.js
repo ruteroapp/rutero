@@ -654,6 +654,49 @@ class Cloud {
       this.create(`companies/${id}/bank/${newId()}`, { kind: 'sale', amount: value, by: me.name || '', note: `Venta: ${truck.model}`, at: new Date() }),
     ]);
   }
+  // ---------- Discord ----------
+  async linkDiscord(user) {
+    await this.commit([this.upd(`users/${this.uid}`, { discordId: String(user.id), discordName: user.global_name || user.username || '', discordAt: new Date() })]);
+    return this.me();
+  }
+  async unlinkDiscord() { await this.commit([this.upd(`users/${this.uid}`, { discordId: '', discordName: '' })]); return this.me(); }
+  async discordConfig() { return this.getDoc('config/discord'); }
+  async claimDiscordAdmin() {
+    const c = await this.getDoc('config/discord');
+    if (c && c.adminUid && c.adminUid !== this.uid) throw new Error('El bot ya tiene otro administrador');
+    if (!c) await this.commit([this.create('config/discord', { adminUid: this.uid, at: new Date() })]);
+    return this.getDoc('config/discord');
+  }
+  async setDiscordConfig(data) { await this.commit([this.upd('config/discord', data)]); }
+  // la empresa pide al bot que la registre o la promocione (el bot lo publica en el servidor)
+  async discordRequest(cid, type, extra = {}, me = {}) {
+    const c = await this.getDoc(`companies/${cid}`);
+    if (!c) throw new Error('Esa empresa ya no existe');
+    const now = Date.now();
+    if (type === 'promo') {
+      const last = c.lastPromoAt ? Date.parse(c.lastPromoAt) : 0;
+      if (now - last < 24 * 3600e3) { const h = Math.ceil((24 * 3600e3 - (now - last)) / 3600e3); throw new Error(`Solo se puede promocionar una vez al día (faltan ${h} h)`); }
+    }
+    const doc = { type, cid, by: this.uid, byName: me.name || '', byDiscord: me.discordId || '', at: new Date(),
+      text: String(extra.text || '').slice(0, 600), photo: type === 'promo' ? String(extra.photo || '').slice(0, 700000) : '' };
+    const writes = [this.create(`discordQueue/${newId()}`, doc)];
+    if (type === 'register') writes.push(this.upd(`companies/${cid}`, { discordRegistered: true, discordRegisteredAt: new Date() }));
+    if (type === 'promo') writes.push(this.upd(`companies/${cid}`, { lastPromoAt: new Date() }));
+    await this.commit(writes);
+  }
+  // --- solo para el administrador del bot ---
+  async discordQueue() { return this.query('', { from: [{ collectionId: 'discordQueue' }], orderBy: [{ field: { fieldPath: 'at' }, direction: 'ASCENDING' }], limit: 10 }); }
+  async discordQueueDone(id) { await this.commit([{ delete: this.path(`discordQueue/${id}`) }]); }
+  async discordUsers() {
+    return this.query('', { from: [{ collectionId: 'users' }], where: { fieldFilter: { field: { fieldPath: 'discordId' }, op: 'GREATER_THAN', value: { stringValue: '' } } },
+      select: { fields: ['discordId', 'name', 'xp', 'companyId', 'companyTag'].map((f) => ({ fieldPath: f })) }, limit: 1000 });
+  }
+  async discordCompanies() {
+    return this.query('', { from: [{ collectionId: 'companies' }], where: { fieldFilter: { field: { fieldPath: 'discordRegistered' }, op: 'EQUAL', value: { booleanValue: true } } },
+      select: { fields: ['name', 'tag', 'color', 'ownerUid', 'ownerName', 'description', 'membersCount'].map((f) => ({ fieldPath: f })) }, limit: 500 });
+  }
+  async discordMap() { const l = await this.query('', { from: [{ collectionId: 'discordMap' }], limit: 1000 }); return Object.fromEntries(l.map((x) => [x.id, x])); }
+  async setDiscordMap(cid, data) { await this.commit([this.upd(`discordMap/${cid}`, data)]); }
   async myTrips() {
     return this.query(`users/${this.uid}`, { from: [{ collectionId: 'jobs' }], orderBy: [{ field: { fieldPath: 'finishedAt' }, direction: 'DESCENDING' }], limit: 100 });
   }

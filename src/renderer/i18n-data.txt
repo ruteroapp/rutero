@@ -871,3 +871,37 @@ Quitar | Remove | Retirer | Entfernen | Rimuovi | Remover | Usuń
 # ruta | # route | # ligne | # Linie | # linea | # rota | # trasa
 todo lo que se gana vale ×# | everything earned is worth ×# | tout ce qui est gagné vaut ×# | alle Einnahmen zählen ×# | tutto ciò che si guadagna vale ×# | tudo o que se ganha vale ×# | wszystkie zarobki są warte ×#
 Con las líneas de tu empresa | With your company's lines | Avec les lignes de ton entreprise | Mit den Linien deiner Firma | Con le linee della tua azienda | Com as linhas da sua empresa | Z liniami twojej firmy
+Conectar Discord | Connect Discord | Connecter Discord | Discord verbinden | Collega Discord | Conectar Discord | Połącz Discord
+Conecta tu Discord | Connect your Discord | Connecte ton Discord | Verbinde dein Discord | Collega il tuo Discord | Conecte seu Discord | Połącz swój Discord
+Desconectar | Disconnect | Déconnecter | Trennen | Scollega | Desconectar | Rozłącz
+Te verifica en el servidor y te da el rango de tu nivel y el rol de tu empresa. | Verifies you on the server and gives you your level rank and your company role. | Te vérifie sur le serveur et te donne le rang de ton niveau et le rôle de ton entreprise. | Verifiziert dich auf dem Server und gibt dir den Rang deines Levels und die Rolle deiner Firma. | Ti verifica sul server e ti dà il grado del tuo livello e il ruolo della tua azienda. | Verifica você no servidor e dá a patente do seu nível e o cargo da sua empresa. | Weryfikuje cię na serwerze i daje rangę twojego poziomu oraz rolę firmy.
+Inicia sesión en Rutero para enlazar tu Discord, verificarte y recibir tu rango. | Sign in to Rutero to link your Discord, get verified and receive your rank. | Connecte-toi à Rutero pour lier ton Discord, te vérifier et recevoir ton rang. | Melde dich bei Rutero an, um Discord zu verknüpfen, dich zu verifizieren und deinen Rang zu erhalten. | Accedi a Rutero per collegare Discord, verificarti e ricevere il tuo grado. | Entre no Rutero para vincular seu Discord, se verificar e receber sua patente. | Zaloguj się do Rutero, aby połączyć Discord, zweryfikować się i otrzymać rangę.
+Discord conectado | Discord connected | Discord connecté | Discord verbunden | Discord collegato | Discord conectado | Discord połączony
+Bot de Discord | Discord bot | Bot Discord | Discord-Bot | Bot Discord | Bot do Discord | Bot Discord
+Organizar el servidor | Organize the server | Organiser le serveur | Server einrichten | Organizza il server | Organizar o servidor | Uporządkuj serwer
+Sincronizar ahora | Sync now | Synchroniser | Jetzt synchronisieren | Sincronizza ora | Sincronizar agora | Synchronizuj teraz
+Quitar token | Remove token | Retirer le jeton | Token entfernen | Rimuovi token | Remover token | Usuń token
+Guardar y encender | Save and start | Enregistrer et démarrer | Speichern und starten | Salva e avvia | Salvar e ligar | Zapisz i uruchom
+En línea | Online | En ligne | Online | Online | Online | Online
+Conectando… | Connecting… | Connexion… | Verbinde… | Connessione… | Conectando… | Łączenie…
+Apagado | Off | Éteint | Aus | Spento | Desligado | Wyłączony
+Servidor de Rutero | Rutero server | Serveur Rutero | Rutero-Server | Server di Rutero | Servidor do Rutero | Serwer Rutero
+Abrir Discord | Open Discord | Ouvrir Discord | Discord öffnen | Apri Discord | Abrir Discord | Otwórz Discord
+Registro de empresa | Company registration | Enregistrement de l'entreprise | Firmenregistrierung | Registrazione azienda | Registro da empresa | Rejestracja firmy
+Registrada | Registered | Enregistrée | Registriert | Registrata | Registrada | Zarejestrowana
+Sin registrar | Not registered | Non enregistrée | Nicht registriert | Non registrata | Não registrada | Niezarejestrowana
+Registrar empresa en Discord | Register company on Discord | Enregistrer l'entreprise sur Discord | Firma auf Discord registrieren | Registra l'azienda su Discord | Registrar empresa no Discord | Zarejestruj firmę na Discordzie
+Promocionar | Promote | Promouvoir | Bewerben | Promuovi | Promover | Promuj
+Disponible | Available | Disponible | Verfügbar | Disponibile | Disponível | Dostępne
+Otra en # h | Next in # h | Prochaine dans # h | Nächste in # h | Prossima tra # h | Outra em # h | Następna za # h
+Texto de la promoción | Promotion text | Texte de la promotion | Werbetext | Testo della promozione | Texto da promoção | Tekst promocji
+Elegir foto | Choose photo | Choisir une photo | Foto wählen | Scegli foto | Escolher foto | Wybierz zdjęcie
+Quitar foto | Remove photo | Retirer la photo | Foto entfernen | Rimuovi foto | Remover foto | Usuń zdjęcie
+Si no eliges, se usa el banner | If you don't choose one, the banner is used | Sinon, la bannière est utilisée | Sonst wird das Banner verwendet | Se non scegli, si usa il banner | Se não escolher, usa-se o banner | Jeśli nie wybierzesz, użyty zostanie baner
+Publicar en Discord | Post on Discord | Publier sur Discord | Auf Discord posten | Pubblica su Discord | Publicar no Discord | Opublikuj na Discordzie
+Foto de la promoción | Promotion photo | Photo de la promotion | Werbefoto | Foto della promozione | Foto da promoção | Zdjęcie promocji
+Promoción enviada | Promotion sent | Promotion envoyée | Werbung gesendet | Promozione inviata | Promoção enviada | Promocja wysłana
+Empresa registrada | Company registered | Entreprise enregistrée | Firma registriert | Azienda registrata | Empresa registrada | Firma zarejestrowana
+Sin foto | No photo | Sans photo | Kein Foto | Nessuna foto | Sem foto | Brak zdjęcia
+Registra tu empresa en el servidor de Rutero y promociónala con foto y estrellas | Register your company on the Rutero server and promote it with a photo and stars | Enregistre ton entreprise sur le serveur Rutero et fais-en la promotion avec photo et étoiles | Registriere deine Firma auf dem Rutero-Server und bewirb sie mit Foto und Sternen | Registra la tua azienda sul server di Rutero e promuovila con foto e stelle | Registre sua empresa no servidor do Rutero e promova-a com foto e estrelas | Zarejestruj firmę na serwerze Rutero i promuj ją zdjęciem i gwiazdkami
+Sede privada para tu empresa, rol con vuestro color, rangos sincronizados y promociones. | A private HQ for your company, a role in your colour, synced ranks and promotions. | Un QG privé pour ton entreprise, un rôle à vos couleurs, des rangs synchronisés et des promotions. | Privates HQ für deine Firma, Rolle in eurer Farbe, synchronisierte Ränge und Werbung. | Sede privata per la tua azienda, ruolo con il vostro colore, gradi sincronizzati e promozioni. | Sede privada para sua empresa, cargo com sua cor, patentes sincronizadas e promoções. | Prywatna siedziba firmy, rola w waszym kolorze, zsynchronizowane rangi i promocje.

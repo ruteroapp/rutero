@@ -10,6 +10,9 @@ const plugin = require('./plugin');
 const { Photos } = require('./photos');
 const { setupUpdater } = require('./updater');
 const P = require('./progress');
+const { DiscordBot } = require('./discordbot');
+const DISCORD_CLIENT = '1563527823522533426';
+const DISCORD_REDIRECT = 'https://ruteroapp.github.io/rutero/discord.html';
 
 if (!app.requestSingleInstanceLock()) { app.quit(); process.exit(0); }
 app.setAppUserModelId('com.rutero.app');
@@ -18,7 +21,7 @@ const ROOT = path.join(__dirname, '..', '..');
 const RES = app.isPackaged ? process.resourcesPath : ROOT;
 const ICON = path.join(ROOT, 'build', 'icon.png');
 
-let win, overlay, tray, store, cloud, tracker, reader, photos, updater;
+let win, overlay, tray, store, cloud, tracker, reader, photos, updater, bot;
 let me = null;          // perfil online
 let myCompany = null;   // datos básicos de mi empresa (comisión)
 let myMember = null;    // mi ficha dentro de la empresa (sueldo)
@@ -457,13 +460,50 @@ async function ensureMe() {
   if (!me) throw new Error('No se pudo cargar tu perfil online');
   return me;
 }
+const safeSettings = () => { const { botToken, ...rest } = store.get('settings'); return { ...rest, hasBotToken: !!botToken }; };
+// ---------------------------------------------------------------- Discord
+// Enlaza la cuenta de Discord del conductor (OAuth en una ventanita; solo pide «identify»)
+function discordLogin() {
+  return new Promise((resolve, reject) => {
+    const state = Math.random().toString(36).slice(2);
+    const url = `https://discord.com/oauth2/authorize?client_id=${DISCORD_CLIENT}&response_type=token&scope=identify&prompt=consent&state=${state}&redirect_uri=${encodeURIComponent(DISCORD_REDIRECT)}`;
+    const w = new BrowserWindow({ width: 520, height: 800, parent: win, modal: false, autoHideMenuBar: true, title: 'Conectar Discord', icon: ICON, backgroundColor: '#0A0D18', webPreferences: { partition: 'persist:discord-login' } });
+    let done = false;
+    const check = (e, u) => {
+      if (done || !String(u).startsWith(DISCORD_REDIRECT)) return;
+      if (e && e.preventDefault) e.preventDefault();
+      done = true;
+      const q = new URLSearchParams(String(u).split('#')[1] || String(u).split('?')[1] || '');
+      setTimeout(() => { if (!w.isDestroyed()) w.close(); }, 50);
+      if (q.get('error')) return reject(new Error('Has cancelado la conexión con Discord'));
+      if (q.get('state') !== state || !q.get('access_token')) return reject(new Error('No se pudo conectar con Discord'));
+      resolve(q.get('access_token'));
+    };
+    w.webContents.on('will-redirect', check);
+    w.webContents.on('will-navigate', check);
+    w.webContents.on('did-navigate', (e, u) => check(null, u));
+    w.on('closed', () => { if (!done) reject(new Error('Has cerrado la ventana de Discord')); });
+    w.loadURL(url);
+  });
+}
+async function maybeStartBot() {
+  if (!bot || !store.get('settings').botToken || !cloud.uid) return;
+  try {
+    const cfg = await cloud.discordConfig();
+    if (cfg && cfg.adminUid === cloud.uid) await bot.start();
+  } catch (e) { console.warn('bot', e.message); }
+}
+async function botInfo() {
+  let cfg = null; try { cfg = cloud.uid ? await cloud.discordConfig() : null; } catch { /* */ }
+  return { ...bot.status(), admin: !cfg || !cfg.adminUid ? 'none' : cfg.adminUid === cloud.uid ? 'me' : 'other' };
+}
 function registerIpc() {
   const NEEDS_ME = /^(company:|cloud:send|cloud:linkTmp)/;
   const h = (ch, fn) => ipcMain.handle(ch, wrap(async (...a) => { if (NEEDS_ME.test(ch)) await ensureMe(); return fn(...a); }));
   h('win', (cmd) => { if (cmd === 'min') win.minimize(); else if (cmd === 'max') win.isMaximized() ? win.unmaximize() : win.maximize(); else if (cmd === 'close') win.hide(); else if (cmd === 'quit') { app.isQuitting = true; app.quit(); } });
   h('state', () => ({
     lang: langNow(), links: loadLinks(), loanOptions: LOAN_OPTIONS, loanRate: LOAN_RATE, loanAutopay: LOAN_AUTOPAY, busUnlockPrice: BUS_UNLOCK_PRICE, busBoost: BUS_BOOST,
-    settings: store.get('settings'), profile: publicProfile(), jobs: store.get('jobs').slice(0, 300), expenses: store.get('expenses').slice(0, 200),
+    settings: safeSettings(), profile: publicProfile(), jobs: store.get('jobs').slice(0, 300), expenses: store.get('expenses').slice(0, 200),
     achievements: P.ACHIEVEMENTS.map(({ test, ...a }) => ({ ...a, unlockedAt: store.get('achievements')[a.id] || null })),
     daily: { ...dailyState(), list: P.dailyChallenges(dailyState().day) },
     cloudReady: cloud.configured, loggedIn: !!cloud.uid, email: cloud.auth && cloud.auth.email,
@@ -476,7 +516,7 @@ function registerIpc() {
     if (s.overlayOpacity !== undefined) sendOverlay('opacity', s.overlayOpacity);
     if (s.overlayCfg !== undefined) applyOverlayCfg();
     if (s.language !== undefined) { trayMenu(); if (overlay && !overlay.isDestroyed()) overlay.reload(); }
-    return store.get('settings');
+    return safeSettings();
   });
   h('profile:name', async (name) => { store.patch('profile', { name }); if (cloud.uid) { await cloud.setName(name, me || {}); me = await cloud.me(); } return publicProfile(); });
   h('overlay', (on) => toggleOverlay(on));
@@ -527,8 +567,8 @@ function registerIpc() {
     return true;
   });
   h('cloud:register', async (email, pass, name) => { me = await cloud.register(email, pass, name || localProfile().name || String(email || '').split('@')[0] || 'Conductor'); if (!localProfile().name) store.patch('profile', { name: me.name }); await refreshOnline(); return publicProfile(); });
-  h('cloud:login', async (email, pass) => { me = await cloud.login(email, pass); await refreshOnline(); flushCloud(); return publicProfile(); });
-  h('cloud:logout', () => { cloud.signOut(); me = null; myCompany = null; send('profile', publicProfile()); });
+  h('cloud:login', async (email, pass) => { me = await cloud.login(email, pass); await refreshOnline(); flushCloud(); maybeStartBot(); return publicProfile(); });
+  h('cloud:logout', () => { bot && bot.stop(); cloud.signOut(); me = null; myCompany = null; send('profile', publicProfile()); });
   h('cloud:refresh', async () => { await refreshOnline(); return publicProfile(); });
   h('cloud:ranking', (scope, field, period) => cloud.ranking(scope, field, period));
   h('cloud:driver', (uid) => cloud.driver(uid));
@@ -585,6 +625,41 @@ function registerIpc() {
   h('company:loan', async (amount) => { await cloud.takeLoan(me.companyId, amount, me); await refreshOnline(); });
   h('company:repay', async (amount) => { await cloud.repayLoan(me.companyId, amount, me); await refreshOnline(); });
   h('company:unlockBus', async () => { await cloud.unlockBus(me.companyId, me); await refreshOnline(); });
+  // ---- Discord: conductores
+  h('discord:link', async () => {
+    if (!cloud.uid) throw new Error('Inicia sesión primero');
+    const token = await discordLogin();
+    const r = await fetch('https://discord.com/api/v10/users/@me', { headers: { Authorization: `Bearer ${token}` } });
+    if (!r.ok) throw new Error('Discord no ha devuelto tu cuenta, inténtalo otra vez');
+    me = await cloud.linkDiscord(await r.json());
+    send('profile', publicProfile());
+    if (bot && bot.state.running) setTimeout(() => bot.sync().catch(() => {}), 1500);
+    return publicProfile();
+  });
+  h('discord:unlink', async () => { me = await cloud.unlinkDiscord(); send('profile', publicProfile()); return publicProfile(); });
+  h('company:discord', async (type, extra) => {
+    if (!['register', 'promo'].includes(type)) throw new Error('Petición no válida');
+    await cloud.discordRequest(me.companyId, type, extra || {}, me);
+    if (bot && bot.state.running) setTimeout(() => bot.sync().catch(() => {}), 1000);
+    return true;
+  });
+  h('company:discordInfo', async () => (me && me.companyId ? cloud.getDoc(`discordMap/${me.companyId}`) : null));
+  // ---- Discord: administrador del bot
+  h('bot:info', () => botInfo());
+  h('bot:claim', async () => { await cloud.claimDiscordAdmin(); return botInfo(); });
+  h('bot:token', async (token) => {
+    token = String(token || '').trim().replace(/^Bot\s+/i, '');
+    if (token.length < 50) throw new Error('Eso no parece un token de bot');
+    const cfg = await cloud.discordConfig();
+    if (!cfg || cfg.adminUid !== cloud.uid) await cloud.claimDiscordAdmin();
+    await bot.checkToken(token);
+    bot.stop(); store.patch('settings', { botToken: token });
+    await bot.start();
+    return botInfo();
+  });
+  h('bot:setup', async () => { if (!bot.state.running) await bot.start(); const r = await bot.setup((t) => send('bot:progress', t)); return { ...r, info: await botInfo() }; });
+  h('bot:sync', async () => { await bot.sync(); return botInfo(); });
+  h('bot:forget', async () => { bot.stop(); store.patch('settings', { botToken: '' }); return botInfo(); });
   h('report:send', async (r) => {
     if (!cloud.uid) throw new Error('Inicia sesión primero');
     const rep = await cloud.submitReport({ ...r, version: app.getVersion() }, me || {});
@@ -601,6 +676,7 @@ app.whenReady().then(async () => {
   store = new Store(app.getPath('userData'));
   cloud = new Cloud(loadCloudConfig(), store);
   photos = new Photos(store, [path.join(RES, 'config'), path.join(ROOT, 'config')]);
+  bot = new DiscordBot({ store, getCloud: () => cloud, root: ROOT, log: (...a) => console.warn('[bot]', ...a) });
   updater = setupUpdater(send);
   registerIpc();
   createWindow();
@@ -608,7 +684,7 @@ app.whenReady().then(async () => {
   startTelemetry();
   if (store.get('settings').overlay) toggleOverlay(true);
   globalShortcut.register('CommandOrControl+Shift+K', () => toggleOverlay());
-  refreshOnline().then(flushCloud);
+  refreshOnline().then(flushCloud).then(maybeStartBot);
   setInterval(() => { refreshOnline(); flushCloud(); }, 5 * 60_000);
   // busca actualizaciones al arrancar y cada 6 horas
   setTimeout(() => updater.check(), 8000);

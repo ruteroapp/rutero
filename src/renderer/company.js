@@ -16,6 +16,7 @@ const DEFAULT_RANKS = [
 // ---------------------------------------------------------------- iconos del menú de empresa
 const CI = (d) => `<svg viewBox="0 0 24 24" fill="currentColor" stroke="none">${d}</svg>`;
 const CICONS = {
+  discord: CI('<path d="M20.3 4.4A19.8 19.8 0 0 0 15.4 3l-.6 1.3a18.4 18.4 0 0 0-5.6 0L8.6 3a19.7 19.7 0 0 0-4.9 1.4C.6 9 0 13.5.3 18a19.9 19.9 0 0 0 6 3l1.3-2a12.8 12.8 0 0 1-2-1l.5-.4a14.2 14.2 0 0 0 12 0l.5.4-2 1 1.3 2a19.8 19.8 0 0 0 6-3c.5-5.2-.8-9.6-3.6-13.6ZM8.5 15.3c-1.2 0-2.2-1.1-2.2-2.4s1-2.4 2.2-2.4 2.2 1.1 2.2 2.4-1 2.4-2.2 2.4Zm7 0c-1.2 0-2.2-1.1-2.2-2.4s1-2.4 2.2-2.4 2.2 1.1 2.2 2.4-1 2.4-2.2 2.4Z"/>'),
   dashboard: CI('<path d="M12 3 2 11h3v9h5v-6h4v6h5v-9h3z"/>'),
   settings: CI('<path d="M19.4 13a7.6 7.6 0 0 0 0-2l2.1-1.6-2-3.5-2.5 1a7.4 7.4 0 0 0-1.7-1L15 3h-4l-.4 2.7a7.4 7.4 0 0 0-1.7 1l-2.5-1-2 3.5L6.6 11a7.6 7.6 0 0 0 0 2l-2.1 1.6 2 3.5 2.5-1a7.4 7.4 0 0 0 1.7 1L11 21h4l.4-2.7a7.4 7.4 0 0 0 1.7-1l2.5 1 2-3.5zM13 15.5A3.5 3.5 0 1 1 13 8.5a3.5 3.5 0 0 1 0 7z"/>'),
   members: CI('<circle cx="9" cy="8" r="3.5"/><path d="M2 20c0-3.9 3.1-6.5 7-6.5s7 2.6 7 6.5z"/><circle cx="17" cy="9" r="2.7"/><path d="M17 13c3 0 5 2.1 5 5.5h-4.5c0-2.2-.7-4-2.1-5.3.5-.1 1-.2 1.6-.2z"/>'),
@@ -37,7 +38,7 @@ const CICONS = {
   news: CI('<path d="M3 4h14v16H5a2 2 0 0 1-2-2z"/><path d="M17 8h4v10a2 2 0 0 1-4 0z"/><path d="M6 8h8v2H6zm0 4h8v1.5H6zm0 3h5v1.5H6z" fill="#141A2C"/>'),
 };
 const CNAV = [
-  ['Compañía', [['dashboard', 'Tablero de mandos', '#FF5A8A'], ['settings', 'Ajustes de compañía', '#FF5A8A', 'mgr']]],
+  ['Compañía', [['dashboard', 'Tablero de mandos', '#FF5A8A'], ['settings', 'Ajustes de compañía', '#FF5A8A', 'mgr'], ['discord', 'Discord', '#5865F2']]],
   ['Miembros', [['members', 'Miembros', '#9B7BFF'], ['roles', 'Roles', '#FF5A8A'], ['tags', 'Etiquetas', '#9B7BFF'], ['ranks', 'Rangos', '#19C3B1'], ['requests', 'Solicitudes', '#FF5A8A', 'mgr']]],
   ['Trabajos', [['jobs', 'Trabajos', '#9B7BFF'], ['busroutes', 'Rutas de bus', '#FF9F1C'], ['stats', 'Estadísticas', '#FF5A8A'], ['fines', 'Multas', '#FF9F1C']]],
   ['Flota y finanzas', [['balance', 'Saldo', '#19C3B1'], ['garages', 'Garajes', '#19C3B1'], ['fleet', 'Flota', '#FF5A8A'], ['dealer', 'Concesionario', '#4C8DFF'], ['maintenance', 'Mantenimiento', '#FF5A5F']]],
@@ -416,6 +417,42 @@ const SECTIONS = {
   },
   // ---------------------------------------------------------- CONTENIDO
   // ---------------------------------------------------------- RUTAS DE BUS
+  // ---------------------------------------------------------- DISCORD
+  async discord(c, info, me) {
+    let map = null; try { map = info.discordRegistered ? await K.call('company:discordInfo') : null; } catch { map = null; }
+    const last = info.lastPromoAt ? Date.parse(info.lastPromoAt) : 0;
+    const wait = Math.max(0, 24 * 3600e3 - (Date.now() - last));
+    S.promo = S.promo && S.promo.cid === info.id ? S.promo : { cid: info.id, photo: '', text: '' };
+    const n = info.ratingCount || 0, avg = n ? info.ratingSum / n : 0;
+    return head('Discord', 'Registra tu empresa en el servidor de Rutero y promociónala con foto y estrellas') + `
+      <div class="dc-hero"><span class="dc-ic">${DISCORD_SVG}</span><div style="flex:1"><h2 style="margin:0">Servidor de Rutero</h2><div class="muted">Sede privada para tu empresa, rol con vuestro color, rangos sincronizados y promociones.</div></div><button class="btn discord" id="dc-join">Abrir Discord</button></div>
+      ${me.discordId ? '' : `<div class="card" style="margin-bottom:16px">${discordLinkBox()}<div class="muted" style="font-size:12px;margin-top:8px">Cada conductor recibe el rol de la empresa cuando conecta su Discord desde Ajustes.</div></div>`}
+      <div class="grid g2">
+        <div class="card"><div class="card-title"><h2>📝 Registro de empresa</h2>${info.discordRegistered ? '<span class="pill ok"><span class="dot"></span>Registrada</span>' : '<span class="pill">Sin registrar</span>'}</div>
+          ${info.discordRegistered ? `<div class="muted" style="margin-bottom:12px">Tu empresa está registrada. El bot ${map && map.textId ? 'ya ha creado' : 'creará en unos minutos'}:</div>
+            <div class="list-item"><span>🎭</span><b style="flex:1">Rol «🏢 ${esc(info.tag)} · ${esc(info.name)}»</b>${map && map.roleId ? '<span class="pill ok">Listo</span>' : '<span class="pill warn">Pendiente</span>'}</div>
+            <div class="list-item"><span>🏠</span><b style="flex:1">Sede privada de texto y voz</b>${map && map.textId ? '<span class="pill ok">Lista</span>' : '<span class="pill warn">Pendiente</span>'}</div>
+            <div class="list-item"><span>👑</span><b style="flex:1">Rol 🏢 Dueño de empresa para el fundador</b><span class="pill ok">Auto</span></div>
+            <div class="muted" style="font-size:12px;margin-top:10px">Solo ven la sede los miembros que han conectado su Discord en Rutero.</div>`
+          : `<div class="muted" style="margin-bottom:14px">Al registrarla, el bot anuncia tu empresa en <b>#registro-de-empresas</b> y crea:</div>
+            <div class="list-item"><span>🎭</span><b style="flex:1">Un rol con el nombre y color de tu empresa</b></div>
+            <div class="list-item"><span>🏠</span><b style="flex:1">Una sede privada (canal de texto y de voz)</b></div>
+            <div class="list-item"><span>👑</span><b style="flex:1">El rol 🏢 Dueño de empresa para el fundador</b></div>
+            ${S.mgr ? '<button class="btn primary" id="dc-register" style="margin-top:14px">📝 Registrar empresa en Discord</button>' : '<div class="muted" style="margin-top:12px">Solo el fundador o un gerente pueden registrarla.</div>'}`}
+        </div>
+        <div class="card"><div class="card-title"><h2>📢 Promocionar</h2>${wait ? `<span class="pill warn">Otra en ${Math.ceil(wait / 3600e3)} h</span>` : '<span class="pill ok">Disponible</span>'}</div>
+          <div class="muted" style="margin-bottom:12px">Se publica en <b>#promociona-tu-empresa</b> con tu foto, tus ⭐ estrellas, conductores, requisitos y enlaces. Una vez al día.</div>
+          <label class="field"><span>Texto de la promoción</span><textarea id="pm-text" rows="3" maxlength="600" placeholder="¡Buscamos conductores! Convoyes los viernes en Simulation 1…">${esc(S.promo.text)}</textarea></label>
+          <div class="row" style="margin:10px 0"><button class="btn sm" id="pm-photo">📷 ${S.promo.photo ? 'Cambiar foto' : 'Elegir foto'}</button>${S.promo.photo ? '<button class="btn sm ghost" id="pm-photo-del">Quitar foto</button>' : `<span class="muted" style="font-size:12px">${info.banner ? 'Si no eliges, se usa el banner' : 'Opcional'}</span>`}</div>
+          <div class="promo-prev" style="--pc:${esc(info.color || '#FF9F1C')}"><div class="pp-title">📢 ${esc(info.name)} [${esc(info.tag)}]</div>
+            <div id="pm-prev-text" style="white-space:pre-wrap">${esc(S.promo.text || info.description || '')}</div>
+            <div class="pp-stars">${n ? `${'★'.repeat(Math.round(avg))}${'☆'.repeat(5 - Math.round(avg))} · ${nf(avg, 1)} (${n})` : '☆☆☆☆☆ · sin valoraciones'}</div>
+            <div class="pp-fields"><div><b>👥 Conductores</b>${nf(info.membersCount || 1)}</div><div><b>🛣️ Km</b>${nf(info.km || 0)}</div><div><b>📦 Entregas</b>${nf(info.jobs || 0)}</div></div>
+            <div class="pp-img" style="${S.promo.photo || info.banner ? `background-image:url('${esc(S.promo.photo || info.banner)}')` : ''}">${S.promo.photo || info.banner ? '' : 'Sin foto'}</div></div>
+          ${S.mgr ? `<button class="btn primary" id="dc-promo" style="margin-top:14px" ${wait ? 'disabled' : ''}>📢 Publicar en Discord</button>` : '<div class="muted" style="margin-top:12px">Solo el fundador o un gerente pueden promocionarla.</div>'}
+        </div>
+      </div>`;
+  },
   async busroutes(c, info) {
     if (!info.busUnlocked) {
       const price = S.data.busUnlockPrice || 700000;
@@ -744,6 +781,14 @@ function mountCompany(root) {
   }));
   on('#loan-pay-btn', async () => { await K.call('company:repay', +$('#loan-pay').value); toast({ title: 'Pago hecho', body: '' }); render(); });
   on('#loan-pay-all', async () => { await K.call('company:repay', (info.loan && info.loan.owed) || 0); toast({ title: 'Préstamo devuelto ✅', body: '' }); render(); });
+  on('#dc-join', async () => openDiscord());
+  bindDiscordLink(root);
+  on('#dc-register', async () => { await K.call('company:discord', 'register'); toast({ title: 'Empresa registrada', body: 'El bot creará vuestro rol y vuestra sede en unos minutos', kind: 'money' }); await reload(); });
+  const pmText = $('#pm-text', root);
+  if (pmText) pmText.oninput = () => { S.promo.text = pmText.value; const pv = $('#pm-prev-text', root); if (pv) pv.textContent = pmText.value; };
+  on('#pm-photo', async () => { const img = await cropImage({ w: 1280, h: 720, title: 'Foto de la promoción', maxKB: 450 }); if (img) { S.promo.photo = img; render(); } });
+  on('#pm-photo-del', async () => { S.promo.photo = ''; render(); });
+  on('#dc-promo', async () => { await K.call('company:discord', 'promo', { text: S.promo.text, photo: S.promo.photo }); S.promo = null; toast({ title: 'Promoción enviada', body: 'Aparecerá en #promociona-tu-empresa en unos minutos', kind: 'money' }); await reload(); });
   on('#bus-unlock', async () => {
     if (!confirm(`¿Activar el servicio de autobuses por ${money(S.data.busUnlockPrice || 700000)}?`)) return;
     await K.call('company:unlockBus'); toast({ title: 'Servicio de autobuses activado 🚌', body: 'Ya puedes crear rutas', kind: 'achievement' }); render();

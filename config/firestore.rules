@@ -10,6 +10,7 @@ service cloud.firestore {
         && get(/databases/$(db)/documents/companies/$(cid)/members/$(me())).data.role == 'admin');
     }
     // existsAfter: cuenta los cambios del mismo lote (al fundar o unirse)
+    function isBotAdmin() { return signed() && get(/databases/$(db)/documents/config/discord).data.adminUid == me(); }
     function isMember(cid) { return signed() && existsAfter(/databases/$(db)/documents/companies/$(cid)/members/$(me())); }
 
     // ---------- conductores ----------
@@ -90,6 +91,20 @@ service cloud.firestore {
     match /weekly/{week}/companies/{cid} {
       allow read: if signed();
       allow write: if isMember(cid);
+    }
+    // ---------- bot de Discord ----------
+    match /config/discord {
+      allow read: if signed();
+      allow create: if signed() && request.resource.data.adminUid == me();
+      allow update: if signed() && resource.data.adminUid == me() && request.resource.data.adminUid == me();
+    }
+    match /discordQueue/{q} {
+      allow create: if signed() && request.resource.data.by == me() && isManager(request.resource.data.cid);
+      allow read, delete: if isBotAdmin();
+    }
+    match /discordMap/{cid} {
+      allow read: if signed();
+      allow write: if isBotAdmin();
     }
   }
 }

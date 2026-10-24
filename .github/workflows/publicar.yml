@@ -48,7 +48,10 @@ jobs:
           fi
           # se crea la versión (borrador) antes de compilar: así los archivos se suben todos a la misma
           if ! gh release view "$V" >/dev/null 2>&1; then
-            gh release create "$V" --draft --title "Rutero ${V#v}" --notes "Rutero ${V#v}. Se instala sola desde el botón de actualizar de la app."
+            # las novedades salen del mensaje del commit (el bot de Discord las anuncia en #actualizaciones)
+            NOTES="$(git log -1 --pretty=%b | grep -vE '^(Co-Authored-By|Claude-Session):' | sed '/^[[:space:]]*$/d')"
+            [ -z "$NOTES" ] && NOTES="Rutero ${V#v}. Se instala sola desde el botón de actualizar de la app."
+            gh release create "$V" --draft --title "Rutero ${V#v}" --notes "$NOTES"
           fi
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

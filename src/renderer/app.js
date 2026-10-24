@@ -599,6 +599,42 @@ function reportModal(pre = {}) {
     });
   });
 }
+// ------------------------------------------------------------------ Discord
+const DISCORD_SVG = '<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M20.3 4.4A19.8 19.8 0 0 0 15.4 3l-.6 1.3a18.4 18.4 0 0 0-5.6 0L8.6 3a19.7 19.7 0 0 0-4.9 1.4C.6 9 0 13.5.3 18a19.9 19.9 0 0 0 6 3l1.3-2a12.8 12.8 0 0 1-2-1l.5-.4a14.2 14.2 0 0 0 12 0l.5.4-2 1 1.3 2a19.8 19.8 0 0 0 6-3c.5-5.2-.8-9.6-3.6-13.6ZM8.5 15.3c-1.2 0-2.2-1.1-2.2-2.4s1-2.4 2.2-2.4 2.2 1.1 2.2 2.4-1 2.4-2.2 2.4Zm7 0c-1.2 0-2.2-1.1-2.2-2.4s1-2.4 2.2-2.4 2.2 1.1 2.2 2.4-1 2.4-2.2 2.4Z"/></svg>';
+function discordLinkBox() {
+  const on = (S.profile && S.profile.online) || null;
+  if (!S.data.loggedIn || !on) return '<div class="dc-link"><span class="dc-ic">' + DISCORD_SVG + '</span><div style="flex:1"><b>Conectar Discord</b><div class="muted" style="font-size:12px">Inicia sesión en Rutero para enlazar tu Discord, verificarte y recibir tu rango.</div></div></div>';
+  if (on.discordId) return `<div class="dc-link on"><span class="dc-ic">${DISCORD_SVG}</span><div style="flex:1"><b>Discord conectado · ${esc(on.discordName || 'tu cuenta')}</b><div class="muted" style="font-size:12px">Tienes ✅ Verificado y tu rango de Rutero en el servidor (se actualiza en unos minutos).</div></div><button class="btn sm ghost" id="dc-unlink">Desconectar</button></div>`;
+  return `<div class="dc-link"><span class="dc-ic">${DISCORD_SVG}</span><div style="flex:1"><b>Conecta tu Discord</b><div class="muted" style="font-size:12px">Te verifica en el servidor y te da el rango de tu nivel y el rol de tu empresa.</div></div><button class="btn discord" id="dc-link">Conectar Discord</button></div>`;
+}
+function bindDiscordLink(root) {
+  const l = $('#dc-link', root);
+  if (l) l.onclick = () => act(l, async () => { S.profile = await K.call('discord:link'); toast({ title: 'Discord conectado', body: 'En unos minutos recibirás tu rango en el servidor', kind: 'money' }); render(); });
+  const u = $('#dc-unlink', root);
+  if (u) u.onclick = () => act(u, async () => { S.profile = await K.call('discord:unlink'); render(); });
+}
+async function loadBotCard() {
+  const card = $('#bot-card'); if (!card || !S.data.loggedIn) return;
+  let b; try { b = await K.call('bot:info'); } catch { return; }
+  if (b.admin === 'other') return; // solo lo ve el administrador del bot (o nadie mientras no se haya configurado)
+  card.style.display = '';
+  const ago = b.lastSync ? Math.round((Date.now() - b.lastSync) / 60000) : null;
+  card.innerHTML = `<div class="card-title"><h2>🤖 Bot de Discord <span class="tag">ADMIN</span></h2>
+      ${b.running ? `<span class="pill ${b.online ? 'ok' : 'warn'}"><span class="dot"></span>${b.online ? 'En línea' : 'Conectando…'}</span>` : '<span class="pill">Apagado</span>'}</div>
+    <div class="muted" style="margin-bottom:12px">El bot funciona mientras esta app está abierta en tu PC: sincroniza rangos, crea las sedes de empresas, publica promociones y avisa de cada versión nueva.</div>
+    ${b.hasToken ? `<div class="grid g3" style="margin-bottom:12px"><div class="mini-stat"><span>Bot</span><b>${esc((b.user && b.user.username) || 'Rutero Bot')}</b></div><div class="mini-stat"><span>Conductores enlazados</span><b>${b.synced || 0}</b></div><div class="mini-stat"><span>Última sincronización</span><b>${ago === null ? '—' : ago < 1 ? 'ahora' : `hace ${ago} min`}</b></div></div>
+      ${b.error ? `<div class="notice warn" style="margin-bottom:12px">${esc(b.error)}</div>` : ''}
+      <div class="row"><button class="btn primary" id="bot-setup">🛠️ Organizar el servidor</button><button class="btn" id="bot-sync">🔄 Sincronizar ahora</button><button class="btn ghost" id="bot-forget">Quitar token</button></div>
+      <div class="muted" id="bot-prog" style="font-size:12px;margin-top:8px">«Organizar el servidor» crea o actualiza canales, permisos, rangos y mensajes fijos. Puedes repetirlo cuando quieras.</div>`
+    : `<label class="field"><span>Token del bot (portal de Discord → Bot → Restablecer token → Copiar)</span><div class="row" style="flex-wrap:nowrap"><input type="password" id="bot-token" placeholder="Pega aquí el token" autocomplete="off"><button class="btn primary" id="bot-save">Guardar y encender</button></div></label>
+      <div class="muted" style="font-size:12px">El token solo se guarda en este PC y nunca se sube a internet.</div>`}`;
+  const on = (id, fn) => { const el = $(id, card); if (el) el.onclick = () => act(el, fn); };
+  on('#bot-save', async () => { await K.call('bot:token', $('#bot-token').value); toast({ title: 'Bot encendido', body: 'Ahora pulsa «Organizar el servidor»', kind: 'money' }); loadBotCard(); });
+  on('#bot-setup', async () => { const r = await K.call('bot:setup'); toast({ title: 'Servidor organizado', body: `${r.channels} canales revisados`, kind: 'money' }); loadBotCard(); });
+  on('#bot-sync', async () => { await K.call('bot:sync'); loadBotCard(); });
+  on('#bot-forget', async () => { await K.call('bot:forget'); loadBotCard(); });
+}
+K.on('bot:progress', (t) => { const el = $('#bot-prog'); if (el) el.textContent = t; });
 const openDiscord = () => { const u = S.data.links && S.data.links.discordInvite; if (u) K.call('open', u); else toast({ title: 'Discord', body: 'El servidor de Discord estará disponible muy pronto' }); };
 
 // empieza una ruta de bus de la empresa y abre el modo autobús
@@ -871,7 +907,9 @@ const PAGE_SETTINGS = {
       <div class="card span2"><h2>Comunidad y ayuda</h2><div class="row" style="gap:10px">
         <button class="btn discord" id="st-discord">💬 Únete al Discord de Rutero</button><button class="btn" id="st-report">🚩 Reportar un error o a un jugador</button>
         ${S.data.links && S.data.links.website ? '<button class="btn ghost" id="st-web">🌐 Web de Rutero</button>' : ''}</div>
-        <div class="muted" style="font-size:12px;margin-top:8px">En Discord puedes pedir ayuda, promocionar tu empresa, buscar convoyes y hablar con otros conductores.</div></div>
+        <div class="muted" style="font-size:12px;margin-top:8px">En Discord puedes pedir ayuda, promocionar tu empresa, buscar convoyes y hablar con otros conductores.</div>
+        ${discordLinkBox()}</div>
+      <div class="card span2" id="bot-card" style="display:none"></div>
       <div class="card span2" id="upd-card">${updateCard()}</div>
       <div class="card span2"><h2>Plugin de telemetría</h2><div class="muted" style="margin-bottom:12px">Rutero lee los datos del juego con el plugin abierto <b>scs-sdk-plugin</b>. Cierra el juego antes de instalarlo.</div>
         ${['ets2', 'ats'].map((g) => { const x = games[g]; const nm = g === 'ets2' ? 'Euro Truck Simulator 2' : 'American Truck Simulator';
@@ -886,6 +924,8 @@ const PAGE_SETTINGS = {
     bindAuthForm(root, 'a');
     $('#st-discord').onclick = openDiscord;
     $('#st-report').onclick = () => reportModal();
+    bindDiscordLink(root);
+    loadBotCard();
     const sw2 = $('#st-web'); if (sw2) sw2.onclick = () => K.call('open', S.data.links.website);
     $('#units').value = S.data.settings.units;
     $('#units').onchange = async (e) => { await K.call('settings:set', { units: e.target.value }); await refreshState(); };
