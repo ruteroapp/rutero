@@ -11,6 +11,8 @@ const GUILD = '1563305086074093690';
 const PROJECT = 'rutero-a0abb';
 const FS = `https://firestore.googleapis.com/v1/projects/${PROJECT}/databases/(default)/documents`;
 const SITE = 'https://ruteroapp.github.io/rutero/';
+const APP_ID = '1563527823522533426';
+const PUBLIC_KEY = '66f620c20c8b00912d12d27c6b0ec8b8d9db710c2fa7082110aeece7b4a13951';
 const BUDGET = 44; // Cloudflare gratis: 50 peticiones por ejecución
 const RANKS = [[60, '🔥 Rey del asfalto'], [45, '🌟 Leyenda'], [30, '🧭 Maestro de la ruta'], [20, '🏆 Veterano'], [10, '🛣️ Profesional'], [5, '🚚 Conductor'], [1, '🔰 Novato']];
 const VERIFIED = '✅ Verificado', OWNER = '🏢 Dueño de empresa', MOD = '🛡️ Moderador';
@@ -215,6 +217,70 @@ async function ensureHq(run, cfg, c, maps) {
   return m;
 }
 
+
+// ---------------------------------------------------------------- comandos de barra (/dar-dinero)
+const COMMANDS = [{
+  name: 'dar-dinero', description: 'Da dinero a una empresa de Rutero (solo dueño y administradores)',
+  description_localizations: { 'en-US': 'Give money to a Rutero company (owner and admins only)', 'en-GB': 'Give money to a Rutero company (owner and admins only)' },
+  default_member_permissions: '8', dm_permission: false,
+  options: [
+    { type: 3, name: 'empresa', description: 'Nombre o etiqueta de la empresa', required: true, max_length: 60 },
+    { type: 4, name: 'cantidad', description: 'Cantidad en € (o $)', required: true, min_value: 1, max_value: 100000000 },
+    { type: 3, name: 'motivo', description: 'Motivo (opcional)', required: false, max_length: 120 },
+  ],
+}];
+async function registerCommands(botToken) {
+  const r = await fetch(`${API}/applications/${APP_ID}/guilds/${GUILD}/commands`, { method: 'PUT', headers: { Authorization: `Bot ${botToken}`, 'Content-Type': 'application/json' }, body: JSON.stringify(COMMANDS) });
+  return r.ok;
+}
+const hexBytes = (h) => new Uint8Array(h.match(/../g).map((x) => parseInt(x, 16)));
+async function verifySig(req, body) {
+  const sig = req.headers.get('x-signature-ed25519'), ts = req.headers.get('x-signature-timestamp');
+  if (!sig || !ts) return false;
+  try {
+    let key;
+    try { key = await crypto.subtle.importKey('raw', hexBytes(PUBLIC_KEY), { name: 'Ed25519' }, false, ['verify']); return await crypto.subtle.verify({ name: 'Ed25519' }, key, hexBytes(sig), new TextEncoder().encode(ts + body)); }
+    catch { key = await crypto.subtle.importKey('raw', hexBytes(PUBLIC_KEY), { name: 'NODE-ED25519', namedCurve: 'NODE-ED25519' }, false, ['verify']); return await crypto.subtle.verify('NODE-ED25519', key, hexBytes(sig), new TextEncoder().encode(ts + body)); }
+  } catch { return false; }
+}
+const norm = (x) => String(x || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]/g, '');
+async function giveMoney(env, i) {
+  const opt = Object.fromEntries((i.data.options || []).map((o) => [o.name, o.value]));
+  const reply = (content, embeds) => fetch(`${API}/webhooks/${APP_ID}/${i.token}/messages/@original`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ content, embeds: embeds || [], allowed_mentions: { parse: [] } }) });
+  const run = new Run(env);
+  try {
+    if (!(await run.secrets())) return reply('⚠️ El bot todavía no está configurado en Cloudflare.');
+    const perms = BigInt((i.member && i.member.permissions) || '0');
+    if (!(perms & 8n)) return reply('⛔ Solo el dueño del servidor y los administradores pueden usar este comando.');
+    const amount = Math.round(Number(opt.cantidad) || 0);
+    if (amount < 1 || amount > 100000000) return reply('⚠️ La cantidad tiene que estar entre 1 y 100.000.000.');
+    const all = await run.query({ from: [{ collectionId: 'companies' }], select: { fields: ['name', 'tag', 'color'].map((f) => ({ fieldPath: f })) }, limit: 1000 });
+    const q = norm(opt.empresa);
+    const c = all.find((x) => norm(x.tag) === q) || all.find((x) => norm(x.name) === q) || all.find((x) => norm(x.name).includes(q) && q.length >= 3);
+    if (!c) return reply(`❓ No encuentro ninguna empresa llamada «${String(opt.empresa).slice(0, 60)}». Usa su nombre o su etiqueta.`);
+    const who = (i.member.nick || i.member.user.global_name || i.member.user.username || 'Discord').slice(0, 40);
+    const motivo = String(opt.motivo || '').slice(0, 120);
+    const id = crypto.randomUUID().replace(/-/g, '').slice(0, 20);
+    const now = new Date();
+    await run.fs('POST', `${FS}:commit`, { writes: [
+      { update: { name: `projects/${PROJECT}/databases/(default)/documents/companies/${c.id}`, fields: { lastActivity: toFs(now) } }, updateMask: { fieldPaths: ['lastActivity'] }, updateTransforms: [{ fieldPath: 'balance', increment: { integerValue: String(amount) } }] },
+      { update: { name: `projects/${PROJECT}/databases/(default)/documents/companies/${c.id}/bank/${id}`, fields: Object.fromEntries(Object.entries({ kind: 'gift', amount, by: `${who} (Discord)`, note: motivo ? `Regalo del servidor: ${motivo}` : 'Regalo del servidor de Discord', at: now }).map(([k, v]) => [k, toFs(v)])) }, currentDocument: { exists: false } },
+    ] });
+    return reply('', [{ color: hex(c.color), title: '💰 Dinero entregado', description: `**${nf(amount)} €** para **${c.name}** [${c.tag || ''}]${motivo ? `\n📝 ${motivo}` : ''}`, footer: { text: `Enviado por ${who}` }, timestamp: now.toISOString() }]);
+  } catch (e) { return reply(`⚠️ No se pudo dar el dinero: ${String(e.message || e).slice(0, 200)}`); }
+}
+async function interactions(req, env, ctx) {
+  const body = await req.text();
+  if (!(await verifySig(req, body))) return new Response('firma no válida', { status: 401 });
+  const i = JSON.parse(body);
+  if (i.type === 1) return json({ type: 1 });               // PING de Discord
+  if (i.type === 2 && i.data && i.data.name === 'dar-dinero') {
+    ctx.waitUntil(giveMoney(env, i));
+    return json({ type: 5 });                                // «pensando…» y luego se edita la respuesta
+  }
+  return json({ type: 4, data: { content: 'Comando desconocido', flags: 64 } });
+}
+
 // ---------------------------------------------------------------- configuración desde la app del administrador
 async function setup(req, env) {
   const b = await req.json().catch(() => ({}));
@@ -231,14 +297,16 @@ async function setup(req, env) {
   await env.KV.put('secrets', JSON.stringify({ botToken: b.botToken, refreshToken: j.refresh_token || b.refreshToken, apiKey: b.apiKey, uid: j.user_id }));
   await env.KV.put('idtoken', JSON.stringify({ token: j.id_token, exp: Date.now() + (Number(j.expires_in) - 120) * 1000 }));
   await env.KV.delete('state');
-  return json({ ok: true });
+  const cmds = await registerCommands(b.botToken).catch(() => false);
+  return json({ ok: true, commands: cmds });
 }
 const json = (o, status = 200) => new Response(JSON.stringify(o), { status, headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' } });
 
 export default {
   async scheduled(event, env, ctx) { ctx.waitUntil(tick(env)); },
-  async fetch(req, env) {
+  async fetch(req, env, ctx) {
     const url = new URL(req.url);
+    if (req.method === 'POST' && (url.pathname === '/interactions' || url.pathname === '/')) return interactions(req, env, ctx);
     if (req.method === 'POST' && url.pathname === '/setup') return setup(req, env);
     if (url.pathname === '/status') {
       const s = (await env.KV.get('state', 'json')) || {};

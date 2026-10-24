@@ -56,7 +56,7 @@ service cloud.firestore {
       }
       match /jobs/{job} { allow read: if signed(); allow create: if isMember(cid); }
       match /fines/{f} { allow read: if signed(); allow create: if isMember(cid); }
-      match /bank/{mov} { allow read: if signed(); allow create: if isMember(cid); }
+      match /bank/{mov} { allow read: if signed(); allow create: if isMember(cid) || isBotAdmin(); }
       match /accounts/{a} {
         allow read: if signed();
         allow write: if isManager(cid);
