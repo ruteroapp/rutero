@@ -551,7 +551,7 @@ function registerIpc() {
   const h = (ch, fn) => ipcMain.handle(ch, wrap(async (...a) => { if (NEEDS_ME.test(ch)) await ensureMe(); return fn(...a); }));
   h('win', (cmd) => { if (cmd === 'min') win.minimize(); else if (cmd === 'max') win.isMaximized() ? win.unmaximize() : win.maximize(); else if (cmd === 'close') win.hide(); else if (cmd === 'quit') { app.isQuitting = true; app.quit(); } });
   h('state', () => ({
-    lang: langNow(), busUnlocked: busAllowed(), links: loadLinks(), loanOptions: LOAN_OPTIONS, loanRate: LOAN_RATE, loanAutopay: LOAN_AUTOPAY, busUnlockPrice: BUS_UNLOCK_PRICE, busBoost: BUS_BOOST,
+    lang: langNow(), busUnlocked: busAllowed(), busName: (myCompany && myCompany.busName) || '', links: loadLinks(), loanOptions: LOAN_OPTIONS, loanRate: LOAN_RATE, loanAutopay: LOAN_AUTOPAY, busUnlockPrice: BUS_UNLOCK_PRICE, busBoost: BUS_BOOST,
     settings: safeSettings(), profile: publicProfile(), jobs: store.get('jobs').slice(0, 300), expenses: store.get('expenses').slice(0, 200),
     achievements: P.ACHIEVEMENTS.map(({ test, ...a }) => ({ ...a, unlockedAt: store.get('achievements')[a.id] || null })),
     daily: { ...dailyState(), list: P.dailyChallenges(dailyState().day) },
@@ -769,6 +769,8 @@ function registerIpc() {
     return true;
   });
   h('company:deleteNews', (id) => cloud.deleteNews(me.companyId, id));
+  h('company:addLivery', (l) => cloud.addLivery(me.companyId, l, me));
+  h('company:deleteLivery', (id) => cloud.deleteLivery(me.companyId, id));
   h('company:assign', (truckId, driver) => cloud.assignTruck(me.companyId, truckId, driver));
   h('company:sell', (truck) => cloud.sellTruck(me.companyId, truck, me));
 }

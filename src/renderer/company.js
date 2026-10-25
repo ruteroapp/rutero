@@ -17,10 +17,10 @@ const DEFAULT_RANKS = [
 const PERMS = [
   ['Ventanas que puede ver', [['ver:members', 'Miembros'], ['ver:roles', 'Roles y permisos'], ['ver:tags', 'Etiquetas'], ['ver:ranks', 'Rangos'], ['ver:jobs', 'Trabajos'], ['ver:busroutes', 'Rutas de bus'],
     ['ver:stats', 'Estadísticas'], ['ver:fines', 'Multas'], ['ver:balance', 'Saldo'], ['ver:garages', 'Garajes'], ['ver:fleet', 'Flota'], ['ver:dealer', 'Concesionario'],
-    ['ver:maintenance', 'Mantenimiento'], ['ver:calendar', 'Calendario'], ['ver:events', 'Eventos'], ['ver:news', 'Noticias'], ['ver:discord', 'Discord']]],
+    ['ver:maintenance', 'Mantenimiento'], ['ver:liveries', 'Diseños'], ['ver:calendar', 'Calendario'], ['ver:events', 'Eventos'], ['ver:news', 'Noticias'], ['ver:discord', 'Discord']]],
   ['Lo que puede hacer', [['comisiones', 'Ver la Cuenta de empresa y las comisiones'], ['comprar', 'Comprar vehículos, garajes y el servicio de buses'], ['vender', 'Vender vehículos y garajes'],
     ['flota', 'Asignar y aparcar vehículos'], ['reparar', 'Reparar vehículos'], ['dinero', 'Mover dinero y crear o cerrar cuentas'], ['prestamos', 'Pedir y devolver préstamos'],
-    ['eventos', 'Crear y borrar eventos'], ['noticias', 'Publicar y borrar noticias'], ['rutas', 'Crear y editar rutas de bus']]],
+    ['eventos', 'Crear y borrar eventos'], ['noticias', 'Publicar y borrar noticias'], ['rutas', 'Crear y editar rutas de bus'], ['disenos', 'Subir y borrar diseños de vehículos']]],
 ];
 // sin configurar: ven todas las ventanas y no pueden hacer nada
 const DEFAULT_PERMS = PERMS[0][1].map(([k]) => k);
@@ -52,13 +52,14 @@ const CICONS = {
   calendar: CI('<path d="M7 2h2v3H7zM15 2h2v3h-2z"/><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18" stroke="#141A2C" stroke-width="2"/>'),
   events: CI('<rect x="3" y="4" width="18" height="17" rx="2"/><path d="M6 11h3v3H6zm5 0h3v3h-3zm5 0h2v3h-2zM6 16h3v2H6zm5 0h3v2h-3z" fill="#141A2C"/>'),
   busroutes: CI('<path d="M5 3h14a2 2 0 0 1 2 2v11a2 2 0 0 1-1 1.7V20a1 1 0 0 1-1 1h-1a1 1 0 0 1-1-1v-1H7v1a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-2.3A2 2 0 0 1 3 16V5a2 2 0 0 1 2-2z"/><path d="M5 6h14v5H5z" fill="#141A2C"/><circle cx="7.5" cy="14.5" r="1.3" fill="#141A2C"/><circle cx="16.5" cy="14.5" r="1.3" fill="#141A2C"/>'),
+  liveries: CI('<path d="M12 3a9 9 0 1 0 0 18c1.1 0 1.6-.7 1.6-1.5 0-.5-.2-.8-.4-1.1-.3-.3-.4-.6-.4-1 0-.8.7-1.4 1.5-1.4H16a5 5 0 0 0 5-5c0-4.4-4-8-9-8z"/><circle cx="7.5" cy="11" r="1.5" fill="#141A2C"/><circle cx="10" cy="7" r="1.5" fill="#141A2C"/><circle cx="14.5" cy="7" r="1.5" fill="#141A2C"/><circle cx="17" cy="11" r="1.5" fill="#141A2C"/>'),
   news: CI('<path d="M3 4h14v16H5a2 2 0 0 1-2-2z"/><path d="M17 8h4v10a2 2 0 0 1-4 0z"/><path d="M6 8h8v2H6zm0 4h8v1.5H6zm0 3h5v1.5H6z" fill="#141A2C"/>'),
 };
 const CNAV = [
   ['Compañía', [['dashboard', 'Tablero de mandos', '#FF5A8A'], ['settings', 'Ajustes de compañía', '#FF5A8A', 'mgr'], ['discord', 'Discord', '#5865F2']]],
   ['Miembros', [['members', 'Miembros', '#9B7BFF'], ['roles', 'Roles y permisos', '#FF5A8A'], ['tags', 'Etiquetas', '#9B7BFF'], ['ranks', 'Rangos', '#19C3B1'], ['requests', 'Solicitudes', '#FF5A8A', 'mgr']]],
   ['Trabajos', [['jobs', 'Trabajos', '#9B7BFF'], ['busroutes', 'Rutas de bus', '#FF9F1C'], ['stats', 'Estadísticas', '#FF5A8A'], ['fines', 'Multas', '#FF9F1C']]],
-  ['Flota y finanzas', [['balance', 'Saldo', '#19C3B1'], ['garages', 'Garajes', '#19C3B1'], ['fleet', 'Flota', '#FF5A8A'], ['dealer', 'Concesionario', '#4C8DFF'], ['maintenance', 'Mantenimiento', '#FF5A5F']]],
+  ['Flota y finanzas', [['balance', 'Saldo', '#19C3B1'], ['garages', 'Garajes', '#19C3B1'], ['fleet', 'Flota', '#FF5A8A'], ['dealer', 'Concesionario', '#4C8DFF'], ['maintenance', 'Mantenimiento', '#FF5A5F'], ['liveries', 'Diseños', '#FF9F1C']]],
   ['Eventos', [['calendar', 'Calendario', '#9B7BFF'], ['events', 'Eventos', '#9B7BFF']]],
   ['Contenido', [['news', 'Noticias', '#FF5A8A']]],
 ];
@@ -349,6 +350,14 @@ const SECTIONS = {
       <div class="card"><h2>Movimientos</h2>${c.bank.filter((b) => can('comisiones') || !(b.account === 'empresa' || ['commission', 'salary', 'loanpay'].includes(b.kind))).map((b) => `<div class="list-item"><div class="avatar">${{ commission: '📦', bonus: '💸', salary: '💼', purchase: '🛒', sale: '🏷️', deposit: '🏦', joinbonus: '🎉', move: '🔁', repair: '🔧', info: 'ℹ️', loan: '🏛️', loanpay: '🏛️' }[b.kind] || '•'}</div>
         <div style="flex:1">${esc(b.note)}<div class="muted" style="font-size:12px">${esc(b.by)} · ${ago(b.at)}</div></div><b class="mono ${b.amount >= 0 ? 'pos' : 'neg'}">${b.amount ? (b.amount > 0 ? '+' : '') + money(b.amount) : ''}</b></div>`).join('') || '<div class="empty">Sin movimientos</div>'}</div></div>`;
   },
+  async liveries(c) {
+    const list = c.liveries || [];
+    return head('Diseños', 'Colores y estampados de los vehículos de la empresa', can('disenos') ? '<button class="btn primary" id="liv-new">＋ Subir diseño</button>' : '') +
+      (list.length ? `<div class="grid g3">${list.map((l) => `<div class="card livery"><div class="liv-img" data-livview="${l.id}"><img src="${esc(l.image)}" alt="" loading="lazy"></div>
+        <div class="row between" style="margin-top:10px;flex-wrap:nowrap"><div style="min-width:0"><b>${esc(l.name)}</b><div class="muted" style="font-size:12px">${esc(l.vehicle || 'Todos los vehículos')} · ${esc(l.by || '')}</div></div>
+        ${can('disenos') ? `<button class="btn sm ghost" data-livdel="${l.id}">Borrar</button>` : ''}</div></div>`).join('')}</div>`
+      : `<div class="card"><div class="empty"><div class="big">🎨</div>Todavía no hay diseños.${can('disenos') ? '<br>Sube la imagen de los colores o estampados de vuestros camiones y autobuses.' : ''}</div></div>`);
+  },
   async garages(c) {
     const sl = slotsInfo(c); const G = S.data.garages || {};
     return head('Garajes', 'Cada garaje da plazas para camiones y autobuses') + `<div class="card" style="margin-bottom:16px"><div class="row between"><b>Plazas ocupadas</b><span class="mono">${sl.used} / ${sl.total}</span></div>
@@ -489,8 +498,8 @@ const SECTIONS = {
     S.busRoutes = routes;
     return head('Rutas de bus', 'Líneas de autobús de la empresa con sus paradas, billete y pago extra', can('rutas') ? '<button class="btn primary" id="route-new">＋ Nueva ruta</button>' : '') +
       (!info.busGiftClaimed && S.mgr ? '<div class="notice" style="margin-bottom:16px;display:flex;align-items:center;gap:12px"><span style="font-size:26px">🎁</span><div style="flex:1"><b>Tenéis un autobús de regalo</b><div class="muted">El servicio de autobuses incluye un Mercedes-Benz Travego para la flota.</div></div><button class="btn primary" id="bus-gift">Recoger autobús</button></div>' : '') +
-      bannerHero(info.busBanner, info.name, `${routes.length} ${routes.length === 1 ? 'ruta' : 'rutas'} · todo lo que se gana vale ×${nf(S.data.busBoost || 1.5, 1)}`,
-        S.mgr ? `<button class="btn sm" id="bus-cbanner">🖼️ ${info.busBanner ? 'Cambiar' : 'Poner'} banner de buses</button>${info.busBanner ? '<button class="btn sm ghost" id="bus-cbanner-del">Quitar</button>' : ''}` : '', 'Rutas de bus') +
+      bannerHero(info.busBanner, info.busName || info.name, `${routes.length} ${routes.length === 1 ? 'ruta' : 'rutas'} · todo lo que se gana vale ×${nf(S.data.busBoost || 1.5, 1)}`,
+        S.mgr ? `<button class="btn sm" id="bus-cname">✏️ Cambiar nombre</button><button class="btn sm" id="bus-cbanner">🖼️ ${info.busBanner ? 'Cambiar' : 'Poner'} banner de buses</button>${info.busBanner ? '<button class="btn sm ghost" id="bus-cbanner-del">Quitar</button>' : ''}` : '', 'Rutas de bus') +
       (routes.length ? `<div class="grid g2">${routes.map((r) => { const d = done(r); const full = d.filter((j) => j.routeDone).length;
         return `<div class="card route-card" style="--rc:${esc(r.color || '#FF9F1C')}">
         <div class="row between" style="align-items:flex-start"><div class="row" style="gap:10px;flex-wrap:nowrap;min-width:0"><span class="route-code">${esc(r.code || '🚌')}</span>
@@ -522,13 +531,18 @@ function jobsList(list) {
 }
 function eventCard(e, full = false) {
   const d = new Date(e.date); const me = (S.profile.online || {}).name || '';
-  const going = (e.attendees || []).includes(me);
+  const V = { yes: e.attendees || [], maybe: e.maybe || [], no: e.notGoing || [] };
+  const mine = Object.keys(V).find((k) => V[k].includes(me)) || '';
+  const total = V.yes.length + V.maybe.length + V.no.length;
   return `<div class="row" style="gap:14px;align-items:flex-start"><div class="event-date"><b>${d.getDate()}</b><span>${d.toLocaleDateString(LOC(), { month: 'short' })}</span></div>
     <div style="flex:1;min-width:0"><b style="font-size:16px">${esc(e.title)}</b><div class="muted" style="font-size:12px">${d.toLocaleString(LOC(), { weekday: 'long', hour: '2-digit', minute: '2-digit' })} · ${(e.game || 'ets2').toUpperCase()}${e.server ? ' · ' + esc(e.server) : ''}</div>
     ${e.from || e.to ? `<div style="margin-top:6px">🚛 ${esc(e.from || '?')} → ${esc(e.to || '?')}${e.meeting ? `<span class="muted"> · quedada: ${esc(e.meeting)}</span>` : ''}</div>` : ''}
     ${full && e.description ? `<div class="muted" style="margin-top:6px;white-space:pre-wrap">${esc(e.description)}</div>` : ''}
-    <div class="row" style="margin-top:10px;gap:6px"><span class="muted" style="font-size:12px">${(e.attendees || []).length} van: ${(e.attendees || []).slice(0, 6).map(esc).join(', ')}</span></div>
-    ${full ? `<div class="row" style="margin-top:10px;gap:6px"><button class="btn sm ${going ? '' : 'teal'}" data-attend="${e.id}" data-going="${going ? 0 : 1}">${going ? 'Ya no voy' : '✋ Me apunto'}</button>
+    <div class="vote-sum"><span class="v-yes">✅ ${V.yes.length}</span><span class="v-maybe">🤔 ${V.maybe.length}</span><span class="v-no">❌ ${V.no.length}</span>
+      <div class="vote-bar">${total ? `<i class="v-yes" style="width:${V.yes.length / total * 100}%"></i><i class="v-maybe" style="width:${V.maybe.length / total * 100}%"></i><i class="v-no" style="width:${V.no.length / total * 100}%"></i>` : ''}</div></div>
+    ${full ? `<div class="vote-btns">${[['yes', '✅ Voy'], ['maybe', '🤔 Quizás'], ['no', '❌ No voy']].map(([k, t]) => `<button class="vote ${mine === k ? 'on v-' + k : ''}" data-attend="${e.id}" data-vote="${mine === k ? '' : k}">${t}</button>`).join('')}</div>
+      <div class="vote-lists">${[['yes', 'Van'], ['maybe', 'Quizás'], ['no', 'No van']].map(([k, t]) => `<div><div class="muted" style="font-size:11px;text-transform:uppercase;letter-spacing:.08em">${t} (${V[k].length})</div><div style="font-size:13px;margin-top:4px">${V[k].map(esc).join(', ') || '—'}</div></div>`).join('')}</div>
+      <div class="row" style="margin-top:10px;gap:6px">
       ${e.tmpUrl ? `<button class="btn sm" data-url="${esc(e.tmpUrl)}">Ver en TruckersMP</button>` : ''}${can('eventos') ? `<button class="btn sm danger" data-delev="${e.id}">Borrar</button>` : ''}</div>` : ''}</div></div>`;
 }
 
@@ -662,6 +676,9 @@ function mountCompany(root) {
   on('#e-logo-del', async () => { await K.call('company:update', { logo: '' }); render(); });
   on('#e-banner', async () => { const img = await pickBanner(1200, 300, 'Banner de la empresa'); if (!img) return; try { await K.call('company:update', { banner: img }); toast({ title: 'Banner actualizado', body: '' }); render(); } catch (e) { err(e); } });
   on('#bus-cbanner', async () => { const img = await pickBanner(1200, 300, 'Banner del apartado de buses'); if (!img) return; try { await K.call('company:update', { busBanner: img }); toast({ title: 'Banner de buses actualizado', body: '' }); render(); } catch (e) { err(e); } });
+  on('#bus-cname', async () => formModal('Nombre del servicio de buses', `<div class="muted">Es el nombre que verán los conductores en el apartado de buses (por ejemplo «${esc(info.tag || 'Rutero')} Bus» o «Línea Express»). Déjalo vacío para usar «Autobús».</div>
+      <label class="field"><span>Nombre</span><input type="text" id="bn-n" maxlength="28" value="${esc(info.busName || '')}" placeholder="${esc(info.tag || '')} Bus"></label>`,
+    async (bg) => { await K.call('company:update', { busName: $('#bn-n', bg).value.trim() }); await refreshState(); renderSide(); }));
   on('#bus-cbanner-del', async () => { try { await K.call('company:update', { busBanner: '' }); render(); } catch (e) { err(e); } });
   on('#e-banner-del', async () => { await K.call('company:update', { banner: '' }); render(); });
   on('#pp-save', async () => {
@@ -848,6 +865,17 @@ function mountCompany(root) {
   $$('[data-editroute]', root).forEach((b) => b.onclick = () => routeForm((S.busRoutes || []).find((r) => r.id === b.dataset.editroute)));
   $$('[data-delroute]', root).forEach((b) => b.onclick = () => act(b, async () => { if (!confirm('¿Borrar esta ruta?')) return; await K.call('company:busrouteDel', b.dataset.delroute); render(); }));
   $$('[data-drive]', root).forEach((b) => b.onclick = () => act(b, async () => { await startCompanyRoute((S.busRoutes || []).find((r) => r.id === b.dataset.drive)); }));
+  on('#liv-new', async () => {
+    let img = '';
+    formModal('Subir diseño', `<label class="field"><span>Nombre</span><input type="text" id="lv-n" maxlength="40" placeholder="Diseño oficial 2026"></label>
+      <label class="field"><span>Vehículo (opcional)</span><input type="text" id="lv-v" maxlength="60" placeholder="Scania S, autobuses, remolques…"></label>
+      <div class="row"><button class="btn" id="lv-img">🖼️ Elegir imagen</button><span class="muted" id="lv-imgok" style="font-size:12px"></span></div><div id="lv-prev"></div>`,
+      async (bg) => { await K.call('company:addLivery', { name: $('#lv-n', bg).value.trim(), vehicle: $('#lv-v', bg).value.trim(), image: img }); toast({ title: 'Diseño subido 🎨', body: '' }); }, 'Subir');
+    const bg = $$('.modal-bg').pop();
+    $('#lv-img', bg).onclick = async () => { const i = await cropImage({ w: 1280, h: 720, title: 'Recorta el diseño', maxKB: 420 }); if (i) { img = i; $('#lv-imgok', bg).textContent = 'Imagen añadida ✓'; $('#lv-prev', bg).innerHTML = `<img src="${i}" style="width:100%;border-radius:12px;margin-top:4px">`; } };
+  });
+  $$('[data-livdel]', root).forEach((b) => b.onclick = () => act(b, async () => { if (!confirm('¿Borrar el diseño?')) return; await K.call('company:deleteLivery', b.dataset.livdel); render(); }));
+  $$('[data-livview]', root).forEach((el) => el.onclick = () => { const l = (S.company.liveries || []).find((x) => x.id === el.dataset.livview); if (l) modal(`<h2>${esc(l.name)}</h2><img src="${esc(l.image)}" style="width:100%;border-radius:12px"><div class="muted" style="margin-top:8px">${esc(l.vehicle || 'Todos los vehículos')}</div><div class="row" style="margin-top:12px"><button class="btn ghost" data-close>Cerrar</button></div>`); });
   on('#news-new', async () => {
     let img = '';
     formModal('Publicar noticia', `<label class="field"><span>Título</span><input type="text" id="n-t" maxlength="90"></label><label class="field"><span>Texto</span><textarea id="n-b" rows="6" maxlength="4000"></textarea></label>
@@ -860,7 +888,7 @@ function mountCompany(root) {
   $$('[data-delnews]', root).forEach((b) => b.onclick = () => act(b, async () => { if (!confirm('¿Borrar la noticia?')) return; await K.call('company:deleteNews', b.dataset.delnews); render(); }));
 }
 function bindEventButtons(root) {
-  $$('[data-attend]', root).forEach((b) => b.onclick = () => act(b, async () => { await K.call('company:attend', b.dataset.attend, b.dataset.going === '1'); $$('.modal-bg').forEach((x) => x.remove()); render(); }));
+  $$('[data-attend]', root).forEach((b) => b.onclick = () => act(b, async () => { await K.call('company:attend', b.dataset.attend, b.dataset.vote); $$('.modal-bg').forEach((x) => x.remove()); render(); }));
   $$('[data-delev]', root).forEach((b) => b.onclick = () => act(b, async () => { if (!confirm('¿Borrar el evento?')) return; await K.call('company:deleteEvent', b.dataset.delev); $$('.modal-bg').forEach((x) => x.remove()); render(); }));
   $$('[data-url]', root).forEach((b) => { if (!b.classList.contains('credit')) b.onclick = () => K.call('open', b.dataset.url); });
 }

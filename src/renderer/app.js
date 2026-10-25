@@ -169,7 +169,8 @@ function renderSide() {
   const prog = p ? Math.min(1, (p.xp - p.xpThis) / Math.max(1, p.xpNext - p.xpThis)) : 0;
   $('#side').innerHTML = NAV.map((n) => {
     if (typeof n === 'string') return n.length > 1 ? `<div class="sep"></div><div class="label">${n.slice(1)}</div>` : '<div class="sep"></div>';
-    return `<button class="nav ${S.page === n[0] ? 'active' : ''}" data-page="${n[0]}">${ICONS[n[2]]}${n[1]}${n[0] === 'bus' && S.data && !S.data.busUnlocked ? '<span class="nav-lock">🔒</span>' : ''}</button>`;
+    const label = n[0] === 'bus' && S.data && S.data.busName ? `<span translate="no">${esc(S.data.busName)}</span>` : n[1];
+    return `<button class="nav ${S.page === n[0] ? 'active' : ''}" data-page="${n[0]}">${ICONS[n[2]]}${label}${n[0] === 'bus' && S.data && !S.data.busUnlocked ? '<span class="nav-lock">🔒</span>' : ''}</button>`;
   }).join('') + `
     <div class="me-card">
       <div class="row" style="gap:10px">
@@ -246,24 +247,40 @@ function weekStrip(d) {
   const cell = (k, v, a, b, f) => { const dv = b ? Math.round((a - b) / b * 100) : null;
     return `<div class="wk"><span class="k">${k}</span><b class="mono">${f(v)}</b>${dv === null ? '<i class="muted">—</i>' : `<i class="${dv >= 0 ? 'pos' : 'neg'}">${dv >= 0 ? '▲' : '▼'} ${Math.abs(dv)}%</i>`}</div>`; };
   const km = sum(thisW, (j) => j.km), kmP = sum(prev, (j) => j.km), earn = sum(thisW, (j) => j.net ?? j.revenue), earnP = sum(prev, (j) => j.net ?? j.revenue);
-  return `<div class="week-strip"><div class="wk-title"><b>Tu semana</b><span class="muted">últimos 7 días</span></div>
+  const days = [...Array(7)].map((_, i) => { const end = now - (6 - i) * 864e5; return sum(d.jobs.filter((j) => j.status !== 'cancelled' && j.finishedAt > end - 864e5 && j.finishedAt <= end), (j) => j.km); });
+  const mx = Math.max(1, ...days);
+  return `<div class="week-strip"><div class="wk-title"><b>Tu semana</b><span class="muted">últimos 7 días</span>
+    <div class="spark">${days.map((v, i) => `<i style="height:${Math.max(6, v / mx * 100)}%;animation-delay:${i * 60}ms" class="${v ? 'on' : ''}" title="${dist(v)}"></i>`).join('')}</div></div>
     ${cell('Viajes', thisW.length, thisW.length, prev.length, (v) => v)}${cell('Distancia', km, km, kmP, (v) => dist(v))}${cell('Ganado', earn, earn, earnP, (v) => money(v))}${cell('Puntuación media', avg(thisW), avg(thisW), avg(prev), (v) => v || '—')}</div>`;
 }
+// cabecera del panel: saludo, nivel y accesos rápidos
+function dashHero() {
+  const p = S.profile || {}; const on = p.online || {};
+  const name = on.name || (p.local && p.local.name) || 'Conductor';
+  const h = new Date().getHours();
+  const hi = h < 6 ? 'Buenas noches' : h < 13 ? 'Buenos días' : h < 21 ? 'Buenas tardes' : 'Buenas noches';
+  const prog = Math.min(1, ((p.xp || 0) - (p.xpThis || 0)) / Math.max(1, (p.xpNext || 1) - (p.xpThis || 0)));
+  return `<div class="dash-hero"><div class="dh-left">${avatar(p.photo, name, 58, 'linear-gradient(135deg,var(--accent),var(--accent2))', '#fff')}
+      <div><div class="dh-hi">${hi}</div><h1>${esc(name)}</h1>
+      <div class="dh-meta"><span class="lvl">Nivel ${p.level || 1}</span><span class="muted">${esc(p.rank || 'Novato')}</span>${on.companyName ? `<span class="tag">${esc(on.companyTag || on.companyName)}</span>` : ''}<span class="muted" id="lv-sub"></span></div>
+      <div class="dh-xp"><i style="width:${prog * 100}%"></i></div></div></div>
+    <div class="row">${on.companyId ? '<button class="btn" id="hero-co">🏢 Mi empresa</button>' : ''}<button class="btn primary" id="ov-btn">🖥️ Overlay en el juego</button></div></div>`;
+}
+const SET_TABS = [['cuenta', '👤 Cuenta'], ['apariencia', '🎨 Apariencia'], ['juego', '🎮 Juego'], ['overlay', '🖥️ Overlay'], ['sonido', '🔊 Sonido'], ['comunidad', '💬 Comunidad'], ['app', '⬆️ Actualizaciones']];
 const PAGE_DASH = {
   id: 'dash',
   async html() {
     const d = S.data; const daily = d.daily;
     if (S.pluginOk === undefined) { try { const g = await K.call('plugin:status'); S.pluginOk = Object.values(g || {}).some((x) => x && x.installed); } catch { S.pluginOk = false; } }
     return `
-    <div class="page-head"><div><h1>Panel de conducción</h1><div class="subtitle" id="lv-sub">Datos en directo desde el juego</div></div>
-      <div class="row"><button class="btn" id="ov-btn">🖥️ Overlay en el juego</button></div></div>
+    ${dashHero()}
     <div id="lv-banner"></div>
     ${weekStrip(d)}
     <div class="dash">
-      <div class="card gauge-wrap">
+      <div class="card gauge-wrap" id="lv-gaugecard">
         <div class="gauge">
           <svg viewBox="0 0 280 230">
-            <path d="${arcPath()}" stroke="#1F2738" stroke-width="16" fill="none" stroke-linecap="round" pathLength="100"/>
+            <path d="${arcPath()}" style="stroke:var(--track)" stroke-width="16" fill="none" stroke-linecap="round" pathLength="100"/>
             <path id="lv-arc" d="${arcPath()}" stroke="url(#gArc)" stroke-width="16" fill="none" stroke-linecap="round" pathLength="100" stroke-dasharray="0 100"/>
             <path id="lv-rpm" d="${arcPath()}" stroke="#19C3B1" stroke-width="4" fill="none" pathLength="100" stroke-dasharray="0 100" transform="translate(140 140) scale(.82) translate(-140 -140)" opacity=".8"/>
             <defs><linearGradient id="gArc" x1="0" x2="1"><stop offset="0" stop-color="#19C3B1"/><stop offset=".6" stop-color="#FF9F1C"/><stop offset="1" stop-color="#FF5A5F"/></linearGradient></defs>
@@ -303,7 +320,7 @@ const PAGE_DASH = {
         ${daily.list.map((c) => {
           const prog = Math.min(c.goal, daily.progress[c.id] || 0); const done = daily.claimed && daily.claimed[c.id];
           return `<div class="challenge ${done ? 'done' : ''}"><div class="chk">${done ? '✓' : ''}</div><div class="t"><div>${esc(c.text)}</div>
-          <div class="bar" style="margin-top:6px"><i style="width:${(prog / c.goal) * 100}%"></i></div></div><span class="pill">+${nf(c.reward)}</span></div>`;
+          <div class="bar" style="margin-top:6px"><i style="width:${(prog / c.goal) * 100}%"></i></div></div><span class="pill ${done ? 'ok' : ''}">${done ? '✓' : `${nf(prog)} / ${nf(c.goal)}`}</span></div>`;
         }).join('')}</div>
       <div class="card"><div class="card-title"><h2>Últimos viajes</h2><button class="btn sm ghost" data-goto="jobs">Ver todos</button></div>
         ${tripList(d.jobs.slice(0, 5))}</div>
@@ -311,6 +328,7 @@ const PAGE_DASH = {
   },
   mount(root) {
     $('#ov-btn').onclick = () => K.call('overlay');
+    const hc = $('#hero-co'); if (hc) hc.onclick = () => go('company');
     $$('[data-goto]', root).forEach((b) => b.onclick = () => go(b.dataset.goto));
     bindTrips(root);
     S.lastJobKey = undefined;
@@ -396,6 +414,7 @@ function updateLive() {
     banner.innerHTML = `<div class="status-banner"><span class="ic">${ic}</span><div><b>${a}</b><div class="muted">${b}</div></div>${st === 'waiting' ? '<button class="btn sm" style="margin-left:auto" id="go-plugin">Instalar plugin</button>' : ''}</div>`;
     const gp = $('#go-plugin'); if (gp) gp.onclick = () => go('settings');
   } else banner.innerHTML = '';
+  const gc = $('#lv-gaugecard'); if (gc) gc.classList.toggle('driving', st === 'driving');
   if (!t || !t.sdkActive) { renderJob(null); return; }
 
   const speed = spd(Math.abs(t.speedKmh));
@@ -677,7 +696,7 @@ const PAGE_BUS = {
     await refreshState();
     if (!S.data.busUnlocked && !S.bus) {
       const hasCo = !!(S.profile && S.profile.online && S.profile.online.companyId);
-      return `<div class="page-head"><div><h1>Modo autobús</h1><div class="subtitle">Rutas de pasajeros con paradas, billetes y puntuación</div></div></div>
+      return `<div class="page-head"><div><h1>${esc(S.data.busName || 'Modo autobús')}</h1><div class="subtitle">Rutas de pasajeros con paradas, billetes y puntuación</div></div></div>
         <div class="card bus-locked"><div class="lock-ic">🔒</div><h2>Servicio de autobuses bloqueado</h2>
           <div class="muted" style="max-width:460px;margin:0 auto 16px">${hasCo ? 'Tu empresa todavía no ha activado el servicio de autobuses. El fundador o un gerente pueden activarlo en Mi empresa → Rutas de bus.' : 'Únete a una empresa con el servicio de autobuses activado para poder conducir rutas de bus.'}</div>
           <button class="btn primary" id="bus-go-co">${hasCo ? '🚌 Ir a Rutas de bus' : '🏢 Ir a Mi empresa'}</button></div>`;
@@ -695,7 +714,7 @@ const PAGE_BUS = {
     const isBus = S.live && /bus|coach|autob|setra|irizar|intercity|citaro|lion|neoplan|solaris|urbino/i.test(`${S.live.truck.brand} ${S.live.truck.name}`);
     const mine = S.data.settings.busBanner || '';
     const hero = mine || S.busCompanyBanner || '';
-    return `${bannerHero(hero, 'Modo autobús', S.busCompanyName && !mine && S.busCompanyBanner ? 'Con las líneas de tu empresa' : 'Rutas de pasajeros con paradas, billetes y puntuación',
+    return `${bannerHero(hero, S.data.busName || 'Modo autobús', S.busCompanyName && !mine && S.busCompanyBanner ? 'Con las líneas de tu empresa' : 'Rutas de pasajeros con paradas, billetes y puntuación',
       `<button class="btn sm" id="bus-banner">🖼️ ${mine ? 'Cambiar' : 'Poner'} banner</button>${mine ? '<button class="btn sm ghost" id="bus-banner-del">Quitar</button>' : ''}`)}
     ${S.rec ? `<div class="rec-bar"><span class="rec-dot"></span><div style="flex:1"><b>Grabando ruta · ${S.rec.count - 1} ${S.rec.count - 1 === 1 ? 'parada' : 'paradas'}</b><div class="muted">Pulsa F2–F11 en cada parada y <b class="kbd">F1</b> al terminar para guardarla.</div></div><button class="btn sm ghost" id="rec-cancel">Cancelar grabación</button></div>` : ''}
     ${isBus && !b ? '<div class="notice" style="margin-bottom:16px">🚌 Parece que conduces un autobús. ¡Empieza una ruta!</div>' : ''}
@@ -960,13 +979,16 @@ const PAGE_SETTINGS = {
         ${S.data.pending ? `<div class="notice" style="margin-top:12px">${S.data.pending} viaje(s) pendientes de subir. Se enviarán solos.</div>` : ''}`
       : authForm('a');
     const ui = s.ui || {};
+    const tab = S.settingsTab || 'cuenta';
+    const st = (id) => `data-stab="${id}"${tab === id ? '' : ' hidden'}`;
     return `<div class="page-head"><div><h1>Ajustes</h1><div class="subtitle">Rutero ${S.data.version}</div></div></div>
-    <div class="grid g2">
-      <div class="card"><h2>Cuenta online</h2>${acct}</div>
-      <div class="card"><h2>Perfil</h2><div class="row" style="gap:14px;margin-bottom:14px">${avatar(p.photo, (p.online && p.online.name) || p.local.name, 72, 'linear-gradient(135deg,var(--accent),var(--accent2))', '#fff')}
+    <div class="tabs set-tabs">${SET_TABS.map(([k, n]) => `<button data-stabbtn="${k}" class="${tab === k ? 'on' : ''}">${n}</button>`).join('')}</div>
+    <div class="grid g2 set-grid">
+      <div class="card" ${st('cuenta')}><h2>Cuenta online</h2>${acct}</div>
+      <div class="card" ${st('cuenta')}><h2>Perfil</h2><div class="row" style="gap:14px;margin-bottom:14px">${avatar(p.photo, (p.online && p.online.name) || p.local.name, 72, 'linear-gradient(135deg,var(--accent),var(--accent2))', '#fff')}
         <div class="grid" style="gap:6px"><button class="btn sm" id="p-photo">📷 Cambiar foto</button>${p.photo ? '<button class="btn sm ghost" id="p-photo-del">Quitar foto</button>' : ''}</div></div><label class="field"><span>Nombre de conductor</span><div class="row" style="flex-wrap:nowrap"><input type="text" id="p-name" value="${esc((p.online && p.online.name) || p.local.name)}" maxlength="24"><button class="btn" id="p-save">Guardar</button></div></label></div>
 
-      <div class="card span2"><div class="card-title"><h2>Overlay en el juego</h2><div class="row">
+      <div class="card span2" ${st('overlay')}><div class="card-title"><h2>Overlay en el juego</h2><div class="row">
         <button class="btn sm ${s.overlay ? 'danger' : 'primary'}" id="ov-toggle">${s.overlay ? 'Ocultar overlay' : 'Mostrar overlay'}</button><button class="btn sm ghost" id="ov-reset">Restablecer</button></div></div>
         <div class="muted" style="margin-bottom:12px">Funciona con el juego en <b>ventana sin bordes</b>. Atajo: <b>Ctrl + Mayús + K</b>. Los cambios se ven al momento.</div>
         <div class="grid g2">
@@ -982,29 +1004,34 @@ const PAGE_SETTINGS = {
             <label class="row"><span class="switch"><input type="checkbox" id="ov-lock" ${oc.locked ? 'checked' : ''}><i></i></span> Bloquear (los clics pasan al juego)</label>
           </div></div></div>
 
-      <div class="card span2"><h2>Personalizar Rutero</h2>
+      <div class="card span2" ${st('apariencia')}><h2>Apariencia</h2>
+        <div class="setting"><div><div>Tema</div><div class="d">Oscuro, claro o según tu Windows</div></div><div class="tabs theme-pick">${[['dark', '🌙 Oscuro'], ['light', '☀️ Claro'], ['auto', '🖥️ Automático']].map(([k, n]) => `<button data-theme="${k}" class="${(ui.theme || 'dark') === k ? 'on' : ''}">${n}</button>`).join('')}</div></div>
         <div class="setting"><div><div>Color de la app</div><div class="d">Botones, menú y detalles</div></div><div class="row" style="gap:8px">${ACCENTS.map((c) => `<button class="swatch ${(ui.accent || '#4C8DFF') === c ? 'on' : ''}" data-ac="${c}" style="background:${c}"></button>`).join('')}</div></div>
         <div class="setting"><div><div>Idioma</div><div class="d">Se elige solo según tu país. Puedes cambiarlo cuando quieras.</div></div><select id="ui-lang" style="width:200px"><option value="auto" ${(s.language || 'auto') === 'auto' ? 'selected' : ''}>Automático (según tu Windows)</option>${Object.entries(RI18N.LANGS).map(([k, n]) => `<option value="${k}" translate="no" ${s.language === k ? 'selected' : ''}>${n}</option>`).join('')}</select></div>
         <div class="setting"><div><div>Página al abrir</div><div class="d">Lo primero que ves al abrir Rutero</div></div><select id="ui-start" style="width:200px">${[['dash', 'Panel'], ['jobs', 'Trabajos'], ['company', 'Mi empresa'], ['ranking', 'Ranking'], ['tmp', 'TruckersMP']].map(([k, n]) => `<option value="${k}" ${(ui.start || 'dash') === k ? 'selected' : ''}>${n}</option>`).join('')}</select></div>
         <div class="setting"><div><div>Tamaño del texto</div><div class="d">Agranda o achica toda la app</div></div><select id="ui-zoom" style="width:200px">${[[0.9, 'Pequeño'], [1, 'Normal'], [1.1, 'Grande'], [1.2, 'Muy grande']].map(([k, n]) => `<option value="${k}" ${(ui.zoom || 1) == k ? 'selected' : ''}>${n}</option>`).join('')}</select></div>
+      </div>
+      <div class="card span2" ${st('juego')}><h2>Juego</h2>
         <div class="setting"><div><div>Unidades</div><div class="d">Automático: km/h en ETS2 y mph en ATS</div></div>
           <select id="units" style="width:200px"><option value="auto">Automático</option><option value="kmh">km/h</option><option value="mph">mph</option></select></div>
-        ${sw('realisticEconomy', s.realisticEconomy, 'Economía realista', 'Solo cobras tu parte del pago (≈45 %, más con cargas peligrosas, pesadas o delicadas y menos con granel) y las multas, peajes, ferris y trenes se descuentan de tu cartera')}
-        ${sw('sounds', s.sounds, 'Notificaciones con sonido', 'Avisos de Windows al entregar, recibir multas o desbloquear logros')}
+        ${sw('realisticEconomy', s.realisticEconomy, 'Economía realista', 'Solo cobras tu parte del pago (≈45 %, más con cargas peligrosas, pesadas o delicadas y menos con granel) y se descuentan multas, peajes, ferris y trenes')}
         ${sw('startWithWindows', s.startWithWindows, 'Iniciar con Windows', 'Rutero se abre minimizado en la bandeja')}
         ${sw('realPhotos', s.realPhotos, 'Fotos de internet en el concesionario', 'Para los modelos sin imagen propia busca fotos libres en internet')}
       </div>
 
-      <div class="card span2"><h2>Comunidad y ayuda</h2><div class="row" style="gap:10px">
+      <div class="card span2" ${st('comunidad')}><h2>Comunidad y ayuda</h2><div class="row" style="gap:10px">
         <button class="btn discord" id="st-discord">💬 Únete al Discord de Rutero</button><button class="btn" id="st-report">🚩 Reportar un error o a un jugador</button>
         ${S.data.links && S.data.links.website ? '<button class="btn ghost" id="st-web">🌐 Web de Rutero</button>' : ''}</div>
         <div class="muted" style="font-size:12px;margin-top:8px">En Discord puedes pedir ayuda, promocionar tu empresa, buscar convoyes y hablar con otros conductores.</div>
         ${discordLinkBox()}</div>
-      <div class="card span2" id="bot-card" style="display:none"></div>
-      <div class="card span2"><h2>🔊 Sonido de las puertas del autobús</h2><div class="muted" style="margin-bottom:12px">Suena al abrir y cerrar las puertas con la tecla del autobús. Pruébalo aquí:</div>
+      <div class="card span2" id="bot-card" style="display:none" ${st('comunidad')}></div>
+      <div class="card span2" ${st('sonido')}><h2>Notificaciones y entrada</h2>${sw('sounds', s.sounds, 'Notificaciones con sonido', 'Avisos de Windows al entregar, recibir multas o desbloquear logros')}
+        <div class="setting"><div><div>Animación al abrir</div><div class="d">El logo de Rutero al entrar en la app</div></div><label class="switch"><input type="checkbox" id="ui-intro" ${ui.intro !== false ? 'checked' : ''}><i></i></label></div>
+        <div class="setting"><div><div>Sonido al abrir</div><div class="d">Suena con la animación de entrada</div></div><div class="row"><button class="btn sm" id="snd-intro">▶ Escuchar</button><label class="switch"><input type="checkbox" id="ui-introsnd" ${ui.introSound !== false ? 'checked' : ''}><i></i></label></div></div></div>
+      <div class="card span2" ${st('sonido')}><h2>🔊 Sonido de las puertas del autobús</h2><div class="muted" style="margin-bottom:12px">Suena al abrir y cerrar las puertas con la tecla del autobús. Pruébalo aquí:</div>
         <div class="row"><button class="btn" id="snd-open">🚪 Abrir puertas</button><button class="btn" id="snd-close">🚪 Cerrar puertas</button></div></div>
-      <div class="card span2" id="upd-card">${updateCard()}</div>
-      <div class="card span2"><h2>Plugin de telemetría</h2><div class="muted" style="margin-bottom:12px">Rutero lee los datos del juego con el plugin abierto <b>scs-sdk-plugin</b>. Cierra el juego antes de instalarlo.</div>
+      <div class="card span2" id="upd-card" ${st('app')}>${updateCard()}</div>
+      <div class="card span2" ${st('juego')}><h2>Plugin de telemetría</h2><div class="muted" style="margin-bottom:12px">Rutero lee los datos del juego con el plugin abierto <b>scs-sdk-plugin</b>. Cierra el juego antes de instalarlo.</div>
         ${['ets2', 'ats'].map((g) => { const x = games[g]; const nm = g === 'ets2' ? 'Euro Truck Simulator 2' : 'American Truck Simulator';
           return `<div class="setting"><div><div><b>${nm}</b></div><div class="d">${x ? esc(x.dir) : 'No encontrado en Steam'}</div></div>
           <div class="row">${x ? (x.installed ? '<span class="pill ok"><span class="dot"></span>Plugin instalado</span>' : '<span class="pill warn"><span class="dot"></span>Sin plugin</span>') : ''}
@@ -1016,7 +1043,15 @@ const PAGE_SETTINGS = {
     bindUpdateCard();
     bindAuthForm(root, 'a');
     $('#st-discord').onclick = openDiscord;
-    $('#snd-open').onclick = () => SFX.doorOpen(); $('#snd-close').onclick = () => SFX.doorClose();
+    $$('[data-stabbtn]', root).forEach((b) => b.onclick = () => {
+      S.settingsTab = b.dataset.stabbtn;
+      $$('[data-stabbtn]', root).forEach((x) => x.classList.toggle('on', x === b));
+      $$('[data-stab]', root).forEach((el, i) => { const on = el.dataset.stab === S.settingsTab; el.hidden = !on; if (on) { el.style.setProperty('--i', i); el.classList.remove('tab-in'); void el.offsetWidth; el.classList.add('tab-in'); } });
+    });
+    $$('[data-theme]', root).forEach((b) => b.onclick = async () => { $$('[data-theme]', root).forEach((x) => x.classList.toggle('on', x === b)); const ui = { ...(S.data.settings.ui || {}), theme: b.dataset.theme }; await K.call('settings:set', { ui }); S.data.settings.ui = ui; applyUi(); });
+    $('#snd-open').onclick = () => SFX.doorOpen(); $('#snd-close').onclick = () => SFX.doorClose(); $('#snd-intro').onclick = () => SFX.intro();
+    const setUi = async (patch) => { const u = { ...(S.data.settings.ui || {}), ...patch }; await K.call('settings:set', { ui: u }); S.data.settings.ui = u; };
+    $('#ui-intro').onchange = (e) => setUi({ intro: e.target.checked }); $('#ui-introsnd').onchange = (e) => setUi({ introSound: e.target.checked });
     $('#st-report').onclick = () => reportModal();
     bindDiscordLink(root);
     loadBotCard();
@@ -1065,7 +1100,10 @@ function applyUi() {
   document.documentElement.style.setProperty('--accent', acc);
   document.documentElement.style.setProperty('--accent2', acc === '#4C8DFF' ? '#5A3DF0' : shade(acc, -0.28));
   document.body.style.zoom = ui.zoom || 1;
+  const light = ui.theme === 'light' || (ui.theme === 'auto' && matchMedia('(prefers-color-scheme: light)').matches);
+  document.documentElement.classList.toggle('light', light);
 }
+matchMedia('(prefers-color-scheme: light)').addEventListener('change', () => { if (S.data) applyUi(); });
 
 // ------------------------------------------------------------------ ACTUALIZACIONES
 function updateCard() {
@@ -1141,6 +1179,11 @@ const SFX = (() => {
     const g = c.createGain(); g.gain.setValueAtTime(0.5, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.22); o.connect(g).connect(c.destination); o.start(t); o.stop(t + 0.25); };
   return {
     doorOpen() { const c = ac(), t = c.currentTime + 0.02; tone(c, t, 784, 0.5, 0.18); tone(c, t + 0.28, 622, 0.7, 0.16); hiss(c, t + 0.15, 1.1, 2600, 900, 0.32); thunk(c, t + 1.15); },
+    intro() { const c = ac(), t = c.currentTime + 0.05;
+      hiss(c, t, 0.9, 300, 3200, 0.12);
+      [[392, 0.35], [523.25, 0.5], [659.25, 0.62], [783.99, 0.8]].forEach(([f, d], i) => { tone(c, t + 0.35 + i * 0.11, f, d + 0.6, 0.11); tone(c, t + 0.35 + i * 0.11, f * 2, d, 0.03); });
+      const o = c.createOscillator(); o.type = 'sine'; o.frequency.setValueAtTime(55, t); o.frequency.exponentialRampToValueAtTime(110, t + 1.2);
+      const g = c.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.18, t + 0.5); g.gain.exponentialRampToValueAtTime(0.0001, t + 1.6); o.connect(g).connect(c.destination); o.start(t); o.stop(t + 1.7); },
     doorClose() { const c = ac(), t = c.currentTime + 0.02; [0, 0.22, 0.44].forEach((d) => tone(c, t + d, 1050, 0.14, 0.14, 'square')); hiss(c, t + 0.6, 0.9, 900, 2400, 0.3); thunk(c, t + 1.45); },
   };
 })();
@@ -1153,8 +1196,21 @@ $$('[data-win]').forEach((b) => b.onclick = () => K.call('win', b.dataset.win));
 $('#tb-update').onclick = () => { if (S.update && S.update.status === 'ready') K.call('update:install'); else go('settings'); };
 K.call('update:state').then((u) => { S.update = u; updatePill(); }).catch(() => {});
 
+// animación de entrada con sonido
+function playIntro() {
+  const el = $('#intro'); if (!el) return;
+  const ui = (S.data && S.data.settings.ui) || {};
+  if (ui.intro === false || matchMedia('(prefers-reduced-motion: reduce)').matches) { el.remove(); return; }
+  // la ventana se enseña un poco después de cargar (o al abrirla desde la bandeja): espera a que se vea
+  if (document.visibilityState === 'hidden') { document.addEventListener('visibilitychange', function v() { if (document.visibilityState === 'visible') { document.removeEventListener('visibilitychange', v); playIntro(); } }); return; }
+  el.classList.add('play');
+  if (ui.introSound !== false) { try { SFX.intro(); } catch { /* sin audio */ } }
+  setTimeout(() => el.classList.add('out'), 2100);
+  setTimeout(() => el.remove(), 2700);
+}
 (async () => {
   await refreshState();
+  playIntro();
   RI18N.set(S.data.lang || 'es'); RI18N.start(document);
   applyUi();
   S.page = (S.data.settings.ui && S.data.settings.ui.start) || 'dash';

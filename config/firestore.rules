@@ -82,6 +82,7 @@ service cloud.firestore {
       }
       match /garages/{g} { allow read: if signed(); allow write: if can(cid, 'comprar') || can(cid, 'vender'); }
       match /news/{n} { allow read: if signed(); allow write: if can(cid, 'noticias'); }
+      match /liveries/{l} { allow read: if signed(); allow write: if can(cid, 'disenos'); }
       match /busroutes/{r} {
         allow read: if signed();
         allow write: if can(cid, 'rutas');
@@ -91,7 +92,7 @@ service cloud.firestore {
       match /events/{e} {
         allow read: if signed();
         allow create, delete: if can(cid, 'eventos');
-        allow update: if can(cid, 'eventos') || (isMember(cid) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['attendees']));
+        allow update: if can(cid, 'eventos') || (isMember(cid) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['attendees', 'maybe', 'notGoing']));
       }
     }
 

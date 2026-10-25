@@ -1008,3 +1008,45 @@ Tu empresa todavía no ha activado el servicio de autobuses. El fundador o un ge
 Suena al abrir y cerrar las puertas con la tecla del autobús. Pruébalo aquí: | It plays when you open and close the doors with the bus key. Try it here: | Il retentit quand vous ouvrez et fermez les portes avec la touche du bus. Essayez-le ici : | Er ertönt beim Öffnen und Schließen der Türen mit der Bustaste. Hier ausprobieren: | Suona quando apri e chiudi le porte con il tasto del bus. Provalo qui: | Toca ao abrir e fechar as portas com a tecla do ônibus. Teste aqui: | Odtwarzany przy otwieraniu i zamykaniu drzwi klawiszem autobusu. Wypróbuj tutaj:
 🚪 Abrir puertas | 🚪 Open doors | 🚪 Ouvrir les portes | 🚪 Türen öffnen | 🚪 Apri porte | 🚪 Abrir portas | 🚪 Otwórz drzwi
 🚪 Cerrar puertas | 🚪 Close doors | 🚪 Fermer les portes | 🚪 Türen schließen | 🚪 Chiudi porte | 🚪 Fechar portas | 🚪 Zamknij drzwi
+👤 Cuenta | 👤 Account | 👤 Compte | 👤 Konto | 👤 Account | 👤 Conta | 👤 Konto
+🎨 Apariencia | 🎨 Appearance | 🎨 Apparence | 🎨 Darstellung | 🎨 Aspetto | 🎨 Aparência | 🎨 Wygląd
+🎮 Juego | 🎮 Game | 🎮 Jeu | 🎮 Spiel | 🎮 Gioco | 🎮 Jogo | 🎮 Gra
+🖥️ Overlay | 🖥️ Overlay | 🖥️ Overlay | 🖥️ Overlay | 🖥️ Overlay | 🖥️ Overlay | 🖥️ Nakładka
+🔊 Sonido | 🔊 Sound | 🔊 Son | 🔊 Ton | 🔊 Suono | 🔊 Som | 🔊 Dźwięk
+💬 Comunidad | 💬 Community | 💬 Communauté | 💬 Community | 💬 Community | 💬 Comunidade | 💬 Społeczność
+⬆️ Actualizaciones | ⬆️ Updates | ⬆️ Mises à jour | ⬆️ Updates | ⬆️ Aggiornamenti | ⬆️ Atualizações | ⬆️ Aktualizacje
+Apariencia | Appearance | Apparence | Darstellung | Aspetto | Aparência | Wygląd
+Tema | Theme | Thème | Design | Tema | Tema | Motyw
+Oscuro, claro o según tu Windows | Dark, light or matching Windows | Sombre, clair ou selon Windows | Dunkel, hell oder wie Windows | Scuro, chiaro o come Windows | Escuro, claro ou conforme o Windows | Ciemny, jasny lub jak w Windows
+🌙 Oscuro | 🌙 Dark | 🌙 Sombre | 🌙 Dunkel | 🌙 Scuro | 🌙 Escuro | 🌙 Ciemny
+☀️ Claro | ☀️ Light | ☀️ Clair | ☀️ Hell | ☀️ Chiaro | ☀️ Claro | ☀️ Jasny
+🖥️ Automático | 🖥️ Automatic | 🖥️ Automatique | 🖥️ Automatisch | 🖥️ Automatico | 🖥️ Automático | 🖥️ Automatyczny
+Juego | Game | Jeu | Spiel | Gioco | Jogo | Gra
+Solo cobras tu parte del pago (≈45 %, más con cargas peligrosas, pesadas o delicadas y menos con granel) y se descuentan multas, peajes, ferris y trenes | You only get your share of the pay (≈45%, more with dangerous, heavy or fragile loads and less with bulk) and fines, tolls, ferries and trains are deducted | Vous ne touchez que votre part (≈45 %, plus avec des cargaisons dangereuses, lourdes ou fragiles et moins en vrac) et les amendes, péages, ferries et trains sont déduits | Du bekommst nur deinen Anteil (≈45 %, mehr bei gefährlicher, schwerer oder empfindlicher Ladung, weniger bei Schüttgut) und Strafen, Maut, Fähren und Züge werden abgezogen | Ricevi solo la tua parte (≈45%, di più con carichi pericolosi, pesanti o fragili e meno con merce sfusa) e si scalano multe, pedaggi, traghetti e treni | Você recebe só a sua parte (≈45%, mais com cargas perigosas, pesadas ou frágeis e menos com granel) e são descontadas multas, pedágios, balsas e trens | Dostajesz tylko swoją część (≈45%, więcej przy ładunkach niebezpiecznych, ciężkich lub delikatnych, mniej przy sypkich) i odliczane są mandaty, opłaty, promy i pociągi
+Notificaciones y entrada | Notifications and intro | Notifications et intro | Benachrichtigungen und Intro | Notifiche e intro | Notificações e abertura | Powiadomienia i intro
+Animación al abrir | Opening animation | Animation d'ouverture | Start-Animation | Animazione di apertura | Animação ao abrir | Animacja przy otwarciu
+El logo de Rutero al entrar en la app | The Rutero logo when you open the app | Le logo Rutero à l'ouverture | Das Rutero-Logo beim Öffnen | Il logo di Rutero all'apertura | O logo do Rutero ao abrir o app | Logo Rutero przy otwieraniu aplikacji
+Sonido al abrir | Opening sound | Son d'ouverture | Start-Ton | Suono di apertura | Som ao abrir | Dźwięk przy otwarciu
+Suena con la animación de entrada | Plays with the opening animation | Joué avec l'animation d'ouverture | Ertönt mit der Start-Animation | Suona con l'animazione di apertura | Toca com a animação de abertura | Odtwarzany z animacją otwarcia
+▶ Escuchar | ▶ Listen | ▶ Écouter | ▶ Anhören | ▶ Ascolta | ▶ Ouvir | ▶ Posłuchaj
+Diseños | Liveries | Livrées | Lackierungen | Livree | Pinturas | Malowania
+Colores y estampados de los vehículos de la empresa | Colours and paint jobs of the company vehicles | Couleurs et livrées des véhicules de l'entreprise | Farben und Lackierungen der Firmenfahrzeuge | Colori e livree dei veicoli dell'azienda | Cores e pinturas dos veículos da empresa | Kolory i malowania pojazdów firmy
+＋ Subir diseño | ＋ Upload livery | ＋ Ajouter une livrée | ＋ Lackierung hochladen | ＋ Carica livrea | ＋ Enviar pintura | ＋ Dodaj malowanie
+Subir diseño | Upload livery | Ajouter une livrée | Lackierung hochladen | Carica livrea | Enviar pintura | Dodaj malowanie
+Subir | Upload | Ajouter | Hochladen | Carica | Enviar | Dodaj
+🖼️ Elegir imagen | 🖼️ Choose image | 🖼️ Choisir une image | 🖼️ Bild wählen | 🖼️ Scegli immagine | 🖼️ Escolher imagem | 🖼️ Wybierz obraz
+Vehículo (opcional) | Vehicle (optional) | Véhicule (facultatif) | Fahrzeug (optional) | Veicolo (facoltativo) | Veículo (opcional) | Pojazd (opcjonalnie)
+Todos los vehículos | All vehicles | Tous les véhicules | Alle Fahrzeuge | Tutti i veicoli | Todos os veículos | Wszystkie pojazdy
+Subir y borrar diseños de vehículos | Upload and delete vehicle liveries | Ajouter et supprimer des livrées | Lackierungen hochladen und löschen | Caricare ed eliminare livree | Enviar e apagar pinturas | Dodawać i usuwać malowania
+✅ Voy | ✅ Going | ✅ J'y vais | ✅ Dabei | ✅ Ci sono | ✅ Vou | ✅ Jadę
+🤔 Quizás | 🤔 Maybe | 🤔 Peut-être | 🤔 Vielleicht | 🤔 Forse | 🤔 Talvez | 🤔 Może
+❌ No voy | ❌ Not going | ❌ Je n'y vais pas | ❌ Nicht dabei | ❌ Non ci sono | ❌ Não vou | ❌ Nie jadę
+Van | Going | Présents | Dabei | Presenti | Vão | Jadą
+Quizás | Maybe | Peut-être | Vielleicht | Forse | Talvez | Może
+No van | Not going | Absents | Nicht dabei | Assenti | Não vão | Nie jadą
+✏️ Cambiar nombre | ✏️ Rename | ✏️ Renommer | ✏️ Umbenennen | ✏️ Rinomina | ✏️ Renomear | ✏️ Zmień nazwę
+Nombre del servicio de buses | Bus service name | Nom du service de bus | Name des Busdienstes | Nome del servizio bus | Nome do serviço de ônibus | Nazwa usługi autobusowej
+🏢 Mi empresa | 🏢 My company | 🏢 Mon entreprise | 🏢 Meine Firma | 🏢 La mia azienda | 🏢 Minha empresa | 🏢 Moja firma
+Buenos días | Good morning | Bonjour | Guten Morgen | Buongiorno | Bom dia | Dzień dobry
+Buenas tardes | Good afternoon | Bon après-midi | Guten Tag | Buon pomeriggio | Boa tarde | Dzień dobry
+Buenas noches | Good evening | Bonsoir | Guten Abend | Buonasera | Boa noite | Dobry wieczór

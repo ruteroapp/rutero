@@ -358,14 +358,14 @@ class Cloud {
   }
   async company(id) {
     const sub = (col, field, limit = 60) => this.query(`companies/${id}`, { from: [{ collectionId: col }], orderBy: [{ field: { fieldPath: field }, direction: 'DESCENDING' }], limit }).catch(() => []);
-    const [info, members, jobs, bank, fleet, accounts, fines, requests, garages, events, news, busRoutes] = await Promise.all([
+    const [info, members, jobs, bank, fleet, accounts, fines, requests, garages, events, news, busRoutes, liveries] = await Promise.all([
       this.getDoc(`companies/${id}`),
       sub('members', 'km', 200), sub('jobs', 'finishedAt', 200), sub('bank', 'at', 100), sub('fleet', 'boughtAt', 200),
       sub('accounts', 'createdAt', 50), sub('fines', 'at', 100), sub('requests', 'at', 50),
-      sub('garages', 'boughtAt', 50), sub('events', 'date', 60), sub('news', 'at', 40), sub('busroutes', 'createdAt', 100),
+      sub('garages', 'boughtAt', 50), sub('events', 'date', 60), sub('news', 'at', 40), sub('busroutes', 'createdAt', 100), sub('liveries', 'at', 60),
     ]);
     const companyAccount = { id: COMPANY_ACC, name: 'Cuenta de empresa', balance: await this.available(id, COMPANY_ACC).catch(() => 0) };
-    return { info, members, jobs, bank, fleet, accounts: accounts.filter((a) => a.id !== COMPANY_ACC), companyAccount, fines, garages, events, news, busRoutes, requests: requests.filter((r) => r.status === 'pending') };
+    return { info, members, jobs, bank, fleet, liveries, accounts: accounts.filter((a) => a.id !== COMPANY_ACC), companyAccount, fines, garages, events, news, busRoutes, requests: requests.filter((r) => r.status === 'pending') };
   }
   async browseCompanies() {
     // sin el banner (pesa mucho): se carga al abrir la ficha de la empresa
@@ -404,7 +404,7 @@ class Cloud {
     return this.joinById(c, me);
   }
   async updateCompany(id, data) {
-    const allowed = ['name', 'tag', 'color', 'description', 'commission', 'recruiting', 'language', 'logo', 'roles', 'tags', 'ranks', 'banner', 'busBanner', 'discord', 'website', 'rules', 'joinMode', 'requirements', 'rolePerms', 'basePerms'];
+    const allowed = ['name', 'tag', 'color', 'description', 'commission', 'recruiting', 'language', 'logo', 'roles', 'tags', 'ranks', 'banner', 'busBanner', 'discord', 'website', 'rules', 'joinMode', 'requirements', 'rolePerms', 'basePerms', 'busName'];
     const clean = Object.fromEntries(Object.entries(data).filter(([k]) => allowed.includes(k)));
     if (clean.joinMode !== undefined) { if (!['open', 'apply', 'closed'].includes(clean.joinMode)) clean.joinMode = 'apply'; clean.recruiting = clean.joinMode !== 'closed'; }
     if (clean.requirements !== undefined) clean.requirements = cleanReqs(clean.requirements);
@@ -412,6 +412,7 @@ class Cloud {
     for (const k of ['discord', 'website']) if (clean[k]) { clean[k] = String(clean[k]).trim().slice(0, 200); if (!/^https?:\/\//i.test(clean[k])) clean[k] = 'https://' + clean[k]; }
     if (clean.commission !== undefined) clean.commission = Math.min(Math.max(Number(clean.commission) || 0, 0), 50);
     if (clean.tag) clean.tag = clean.tag.toUpperCase().slice(0, 5);
+    if (clean.busName !== undefined) clean.busName = String(clean.busName).trim().slice(0, 28);
     await this.commit([this.upd(`companies/${id}`, clean)]);
   }
   async newJoinCode(id) { const code = joinCode(); await this.commit([this.upd(`companies/${id}`, { joinCode: code })]); return code; }
@@ -579,10 +580,13 @@ class Cloud {
     })]);
   }
   async deleteEvent(id, evId) { await this.commit([{ delete: this.path(`companies/${id}/events/${evId}`) }]); }
-  async attendEvent(id, evId, name, going) {
-    const t = going ? { fieldPath: 'attendees', appendMissingElements: { values: [{ stringValue: name }] } }
-      : { fieldPath: 'attendees', removeAllFromArray: { values: [{ stringValue: name }] } };
-    await this.commit([this.upd(`companies/${id}/events/${evId}`, {}, [t])]);
+  // votación de quién participa: yes = voy, maybe = quizás, no = no voy ('' quita el voto)
+  async attendEvent(id, evId, name, vote) {
+    if (vote === true) vote = 'yes'; if (vote === false) vote = '';
+    const fields = { yes: 'attendees', maybe: 'maybe', no: 'notGoing' };
+    const val = { values: [{ stringValue: name }] };
+    const t = Object.entries(fields).map(([k, f]) => (k === vote ? { fieldPath: f, appendMissingElements: val } : { fieldPath: f, removeAllFromArray: val }));
+    await this.commit([this.upd(`companies/${id}/events/${evId}`, {}, t)]);
   }
   // ---------- noticias ----------
   async postNews(id, { title, body, image, pinned }, me) {
@@ -672,6 +676,13 @@ class Cloud {
     await this.commit([this.upd(`companies/${cid}/busroutes/${rid}`, { stopPos: [...list, pos].slice(-80) })]);
   }
   async deleteBusRoute(cid, rid) { await this.commit([{ delete: this.path(`companies/${cid}/busroutes/${rid}`) }]); }
+  // diseños (colores y estampados) de los vehículos de la empresa
+  async addLivery(id, { name, vehicle, image }, me) {
+    if (!name) throw new Error('Pon un nombre al diseño');
+    if (!image) throw new Error('Añade la imagen del diseño');
+    await this.commit([this.create(`companies/${id}/liveries/${newId()}`, { name: String(name).slice(0, 40), vehicle: String(vehicle || '').slice(0, 60), image, by: me.name || '', at: new Date() })]);
+  }
+  async deleteLivery(id, lId) { await this.commit([{ delete: this.path(`companies/${id}/liveries/${lId}`) }]); }
   async deleteNews(id, nId) { await this.commit([{ delete: this.path(`companies/${id}/news/${nId}`) }]); }
 
   async assignTruck(id, truckId, driverName) { await this.commit([this.upd(`companies/${id}/fleet/${truckId}`, { assignedTo: driverName || '' })]); }
