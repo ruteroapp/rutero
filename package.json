@@ -1,7 +1,7 @@
 {
   "name": "rutero",
   "productName": "Rutero",
-  "version": "1.3.8",
+  "version": "1.3.9",
   "description": "Compañero de ruta para Euro Truck Simulator 2 y American Truck Simulator, conectado con TruckersMP",
   "main": "src/main/main.js",
   "author": "Rutero",
@@ -64,44 +64,6 @@
       "installerIcon": "build/icon.ico",
       "uninstallerIcon": "build/icon.ico",
       "runAfterFinish": true
-    },
-    "mac": {
-      "target": [
-        {
-          "target": "dmg",
-          "arch": [
-            "x64",
-            "arm64"
-          ]
-        },
-        {
-          "target": "zip",
-          "arch": [
-            "x64",
-            "arm64"
-          ]
-        }
-      ],
-      "icon": "build/icon-512.png",
-      "category": "public.app-category.games",
-      "identity": "-",
-      "artifactName": "Rutero-${version}-mac-${arch}.${ext}"
-    },
-    "dmg": {
-      "artifactName": "Rutero-${version}-mac-${arch}.${ext}"
-    },
-    "linux": {
-      "target": [
-        {
-          "target": "AppImage",
-          "arch": [
-            "x64"
-          ]
-        }
-      ],
-      "icon": "build/icon-512.png",
-      "category": "Game",
-      "artifactName": "Rutero-${version}-linux-${arch}.${ext}"
     },
     "publish": [
       {

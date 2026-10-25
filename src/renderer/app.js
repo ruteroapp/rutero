@@ -372,11 +372,8 @@ function updateLive() {
   const t = S.live;
   const banner = $('#lv-banner');
   const st = t ? t.status : S.data.status;
-  // en Mac y Linux no hay datos del juego: TruckersMP solo funciona en Windows
-  if (S.data.platform && S.data.platform !== 'win32') {
-    banner.innerHTML = '<div class="status-banner"><span class="ic">💻</span><div><b>Datos del juego solo en Windows</b><div class="muted">TruckersMP solo funciona en Windows. En este ordenador puedes usar la empresa, el ranking y la comunidad.</div></div></div>';
   // con el plugin ya instalado no hace falta el aviso de «esperando al juego»
-  } else if (st !== 'driving' && STATUS[st] && !(st === 'waiting' && S.pluginOk)) {
+  if (st !== 'driving' && STATUS[st] && !(st === 'waiting' && S.pluginOk)) {
     const [ic, a, b] = STATUS[st];
     banner.innerHTML = `<div class="status-banner"><span class="ic">${ic}</span><div><b>${a}</b><div class="muted">${b}</div></div>${st === 'waiting' ? '<button class="btn sm" style="margin-left:auto" id="go-plugin">Instalar plugin</button>' : ''}</div>`;
     const gp = $('#go-plugin'); if (gp) gp.onclick = () => go('settings');
@@ -977,12 +974,12 @@ const PAGE_SETTINGS = {
         ${discordLinkBox()}</div>
       <div class="card span2" id="bot-card" style="display:none"></div>
       <div class="card span2" id="upd-card">${updateCard()}</div>
-      ${S.data.platform && S.data.platform !== 'win32' ? '<div class="card span2"><h2>Plugin de telemetría</h2><div class="muted">El plugin y los datos del juego solo funcionan en Windows, porque TruckersMP solo funciona en Windows.</div></div>' : `<div class="card span2"><h2>Plugin de telemetría</h2><div class="muted" style="margin-bottom:12px">Rutero lee los datos del juego con el plugin abierto <b>scs-sdk-plugin</b>. Cierra el juego antes de instalarlo.</div>
+      <div class="card span2"><h2>Plugin de telemetría</h2><div class="muted" style="margin-bottom:12px">Rutero lee los datos del juego con el plugin abierto <b>scs-sdk-plugin</b>. Cierra el juego antes de instalarlo.</div>
         ${['ets2', 'ats'].map((g) => { const x = games[g]; const nm = g === 'ets2' ? 'Euro Truck Simulator 2' : 'American Truck Simulator';
           return `<div class="setting"><div><div><b>${nm}</b></div><div class="d">${x ? esc(x.dir) : 'No encontrado en Steam'}</div></div>
           <div class="row">${x ? (x.installed ? '<span class="pill ok"><span class="dot"></span>Plugin instalado</span>' : '<span class="pill warn"><span class="dot"></span>Sin plugin</span>') : ''}
           ${x ? `<button class="btn sm ${x.installed ? '' : 'primary'}" data-install="${g}">${x.installed ? 'Reinstalar' : 'Instalar plugin'}</button>` : ''}<button class="btn sm ghost" data-choose="${g}">Elegir carpeta…</button></div></div>`; }).join('')}
-        <div class="muted" id="plugin-log" style="font-size:12px;margin-top:6px"></div></div>`}
+        <div class="muted" id="plugin-log" style="font-size:12px;margin-top:6px"></div></div>
     </div>`;
   },
   mount(root) {
