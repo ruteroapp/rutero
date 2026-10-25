@@ -136,6 +136,11 @@ function bindVehPhotos(root) {
   $$('.veh-photo img', root).forEach((img) => img.addEventListener('error', () => {
     const w = img.parentNode; if (w && w.parentNode) w.outerHTML = vehicleSvg(w.dataset.art, w.dataset.color);
   }, { once: true }));
+  // los recortes vienen con encuadres distintos: los casi de frente (más altos) se achican para que todos se vean del mismo tamaño
+  $$('.veh-photo.cutout img', root).forEach((img) => {
+    const fit = () => { const a = img.naturalWidth / Math.max(1, img.naturalHeight); if (a && a < 1.5) img.style.height = `${Math.max(88, Math.round(a / 1.55 * 100))}%`; };
+    if (img.complete) fit(); else img.addEventListener('load', fit, { once: true });
+  });
   $$('.credit[data-url]', root).forEach((a) => a.onclick = (e) => { e.stopPropagation(); if (a.dataset.url) K.call('open', a.dataset.url); });
 }
 const colorInput = (id, v) => `<input type="color" id="${id}" value="${esc(v)}" style="height:42px;width:100%;background:var(--bg);border:1px solid var(--line);border-radius:10px">`;
