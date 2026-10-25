@@ -1016,7 +1016,7 @@ const PAGE_SETTINGS = {
           <select id="units" style="width:200px"><option value="auto">Automático</option><option value="kmh">km/h</option><option value="mph">mph</option></select></div>
         ${sw('realisticEconomy', s.realisticEconomy, 'Economía realista', 'Solo cobras tu parte del pago (≈45 %, más con cargas peligrosas, pesadas o delicadas y menos con granel) y se descuentan multas, peajes, ferris y trenes')}
         ${sw('startWithWindows', s.startWithWindows, 'Iniciar con Windows', 'Rutero se abre minimizado en la bandeja')}
-        ${sw('realPhotos', s.realPhotos, 'Fotos de internet en el concesionario', 'Para los modelos sin imagen propia busca fotos libres en internet')}
+        ${sw('realPhotos', s.realPhotos, 'Fotos de internet para los autobuses', 'Para los autobuses sin imagen propia busca fotos libres en internet')}
       </div>
 
       <div class="card span2" ${st('comunidad')}><h2>Comunidad y ayuda</h2><div class="row" style="gap:10px">

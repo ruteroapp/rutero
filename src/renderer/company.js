@@ -123,8 +123,9 @@ async function loadPhotos() {
 // imagen del vehículo: foto propia (config/fotos) > foto real de internet (si está activado) > dibujo recortado
 function vehImg(id, color, big = false) {
   const m = (S.data.shop || []).find((x) => x.id === id) || {};
+  // camiones: solo fotos propias sacadas del juego; las de internet solo para los autobuses
   const ph = S.photos && S.photos[id];
-  if (ph && ph.url) {
+  if (ph && ph.url && (ph.custom || m.kind === 'Autobús')) {
     return `<div class="veh-photo${big ? ' big' : ''}${ph.cutout ? ' cutout' : ''}" data-art="${esc(m.art || id)}" data-color="${esc(color)}"><img src="${esc(ph.url)}" alt="${esc(m.name || '')}" loading="lazy">
       ${ph.custom ? '' : `<a class="credit" data-url="${esc(ph.page || '')}" title="${esc(ph.author)} · ${esc(ph.license)}">📷 ${esc(ph.author)} · ${esc(ph.license)} · ${esc(ph.source || 'Wikimedia Commons')}</a>`}</div>`;
   }
