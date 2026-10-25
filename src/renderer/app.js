@@ -1103,6 +1103,31 @@ K.on('telemetry', (t) => {
 });
 K.on('status', (s) => { setStatusPill(s.status, s.tmp); if (S.live) S.live.status = s.status; if (S.page === 'dash' && s.status === 'waiting') { S.live = null; updateLive(); } });
 K.on('toast', toast);
+// sonidos de las puertas del autobús (aire comprimido + aviso), hechos con Web Audio
+const SFX = (() => {
+  let ctx;
+  const ac = () => { ctx = ctx || new AudioContext(); if (ctx.state === 'suspended') ctx.resume(); return ctx; };
+  const hiss = (c, t, dur, from, to, vol) => {
+    const len = Math.ceil(c.sampleRate * dur); const buf = c.createBuffer(1, len, c.sampleRate); const d = buf.getChannelData(0);
+    for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+    const src = c.createBufferSource(); src.buffer = buf;
+    const f = c.createBiquadFilter(); f.type = 'bandpass'; f.Q.value = 0.9; f.frequency.setValueAtTime(from, t); f.frequency.exponentialRampToValueAtTime(to, t + dur);
+    const g = c.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + 0.04); g.gain.setValueAtTime(vol, t + dur * 0.55); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    src.connect(f).connect(g).connect(c.destination); src.start(t); src.stop(t + dur);
+  };
+  const tone = (c, t, freq, dur, vol, type = 'sine') => {
+    const o = c.createOscillator(); o.type = type; o.frequency.value = freq;
+    const g = c.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g).connect(c.destination); o.start(t); o.stop(t + dur + 0.05);
+  };
+  const thunk = (c, t) => { const o = c.createOscillator(); o.type = 'triangle'; o.frequency.setValueAtTime(140, t); o.frequency.exponentialRampToValueAtTime(45, t + 0.18);
+    const g = c.createGain(); g.gain.setValueAtTime(0.5, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.22); o.connect(g).connect(c.destination); o.start(t); o.stop(t + 0.25); };
+  return {
+    doorOpen() { const c = ac(), t = c.currentTime + 0.02; tone(c, t, 784, 0.5, 0.18); tone(c, t + 0.28, 622, 0.7, 0.16); hiss(c, t + 0.15, 1.1, 2600, 900, 0.32); thunk(c, t + 1.15); },
+    doorClose() { const c = ac(), t = c.currentTime + 0.02; [0, 0.22, 0.44].forEach((d) => tone(c, t + d, 1050, 0.14, 0.14, 'square')); hiss(c, t + 0.6, 0.9, 900, 2400, 0.3); thunk(c, t + 1.45); },
+  };
+})();
+K.on('sound', (k) => { try { if (SFX[k]) SFX[k](); } catch (e) { console.warn('sonido', e); } });
 K.on('profile', (p) => { S.profile = p; renderSide(); });
 K.on('bus', (b) => { S.bus = b; if (S.page === 'bus') updateBus(); });
 K.on('trip', async () => { await refreshState(); renderSide(); if (['dash', 'jobs', 'stats', 'bus', 'achievements'].includes(S.page)) render(); });

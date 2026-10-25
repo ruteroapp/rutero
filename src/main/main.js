@@ -73,7 +73,7 @@ function createWindow() {
   win = new BrowserWindow({
     width: 1320, height: 840, minWidth: 1040, minHeight: 680, frame: false, backgroundColor: '#0B0E15',
     icon: ICON, show: false, title: 'Rutero',
-    webPreferences: { preload: path.join(__dirname, 'preload.js'), contextIsolation: true, nodeIntegration: false },
+    webPreferences: { preload: path.join(__dirname, 'preload.js'), contextIsolation: true, nodeIntegration: false, backgroundThrottling: false, autoplayPolicy: 'no-user-gesture-required' },
   });
   win.loadFile(path.join(ROOT, 'src', 'renderer', 'index.html'));
   win.once('ready-to-show', () => win.show());
@@ -404,8 +404,8 @@ function startTelemetry() {
       case 'job:cancelled': handleTrip({ type: 'cargo', ...data }); toast('Trabajo cancelado', `Penalización ${Math.abs(data.revenue).toLocaleString(I18N.locale())}`, 'warn'); break;
       case 'bus:finished': handleTrip(data); toast(data.routeDone ? 'Ruta completada 🚌✅' : 'Ruta de autobús terminada 🚌', `${data.stops} paradas · ${data.passengers} pasajeros${data.routeBonus ? ` · +${data.routeBonus.toLocaleString(I18N.locale())} extra` : ''}`, 'money'); break;
       case 'bus:update': send('bus', data); sendOverlay('bus', data); break;
-      case 'bus:stop': toast(data.name ? `Parada ${data.stop}: ${data.name}` : `Parada ${data.stop}`, `Suben ${data.on} · bajan ${data.off} · a bordo ${data.onBoard}${data.left ? ` · ${data.left} se quedan en tierra` : ''}`); sendOverlay('toast', { title: `🚏 ${data.name || `Parada ${data.stop}`}`, body: `+${data.on} / -${data.off} · ${data.onBoard} a bordo` }); break;
-      case 'bus:doors': sendOverlay('toast', { title: '🚪 Puertas abiertas', body: `${data.alighting} bajan · ${data.waiting} esperando${data.name ? ` · ${data.name}` : ''}` }); break;
+      case 'bus:stop': if (data.doors) send('sound', 'doorClose'); toast(data.name ? `Parada ${data.stop}: ${data.name}` : `Parada ${data.stop}`, `Suben ${data.on} · bajan ${data.off} · a bordo ${data.onBoard}${data.left ? ` · ${data.left} se quedan en tierra` : ''}`); sendOverlay('toast', { title: `🚏 ${data.name || `Parada ${data.stop}`}`, body: `+${data.on} / -${data.off} · ${data.onBoard} a bordo` }); break;
+      case 'bus:doors': send('sound', 'doorOpen'); sendOverlay('toast', { title: '🚪 Puertas abiertas', body: `${data.alighting} bajan · ${data.waiting} esperando${data.name ? ` · ${data.name}` : ''}` }); break;
       case 'bus:stopPos':
         if (data.mine) { store.set('busRoutes', (store.get('busRoutes') || []).map((r) => (r.id === data.routeId ? { ...r, stopPos: [...(r.stopPos || []).filter((x) => !(x.name === data.pos.name && x.g === data.pos.g)), data.pos] } : r))); }
         else if (data.routeId && me && me.companyId) cloud.saveStopPos(me.companyId, data.routeId, data.pos).catch((e) => console.warn('parada', e.message));
