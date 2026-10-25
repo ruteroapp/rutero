@@ -393,6 +393,11 @@ async function refreshOnline() {
 function startTelemetry() {
   reader = new SharedMemoryReader();
   tracker = new Tracker((type, data) => {
+    // Rutero solo cuenta en TruckersMP: en el juego base no se guardan trabajos, rutas ni multas
+    if (['job:started', 'job:delivered', 'job:cancelled', 'bus:finished', 'expense'].includes(type) && !(data.multiplayer || (last && last.multiplayer) || tmpRunning)) {
+      if (type === 'job:started' || type === 'bus:finished') toast('Solo en TruckersMP', 'Rutero solo registra trabajos jugando en TruckersMP', 'warn');
+      return;
+    }
     switch (type) {
       case 'job:started': { const { samples, expenses, ...d } = data; data = d; } send('job', data); toast('Nueva carga', `${data.cargo}: ${data.from} → ${data.to}`); break;
       case 'job:delivered': handleTrip({ type: 'cargo', ...data }); toast('Carga entregada ✅', `${data.cargo} · ${Math.round(data.km)} km · ${data.score} pts`, 'money'); break;
