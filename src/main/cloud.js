@@ -32,6 +32,7 @@ const newId = () => crypto.randomBytes(15).toString('base64url').slice(0, 20);
 // préstamos y servicio de autobuses
 const LOAN_OPTIONS = [100000, 250000, 500000, 1000000];
 const LOAN_RATE = 10;          // % de interés
+const COMPANY_ACC = 'empresa'; // cuenta fija donde entra la comisión de las entregas (dinero de la empresa)
 const LOAN_AUTOPAY = 30;       // % de cada comisión que se usa para devolverlo
 const BUS_UNLOCK_PRICE = 700000;
 const BUS_BOOST = 1.5;         // las rutas de bus de la empresa pagan ×1,5
@@ -177,19 +178,21 @@ class Cloud {
       const c = me.companyId;
       writes.push(this.create(`companies/${c}/jobs/${id}`, doc));
       const repay = Math.max(0, Math.round(split.loanRepay || 0));
-      const compT = [inc('km', km, true), inc('jobs', delivered ? 1 : 0), inc('balance', split.companyCut - salary - repay)];
+      const compT = [inc('km', km, true), inc('jobs', delivered ? 1 : 0)];
       if (repay) compT.push(inc('loan.owed', -repay));
       writes.push(this.upd(`companies/${c}`, { lastActivity: new Date() }, compT));
-      if (repay) writes.push(this.create(`companies/${c}/bank/${newId()}`, { kind: 'loanpay', amount: -repay, by: me.name || '', note: `Devolución automática del préstamo (${LOAN_AUTOPAY}% de la comisión)`, at: new Date() }));
+      // la comisión va a la cuenta de empresa; de ahí salen el sueldo y la devolución del préstamo
+      if (split.companyCut || salary || repay) writes.push(this.upd(`companies/${c}/accounts/${COMPANY_ACC}`, { name: 'Cuenta de empresa' }, [inc('balance', split.companyCut - salary - repay)]));
+      if (repay) writes.push(this.create(`companies/${c}/bank/${newId()}`, { kind: 'loanpay', amount: -repay, by: me.name || '', account: COMPANY_ACC, note: `Devolución automática del préstamo (${LOAN_AUTOPAY}% de la comisión)`, at: new Date() }));
       writes.push(this.upd(`companies/${c}/members/${this.uid}`, { name: me.name || '', lastActivity: new Date() },
         [inc('km', km, true), inc('jobs', delivered ? 1 : 0), inc('earned', split.companyCut), inc('driverEarned', split.net + salary), inc('salaryEarned', salary)]));
       writes.push(this.upd(`weekly/${wk}/companies/${c}`, { name: me.companyName || '', tag: me.companyTag || '' },
         [inc('km', km, true), inc('money', Math.max(split.companyCut, 0)), inc('jobs', delivered ? 1 : 0)]));
       if (split.companyCut) {
-        writes.push(this.create(`companies/${c}/bank/${newId()}`, { kind: 'commission', amount: Math.round(split.companyCut), by: me.name || '', note: `${doc.cargo} · ${doc.from} → ${doc.to}`, at: new Date() }));
+        writes.push(this.create(`companies/${c}/bank/${newId()}`, { kind: 'commission', amount: Math.round(split.companyCut), by: me.name || '', account: COMPANY_ACC, note: `${doc.cargo} · ${doc.from} → ${doc.to}`, at: new Date() }));
       }
       if (salary) {
-        writes.push(this.create(`companies/${c}/bank/${newId()}`, { kind: 'salary', amount: -salary, by: me.name || '', note: `Sueldo de ${me.name} · ${Math.round(km)} km`, at: new Date() }));
+        writes.push(this.create(`companies/${c}/bank/${newId()}`, { kind: 'salary', amount: -salary, by: me.name || '', account: COMPANY_ACC, note: `Sueldo de ${me.name} · ${Math.round(km)} km`, at: new Date() }));
       }
     }
     await this.commit(writes);
@@ -361,7 +364,8 @@ class Cloud {
       sub('accounts', 'createdAt', 50), sub('fines', 'at', 100), sub('requests', 'at', 50),
       sub('garages', 'boughtAt', 50), sub('events', 'date', 60), sub('news', 'at', 40), sub('busroutes', 'createdAt', 100),
     ]);
-    return { info, members, jobs, bank, fleet, accounts, fines, garages, events, news, busRoutes, requests: requests.filter((r) => r.status === 'pending') };
+    const companyAccount = { id: COMPANY_ACC, name: 'Cuenta de empresa', balance: await this.available(id, COMPANY_ACC).catch(() => 0) };
+    return { info, members, jobs, bank, fleet, accounts: accounts.filter((a) => a.id !== COMPANY_ACC), companyAccount, fines, garages, events, news, busRoutes, requests: requests.filter((r) => r.status === 'pending') };
   }
   async browseCompanies() {
     // sin el banner (pesa mucho): se carga al abrir la ficha de la empresa
@@ -495,6 +499,7 @@ class Cloud {
     ]);
   }
   async deleteAccount(id, acc, me) {
+    if (acc.id === COMPANY_ACC) throw new Error('La cuenta de empresa no se puede cerrar');
     const writes = [{ delete: this.path(`companies/${id}/accounts/${acc.id}`) }];
     if (acc.balance) writes.push(this.balanceOp(id, 'main', acc.balance));
     writes.push(this.create(`companies/${id}/bank/${newId()}`, { kind: 'info', amount: 0, by: me.name || '', note: `Cuenta cerrada: ${acc.name}${acc.balance ? ' (saldo devuelto al banco)' : ''}`, at: new Date() }));

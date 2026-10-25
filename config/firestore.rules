@@ -60,6 +60,8 @@ service cloud.firestore {
       match /accounts/{a} {
         allow read: if signed();
         allow write: if isManager(cid);
+        // la cuenta de empresa la crea la primera comisión que entra (cualquier miembro)
+        allow create: if isMember(cid) && a == 'empresa' && request.resource.data.keys().hasOnly(['name', 'balance']);
         allow update: if isMember(cid) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['balance']);
       }
       match /fleet/{v} {

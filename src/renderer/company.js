@@ -142,7 +142,7 @@ const PAGE_COMPANY = {
     const myRole = (c.members.find((m) => m.id === me.uid) || {}).role || 'driver';
     const mgr = myRole !== 'driver';
     Object.assign(S, { myRole, mgr });
-    S.accounts = [{ id: 'main', name: 'Banco principal', balance: info.balance || 0, color: info.color }, ...c.accounts];
+    S.accounts = [{ id: 'main', name: 'Banco principal', balance: info.balance || 0, color: info.color }, { color: 'var(--teal)', ...c.companyAccount, name: 'Cuenta de empresa' }, ...c.accounts];
     let sec = S.companyTab || 'dashboard';
     const allowed = CNAV.flatMap(([, items]) => items).filter((i) => i[3] !== 'mgr' || mgr).map((i) => i[0]);
     if (!allowed.includes(sec)) sec = 'dashboard';
@@ -182,7 +182,7 @@ const SECTIONS = {
       <div class="row" style="margin-top:6px;gap:10px">${ratingLine(info)} ${MODE_PILL[joinModeOf(info)]} ${linkBtns(info)}<button class="btn sm ghost" data-cprof="${esc(info.id || S.profile.online.companyId)}">Ver ficha pública</button></div>
       ${info.description ? `<div class="muted" style="margin-top:6px;font-size:13px">${esc(info.description).slice(0, 200)}</div>` : ''}</div></div>
     <div class="grid g4" style="margin-bottom:16px">
-      <div class="card stat"><span class="k">Saldo</span><span class="v mono">${money(info.balance || 0)}</span></div>
+      <div class="card stat"><span class="k">Saldo</span><span class="v mono">${money(info.balance || 0)}</span><span class="muted" style="font-size:12px">Cuenta de empresa</span><b class="mono">${money((c.companyAccount && c.companyAccount.balance) || 0)}</b></div>
       <div class="card stat"><span class="k">Distancia</span><span class="v mono">${dist(info.km || 0)}</span></div>
       <div class="card stat"><span class="k">Entregas</span><span class="v mono">${nf(info.jobs)}</span><span class="muted" style="font-size:12px">${weekJobs.length} esta semana</span></div>
       <div class="card stat"><span class="k">Flota</span><span class="v mono">${sl.used}<small>/ ${sl.total} plazas</small></span></div>
@@ -317,7 +317,7 @@ const SECTIONS = {
   async balance(c, info) {
     const mgr = S.mgr;
     return head('Saldo', 'Banco principal, cuentas y movimientos') + `<div class="grid g3" style="margin-bottom:16px">${S.accounts.map((a) => `<div class="card" style="border-top:3px solid ${esc(a.color || 'var(--accent)')}">
-        <div class="row between"><span class="muted">${a.id === 'main' ? '🏦' : '💼'} ${esc(a.name)}</span>${mgr && a.id !== 'main' ? `<button class="btn sm ghost" data-close-acc="${a.id}">Cerrar</button>` : ''}</div>
+        <div class="row between"><span class="muted">${a.id === 'main' ? '🏦' : a.id === 'empresa' ? '🏢' : '💼'} ${esc(a.name)}</span>${mgr && a.id !== 'main' && a.id !== 'empresa' ? `<button class="btn sm ghost" data-close-acc="${a.id}">Cerrar</button>` : ''}</div>
         <div class="stat" style="margin-top:6px"><span class="v mono">${money(a.balance || 0)}</span></div></div>`).join('')}
       ${mgr ? '<div class="card flat" style="display:grid;place-items:center"><button class="btn" id="acc-new">＋ Crear cuenta</button><div class="muted" style="font-size:12px;margin-top:6px">Salarios, flota, ahorro…</div></div>' : ''}</div>
       <div class="grid g2"><div class="grid" style="align-content:start">
@@ -326,7 +326,7 @@ const SECTIONS = {
         ${mgr ? `<div class="card"><h2>Mover dinero entre cuentas</h2><div class="grid g2">${accSelect('mv-from', 'Desde')}${accSelect('mv-to', 'Hacia')}</div>
           <div class="row" style="margin-top:12px;flex-wrap:nowrap"><input type="number" id="mv-amt" min="1" placeholder="Cantidad"><button class="btn primary" id="mv-btn">Mover</button></div></div>` : ''}
         ${loanCard(info, mgr)}
-        <div class="card"><h2>Cómo entra el dinero</h2><div class="muted">• ${info.commission}% de cada entrega<br>• ${money(300000)} por cada conductor nuevo<br>• Ingresos de los miembros y ventas</div></div></div>
+        <div class="card"><h2>Cómo entra el dinero</h2><div class="muted">• ${info.commission}% de cada entrega<br>• La comisión entra en la Cuenta de empresa y de ahí salen los sueldos<br>• ${money(300000)} por cada conductor nuevo<br>• Ingresos de los miembros y ventas</div></div></div>
       <div class="card"><h2>Movimientos</h2>${c.bank.map((b) => `<div class="list-item"><div class="avatar">${{ commission: '📦', bonus: '💸', salary: '💼', purchase: '🛒', sale: '🏷️', deposit: '🏦', joinbonus: '🎉', move: '🔁', repair: '🔧', info: 'ℹ️', loan: '🏛️', loanpay: '🏛️' }[b.kind] || '•'}</div>
         <div style="flex:1">${esc(b.note)}<div class="muted" style="font-size:12px">${esc(b.by)} · ${ago(b.at)}</div></div><b class="mono ${b.amount >= 0 ? 'pos' : 'neg'}">${b.amount ? (b.amount > 0 ? '+' : '') + money(b.amount) : ''}</b></div>`).join('') || '<div class="empty">Sin movimientos</div>'}</div></div>`;
   },

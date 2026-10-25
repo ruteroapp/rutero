@@ -309,7 +309,7 @@ async function handleTrip(trip) {
   let salary = 0;
   if (delivered && me && me.companyId && myMember) {
     salary = Math.round((trip.km || 0) * (myMember.salaryPerKm || 0) + (myMember.salaryPerJob || 0));
-    const bank = (myCompany && myCompany.balance || 0) + companyCut;
+    const bank = (myCompany && myCompany.companyAccBalance || 0) + companyCut; // el sueldo sale de la cuenta de empresa
     salary = Math.max(0, Math.min(salary, bank));
   }
   const xp = delivered ? Math.max(trip.xp || 0, 0) + Math.round((trip.km || 0) / 4) + (trip.score >= 95 ? 60 : 0) + (trip.type === 'bus' ? (trip.stops || 0) * 5 : 0) : 0;
@@ -382,6 +382,7 @@ async function refreshOnline() {
       if (bonus === -1) toast('Empresa', 'Ya no formas parte de tu empresa', 'warn');
       me = await cloud.me();
       myCompany = me.companyId ? await cloud.getDoc(`companies/${me.companyId}`) : null;
+      if (myCompany) myCompany.companyAccBalance = await cloud.available(me.companyId, 'empresa').catch(() => 0);
       myMember = await cloud.myMember(me).catch(() => null);
     } else { myCompany = null; myMember = null; }
   } catch (e) { console.warn('online', e.message); }
