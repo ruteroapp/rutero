@@ -642,7 +642,7 @@ const DISCORD_SVG = '<svg viewBox="0 0 24 24" width="18" height="18" fill="curre
 function discordLinkBox() {
   const on = (S.profile && S.profile.online) || null;
   if (!S.data.loggedIn || !on) return '<div class="dc-link"><span class="dc-ic">' + DISCORD_SVG + '</span><div style="flex:1"><b>Conectar Discord</b><div class="muted" style="font-size:12px">Inicia sesión en Rutero para enlazar tu Discord, verificarte y recibir tu rango.</div></div></div>';
-  if (on.discordId) return `<div class="dc-link on"><span class="dc-ic">${DISCORD_SVG}</span><div style="flex:1"><b>Discord conectado · ${esc(on.discordName || 'tu cuenta')}</b><div class="muted" style="font-size:12px">Tienes ✅ Verificado y tu rango de Rutero en el servidor (se actualiza en unos minutos).</div></div><button class="btn sm ghost" id="dc-unlink">Desconectar</button></div>`;
+  if (on.discordId) return `<div class="dc-link on"><span class="dc-ic">${DISCORD_SVG}</span><div style="flex:1"><b>Discord conectado · <span translate="no">${esc(on.discordName || 'tu cuenta')}</span></b><div class="muted" style="font-size:12px">Tienes ✅ Verificado y tu rango de Rutero en el servidor (se actualiza en unos minutos).</div></div><button class="btn sm ghost" id="dc-unlink">Desconectar</button></div>`;
   return `<div class="dc-link"><span class="dc-ic">${DISCORD_SVG}</span><div style="flex:1"><b>Conecta tu Discord</b><div class="muted" style="font-size:12px">Te verifica en el servidor y te da el rango de tu nivel y el rol de tu empresa.</div></div><button class="btn discord" id="dc-link">Conectar Discord</button></div>`;
 }
 function bindDiscordLink(root) {
@@ -893,7 +893,7 @@ const PAGE_TMP = {
           const vtc = pl.vtc || {};
           body = `<div class="grid g2"><div class="card"><div class="row" style="gap:16px"><div class="avatar" style="width:72px;height:72px"><img src="${esc(pl.avatar)}" alt=""></div>
             <div><h2 style="margin:0">${esc(pl.name)}</h2><div style="color:${esc(tmpField(pl, 'groupColor', 'group_color') || 'var(--muted)')}">${esc(tmpField(pl, 'groupName', 'group_name') || '')}</div>
-            <div class="muted" style="font-size:12px">ID ${pl.id} · desde ${dayStr(tmpField(pl, 'joinDate', 'join_date'))}</div></div></div>
+            <div class="muted" style="font-size:12px">ID ${pl.id} · <span>desde</span> ${dayStr(tmpField(pl, 'joinDate', 'join_date'))}</div></div></div>
             <div class="grid g2" style="margin-top:16px"><div class="stat"><span class="k">Estado</span><span class="v" style="font-size:20px">${pl.banned ? '<span class="neg">Baneado</span>' : '<span class="pos">Activo</span>'}</span></div>
             <div class="stat"><span class="k">Bans</span><span class="v mono">${tmpField(pl, 'bansCount', 'ban_count') ?? bans.length}</span></div></div>
             ${vtc.name ? `<div class="list-item" style="margin-top:10px"><div class="avatar">🏢</div><div style="flex:1"><b>${esc(vtc.name)}</b> <span class="tag">${esc(vtc.tag || '')}</span><div class="muted" style="font-size:12px">Tu VTC en TruckersMP</div></div></div>` : ''}

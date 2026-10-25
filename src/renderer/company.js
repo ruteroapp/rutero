@@ -198,7 +198,7 @@ const SECTIONS = {
     const weekJobs = c.jobs.filter((j) => new Date(j.finishedAt) > weekAgo);
     return `<div class="company-hero ${info.banner ? 'has-banner' : ''}" style="--c:${esc(info.color)}33;${info.banner ? `--banner:url('${esc(info.banner)}')` : ''}">${companyLogo(info, 78)}
       <div style="flex:1;min-width:0"><h1>${esc(info.name)} <span class="tag" style="vertical-align:middle">${esc(info.tag)}</span></h1>
-      <div class="subtitle">${info.membersCount || c.members.length} conductores · fundada por ${esc(info.ownerName)} · comisión ${info.commission}%</div>
+      <div class="subtitle">${info.membersCount || c.members.length} conductores · fundada por <span translate="no">${esc(info.ownerName)}</span> · comisión ${info.commission}%</div>
       <div class="row" style="margin-top:6px;gap:10px">${ratingLine(info)} ${MODE_PILL[joinModeOf(info)]} ${linkBtns(info)}<button class="btn sm ghost" data-cprof="${esc(info.id || S.profile.online.companyId)}">Ver ficha pública</button></div>
       ${info.description ? `<div class="muted" style="margin-top:6px;font-size:13px">${esc(info.description).slice(0, 200)}</div>` : ''}</div></div>
     <div class="grid g4" style="margin-bottom:16px">
@@ -458,7 +458,7 @@ const SECTIONS = {
       <div class="grid g2">
         <div class="card"><div class="card-title"><h2>📝 Registro de empresa</h2>${info.discordRegistered ? '<span class="pill ok"><span class="dot"></span>Registrada</span>' : '<span class="pill">Sin registrar</span>'}</div>
           ${info.discordRegistered ? `<div class="muted" style="margin-bottom:12px">Tu empresa está registrada. El bot ${map && map.textId ? 'ya ha creado' : 'creará en unos minutos'}:</div>
-            <div class="list-item"><span>🎭</span><b style="flex:1">Rol «🏢 ${esc(info.tag)} · ${esc(info.name)}»</b>${map && map.roleId ? '<span class="pill ok">Listo</span>' : '<span class="pill warn">Pendiente</span>'}</div>
+            <div class="list-item"><span>🎭</span><b style="flex:1">Rol «<span translate="no">🏢 ${esc(info.tag)} · ${esc(info.name)}</span>»</b>${map && map.roleId ? '<span class="pill ok">Listo</span>' : '<span class="pill warn">Pendiente</span>'}</div>
             <div class="list-item"><span>🏠</span><b style="flex:1">Sede privada de texto y voz</b>${map && map.textId ? '<span class="pill ok">Lista</span>' : '<span class="pill warn">Pendiente</span>'}</div>
             <div class="list-item"><span>👑</span><b style="flex:1">Rol 🏢 Dueño de empresa para el fundador</b><span class="pill ok">Auto</span></div>
             <div class="muted" style="font-size:12px;margin-top:10px">Solo ven la sede los miembros que han conectado su Discord en Rutero.</div>
@@ -676,7 +676,7 @@ function mountCompany(root) {
   on('#e-logo-del', async () => { await K.call('company:update', { logo: '' }); render(); });
   on('#e-banner', async () => { const img = await pickBanner(1200, 300, 'Banner de la empresa'); if (!img) return; try { await K.call('company:update', { banner: img }); toast({ title: 'Banner actualizado', body: '' }); render(); } catch (e) { err(e); } });
   on('#bus-cbanner', async () => { const img = await pickBanner(1200, 300, 'Banner del apartado de buses'); if (!img) return; try { await K.call('company:update', { busBanner: img }); toast({ title: 'Banner de buses actualizado', body: '' }); render(); } catch (e) { err(e); } });
-  on('#bus-cname', async () => formModal('Nombre del servicio de buses', `<div class="muted">Es el nombre que verán los conductores en el apartado de buses (por ejemplo «${esc(info.tag || 'Rutero')} Bus» o «Línea Express»). Déjalo vacío para usar «Autobús».</div>
+  on('#bus-cname', async () => formModal('Nombre del servicio de buses', `<div class="muted">Es el nombre que verán los conductores en el apartado de buses, por ejemplo «Línea Express». Déjalo vacío para usar «Autobús».</div>
       <label class="field"><span>Nombre</span><input type="text" id="bn-n" maxlength="28" value="${esc(info.busName || '')}" placeholder="${esc(info.tag || '')} Bus"></label>`,
     async (bg) => { await K.call('company:update', { busName: $('#bn-n', bg).value.trim() }); await refreshState(); renderSide(); }));
   on('#bus-cbanner-del', async () => { try { await K.call('company:update', { busBanner: '' }); render(); } catch (e) { err(e); } });
@@ -703,7 +703,7 @@ function mountCompany(root) {
   }));
   $$('[data-perms]', root).forEach((b) => b.onclick = () => {
     const name = b.dataset.perms; const cur = name ? rolePerms(info, name) : basePerms(info);
-    formModal(`Permisos · ${esc(name || 'Sin rol')}`, PERMS.map(([label, list]) => `<div class="field"><span>${label}</span><div class="grid g2" style="gap:6px">${list.map(([k, t]) =>
+    formModal(`Permisos · <span translate="no">${esc(name || 'Sin rol')}</span>`, PERMS.map(([label, list]) => `<div class="field"><span>${label}</span><div class="grid g2" style="gap:6px">${list.map(([k, t]) =>
       `<label class="row" style="gap:8px;flex-wrap:nowrap"><input type="checkbox" data-perm="${k}" ${cur.includes(k) ? 'checked' : ''}>${t}</label>`).join('')}</div></div>`).join(''),
     async (bg) => {
       const list = $$('[data-perm]', bg).filter((x) => x.checked).map((x) => x.dataset.perm);
