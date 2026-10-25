@@ -38,7 +38,7 @@ function toast({ title, body, kind = 'info' }) {
   el.className = `toast ${kind}`;
   el.innerHTML = `<b>${esc(title)}</b><span class="muted">${esc(body || '')}</span>`;
   $('#toasts').appendChild(el);
-  setTimeout(() => { el.style.opacity = '0'; el.style.transition = 'opacity .4s'; setTimeout(() => el.remove(), 400); }, 5200);
+  setTimeout(() => { el.classList.add('out'); setTimeout(() => el.remove(), 400); }, 5200);
 }
 const err = (e) => toast({ title: 'Algo ha fallado', body: e.message || String(e), kind: 'warn' });
 async function act(btn, fn) {
@@ -196,14 +196,32 @@ async function refreshState() { S.data = await K.call('state'); S.profile = S.da
 async function render() {
   const fn = PAGES[S.page];
   const main = $('#main');
+  // animación de entrada solo al cambiar de página (o de sección de la empresa), no al refrescar
+  const view = S.page + (S.page === 'company' ? '|' + (S.companyTab || '') : '');
+  const enter = view !== S.lastView; S.lastView = view;
+  const sk = enter ? setTimeout(() => { if (S.page === fn.id) main.innerHTML = '<div class="skel"><i style="height:46px;width:40%"></i><i style="height:120px"></i><i style="height:220px"></i></div>'; }, 180) : null;
   try {
     const html = await fn.html();
+    clearTimeout(sk);
     if (S.page !== fn.id) return;
     main.classList.remove('flush');
     main.innerHTML = html;
+    if (enter) {
+      main.classList.remove('enter'); void main.offsetWidth;
+      $$('.card, .company-hero, .model-card, .brand-tile', main).forEach((el, i) => el.style.setProperty('--i', i));
+      main.classList.add('enter'); clearTimeout(S.enterT); S.enterT = setTimeout(() => main.classList.remove('enter'), 1500);
+    }
     if (fn.mount) fn.mount(main);
-  } catch (e) { main.innerHTML = `<div class="empty"><div class="big">⚠️</div>${esc(e.message)}</div>`; }
+  } catch (e) { clearTimeout(sk); main.innerHTML = `<div class="empty"><div class="big">⚠️</div>${esc(e.message)}</div>`; }
 }
+// onda al pulsar un botón
+document.addEventListener('pointerdown', (e) => {
+  const b = e.target.closest('.btn, .loan-opt'); if (!b || b.disabled) return;
+  const r = b.getBoundingClientRect(); const d = Math.max(r.width, r.height);
+  const s = document.createElement('span'); s.className = 'ripple';
+  s.style.cssText = `width:${d}px;height:${d}px;left:${e.clientX - r.left - d / 2}px;top:${e.clientY - r.top - d / 2}px`;
+  b.appendChild(s); setTimeout(() => s.remove(), 650);
+});
 
 // ------------------------------------------------------------------ PANEL EN VIVO
 const STATUS = {
