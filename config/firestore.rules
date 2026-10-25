@@ -9,6 +9,13 @@ service cloud.firestore {
       return isOwner(cid) || (signed() && exists(/databases/$(db)/documents/companies/$(cid)/members/$(me()))
         && get(/databases/$(db)/documents/companies/$(cid)/members/$(me())).data.role == 'admin');
     }
+    // permisos por rol (Roles y permisos): gerentes y fundador lo tienen todo
+    function memberDoc(cid) { return get(/databases/$(db)/documents/companies/$(cid)/members/$(me())).data; }
+    function can(cid, p) {
+      return isManager(cid) || (signed() && exists(/databases/$(db)/documents/companies/$(cid)/members/$(me()))
+        && p in (memberDoc(cid).get('title', '') != '' && company(cid).get('rolePerms', {}).get(memberDoc(cid).title, null) != null
+          ? company(cid).rolePerms[memberDoc(cid).title] : company(cid).get('basePerms', [])));
+    }
     // existsAfter: cuenta los cambios del mismo lote (al fundar o unirse)
     function isBotAdmin() { return signed() && get(/databases/$(db)/documents/config/discord).data.adminUid == me(); }
     function isMember(cid) { return signed() && existsAfter(/databases/$(db)/documents/companies/$(cid)/members/$(me())); }
@@ -33,13 +40,16 @@ service cloud.firestore {
       allow create: if signed() && request.resource.data.ownerUid == me();
       allow update: if isManager(cid)
         || (signed() && request.resource.data.diff(resource.data).affectedKeys()
-              .hasOnly(['km', 'jobs', 'balance', 'membersCount', 'lastActivity', 'ratingSum', 'ratingCount', 'loan']));
+              .hasOnly(['km', 'jobs', 'balance', 'membersCount', 'lastActivity', 'ratingSum', 'ratingCount', 'loan']))
+        || (can(cid, 'comprar') && request.resource.data.diff(resource.data).affectedKeys()
+              .hasOnly(['balance', 'lastActivity', 'busUnlocked', 'busUnlockedAt', 'busGiftClaimed']));
       allow delete: if isOwner(cid);
 
       match /members/{uid} {
         allow read: if signed();
         allow create: if signed() && me() == uid;
-        allow update: if (signed() && me() == uid) || isManager(cid);
+        // el propio conductor no puede cambiarse el rol ni el puesto
+        allow update: if (signed() && me() == uid && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'title'])) || isManager(cid);
         allow delete: if (signed() && me() == uid) || isManager(cid);
       }
       match /requests/{uid} {
@@ -59,29 +69,29 @@ service cloud.firestore {
       match /bank/{mov} { allow read: if signed(); allow create: if isMember(cid) || isBotAdmin(); }
       match /accounts/{a} {
         allow read: if signed();
-        allow write: if isManager(cid);
+        allow write: if can(cid, 'dinero');
         // la cuenta de empresa la crea la primera comisión que entra (cualquier miembro)
         allow create: if isMember(cid) && a == 'empresa' && request.resource.data.keys().hasOnly(['name', 'balance']);
         allow update: if isMember(cid) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['balance']);
       }
       match /fleet/{v} {
         allow read: if signed();
-        allow write: if isManager(cid);
+        allow write: if can(cid, 'comprar') || can(cid, 'vender') || can(cid, 'flota') || can(cid, 'reparar');
         // el conductor asignado solo puede actualizar el desgaste y los km
         allow update: if isMember(cid) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['condition', 'km', 'lastDriver']);
       }
-      match /garages/{g} { allow read: if signed(); allow write: if isManager(cid); }
-      match /news/{n} { allow read: if signed(); allow write: if isManager(cid); }
+      match /garages/{g} { allow read: if signed(); allow write: if can(cid, 'comprar') || can(cid, 'vender'); }
+      match /news/{n} { allow read: if signed(); allow write: if can(cid, 'noticias'); }
       match /busroutes/{r} {
         allow read: if signed();
-        allow write: if isManager(cid);
+        allow write: if can(cid, 'rutas');
         // cualquier conductor de la empresa puede guardar dónde están las paradas
         allow update: if isMember(cid) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['stopPos']);
       }
       match /events/{e} {
         allow read: if signed();
-        allow create, delete: if isManager(cid);
-        allow update: if isManager(cid) || (isMember(cid) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['attendees']));
+        allow create, delete: if can(cid, 'eventos');
+        allow update: if can(cid, 'eventos') || (isMember(cid) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['attendees']));
       }
     }
 

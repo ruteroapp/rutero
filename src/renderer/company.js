@@ -13,6 +13,23 @@ const DEFAULT_RANKS = [
   { name: 'Profesional', minKm: 10000, color: '#4C8DFF' }, { name: 'Veterano', minKm: 50000, color: '#9B7BFF' }, { name: 'Leyenda', minKm: 150000, color: '#FF9F1C' },
 ];
 
+// permisos que se dan a cada rol (el fundador y los gerentes los tienen todos)
+const PERMS = [
+  ['Ventanas que puede ver', [['ver:members', 'Miembros'], ['ver:roles', 'Roles y permisos'], ['ver:tags', 'Etiquetas'], ['ver:ranks', 'Rangos'], ['ver:jobs', 'Trabajos'], ['ver:busroutes', 'Rutas de bus'],
+    ['ver:stats', 'Estadísticas'], ['ver:fines', 'Multas'], ['ver:balance', 'Saldo'], ['ver:garages', 'Garajes'], ['ver:fleet', 'Flota'], ['ver:dealer', 'Concesionario'],
+    ['ver:maintenance', 'Mantenimiento'], ['ver:calendar', 'Calendario'], ['ver:events', 'Eventos'], ['ver:news', 'Noticias'], ['ver:discord', 'Discord']]],
+  ['Lo que puede hacer', [['comisiones', 'Ver la Cuenta de empresa y las comisiones'], ['comprar', 'Comprar vehículos, garajes y el servicio de buses'], ['vender', 'Vender vehículos y garajes'],
+    ['flota', 'Asignar y aparcar vehículos'], ['reparar', 'Reparar vehículos'], ['dinero', 'Mover dinero y crear o cerrar cuentas'], ['prestamos', 'Pedir y devolver préstamos'],
+    ['eventos', 'Crear y borrar eventos'], ['noticias', 'Publicar y borrar noticias'], ['rutas', 'Crear y editar rutas de bus']]],
+];
+// sin configurar: ven todas las ventanas y no pueden hacer nada
+const DEFAULT_PERMS = PERMS[0][1].map(([k]) => k);
+const basePerms = (info) => info.basePerms || DEFAULT_PERMS;
+const rolePerms = (info, name) => ((info.rolePerms || {})[name]) || basePerms(info);
+// null = todos los permisos
+const permsOf = (info, m) => (!m || m.role === 'owner' || m.role === 'admin' ? null : m.title ? rolePerms(info, m.title) : basePerms(info));
+const can = (p) => !S.perms || S.perms.includes(p);
+
 // ---------------------------------------------------------------- iconos del menú de empresa
 const CI = (d) => `<svg viewBox="0 0 24 24" fill="currentColor" stroke="none">${d}</svg>`;
 const CICONS = {
@@ -39,7 +56,7 @@ const CICONS = {
 };
 const CNAV = [
   ['Compañía', [['dashboard', 'Tablero de mandos', '#FF5A8A'], ['settings', 'Ajustes de compañía', '#FF5A8A', 'mgr'], ['discord', 'Discord', '#5865F2']]],
-  ['Miembros', [['members', 'Miembros', '#9B7BFF'], ['roles', 'Roles', '#FF5A8A'], ['tags', 'Etiquetas', '#9B7BFF'], ['ranks', 'Rangos', '#19C3B1'], ['requests', 'Solicitudes', '#FF5A8A', 'mgr']]],
+  ['Miembros', [['members', 'Miembros', '#9B7BFF'], ['roles', 'Roles y permisos', '#FF5A8A'], ['tags', 'Etiquetas', '#9B7BFF'], ['ranks', 'Rangos', '#19C3B1'], ['requests', 'Solicitudes', '#FF5A8A', 'mgr']]],
   ['Trabajos', [['jobs', 'Trabajos', '#9B7BFF'], ['busroutes', 'Rutas de bus', '#FF9F1C'], ['stats', 'Estadísticas', '#FF5A8A'], ['fines', 'Multas', '#FF9F1C']]],
   ['Flota y finanzas', [['balance', 'Saldo', '#19C3B1'], ['garages', 'Garajes', '#19C3B1'], ['fleet', 'Flota', '#FF5A8A'], ['dealer', 'Concesionario', '#4C8DFF'], ['maintenance', 'Mantenimiento', '#FF5A5F']]],
   ['Eventos', [['calendar', 'Calendario', '#9B7BFF'], ['events', 'Eventos', '#9B7BFF']]],
@@ -90,7 +107,7 @@ function loanCard(info, mgr) {
       ${mgr ? `<div class="row" style="margin-top:12px;flex-wrap:nowrap"><input type="number" id="loan-pay" min="1" max="${owed}" placeholder="Cantidad (máx. ${nf(owed)})"><button class="btn primary" id="loan-pay-btn">Devolver</button><button class="btn ghost" id="loan-pay-all">Todo</button></div>` : ''}</div>`;
   }
   return `<div class="card loan"><h2>🏛️ Pedir un préstamo</h2><div class="muted" style="margin-bottom:12px">El banco presta dinero a la empresa con un ${rate}% de interés. Se devuelve solo con el ${auto}% de cada comisión de entrega, o cuando quieras desde aquí.</div>
-    ${mgr ? `<div class="grid g2">${(S.data.loanOptions || [100000, 250000, 500000, 1000000]).map((a) => `<button class="loan-opt" data-loan="${a}"><b>${money(a)}</b><span>Devuelves ${money(Math.round(a * (1 + rate / 100)))}</span></button>`).join('')}</div>` : '<div class="muted">Solo el fundador o un gerente pueden pedir préstamos.</div>'}</div>`;
+    ${mgr ? `<div class="grid g2">${(S.data.loanOptions || [100000, 250000, 500000, 1000000]).map((a) => `<button class="loan-opt" data-loan="${a}"><b>${money(a)}</b><span>Devuelves ${money(Math.round(a * (1 + rate / 100)))}</span></button>`).join('')}</div>` : '<div class="muted">No tienes permiso para pedir préstamos.</div>'}</div>`;
 }
 
 function companyLogo(info, size = 74) {
@@ -139,12 +156,14 @@ const PAGE_COMPANY = {
     S.company = await K.call('company:get');
     const c = S.company; const info = c.info;
     if (!info) return '<div class="empty">No se ha podido cargar la empresa</div>';
-    const myRole = (c.members.find((m) => m.id === me.uid) || {}).role || 'driver';
+    const myMember = c.members.find((m) => m.id === me.uid) || {};
+    const myRole = myMember.role || 'driver';
     const mgr = myRole !== 'driver';
-    Object.assign(S, { myRole, mgr });
-    S.accounts = [{ id: 'main', name: 'Banco principal', balance: info.balance || 0, color: info.color }, { color: 'var(--teal)', ...c.companyAccount, name: 'Cuenta de empresa' }, ...c.accounts];
+    Object.assign(S, { myRole, mgr, perms: permsOf(info, { ...myMember, role: myRole }) });
+    S.accounts = [{ id: 'main', name: 'Banco principal', balance: info.balance || 0, color: info.color }, ...(can('comisiones') ? [{ color: 'var(--teal)', ...c.companyAccount, name: 'Cuenta de empresa' }] : []), ...c.accounts];
+    const visible = (i) => (i[3] === 'mgr' ? mgr : i[0] === 'dashboard' || can('ver:' + i[0]));
     let sec = S.companyTab || 'dashboard';
-    const allowed = CNAV.flatMap(([, items]) => items).filter((i) => i[3] !== 'mgr' || mgr).map((i) => i[0]);
+    const allowed = CNAV.flatMap(([, items]) => items).filter(visible).map((i) => i[0]);
     if (!allowed.includes(sec)) sec = 'dashboard';
     S.companyTab = sec;
     if (['dealer', 'fleet'].includes(sec)) await loadPhotos();
@@ -153,7 +172,7 @@ const PAGE_COMPANY = {
     return `<div class="cwrap">
       <aside class="cside">
         <div class="cside-logo">${companyLogo(info, 92)}<b>${esc(info.name)}</b><span class="muted">${ROLE[myRole]}</span></div>
-        ${CNAV.map(([label, items]) => `<div class="clabel">${label}</div>` + items.filter((i) => i[3] !== 'mgr' || mgr).map(([id, name, color]) =>
+        ${CNAV.map(([label, items]) => [label, items.filter(visible)]).filter(([, items]) => items.length).map(([label, items]) => `<div class="clabel">${label}</div>` + items.map(([id, name, color]) =>
           `<button class="citem ${sec === id ? 'on' : ''}" data-csec="${id}"><span class="cic" style="color:${color}">${CICONS[id]}</span>${name}${counts[id] && id !== 'members' ? `<span class="cbadge">${counts[id]}</span>` : ''}</button>`).join('')).join('')}
       </aside>
       <section class="cmain">${body}</section></div>`;
@@ -182,7 +201,7 @@ const SECTIONS = {
       <div class="row" style="margin-top:6px;gap:10px">${ratingLine(info)} ${MODE_PILL[joinModeOf(info)]} ${linkBtns(info)}<button class="btn sm ghost" data-cprof="${esc(info.id || S.profile.online.companyId)}">Ver ficha pública</button></div>
       ${info.description ? `<div class="muted" style="margin-top:6px;font-size:13px">${esc(info.description).slice(0, 200)}</div>` : ''}</div></div>
     <div class="grid g4" style="margin-bottom:16px">
-      <div class="card stat"><span class="k">Saldo</span><span class="v mono">${money(info.balance || 0)}</span><span class="muted" style="font-size:12px">Cuenta de empresa</span><b class="mono">${money((c.companyAccount && c.companyAccount.balance) || 0)}</b></div>
+      <div class="card stat"><span class="k">Saldo</span><span class="v mono">${money(info.balance || 0)}</span>${can('comisiones') ? `<span class="muted" style="font-size:12px">Cuenta de empresa</span><b class="mono">${money((c.companyAccount && c.companyAccount.balance) || 0)}</b>` : ''}</div>
       <div class="card stat"><span class="k">Distancia</span><span class="v mono">${dist(info.km || 0)}</span></div>
       <div class="card stat"><span class="k">Entregas</span><span class="v mono">${nf(info.jobs)}</span><span class="muted" style="font-size:12px">${weekJobs.length} esta semana</span></div>
       <div class="card stat"><span class="k">Flota</span><span class="v mono">${sl.used}<small>/ ${sl.total} plazas</small></span></div>
@@ -248,10 +267,13 @@ const SECTIONS = {
   },
   async roles(c, info) {
     const roles = info.roles || [];
-    return head('Roles', 'Puestos de la empresa (Jefe de tráfico, Instructor, Conductor de convoy…)', S.mgr ? '<button class="btn primary" id="role-new">＋ Nuevo rol</button>' : '') +
-      `<div class="notice" style="margin-bottom:16px">Los permisos los dan los niveles fijos: <b>Fundador</b> (todo), <b>Gerente</b> (gestiona miembros, dinero y flota) y <b>Conductor</b>. Los roles personalizados son el puesto que se muestra en la empresa.</div>
-      <div class="grid g3">${roles.map((r, i) => `<div class="card"><div class="row between">${chip(r)}${S.mgr ? `<button class="btn sm ghost" data-delrole="${i}">Borrar</button>` : ''}</div>
-        <div class="muted" style="margin-top:10px">${esc(r.desc || 'Sin descripción')}</div><div class="muted" style="font-size:12px;margin-top:8px">${c.members.filter((m) => m.title === r.name).length} miembros</div></div>`).join('') || '<div class="card"><div class="empty">Aún no hay roles. Crea el primero.</div></div>'}</div>`;
+    const nPerms = (list) => { const v = list.filter((p) => p.startsWith('ver:')).length; return `${v} de ${PERMS[0][1].length} ventanas · ${list.length - v} acciones`; };
+    return head('Roles y permisos', 'Puestos de la empresa y lo que puede ver y hacer cada uno', S.mgr ? '<button class="btn primary" id="role-new">＋ Nuevo rol</button>' : '') +
+      `<div class="notice" style="margin-bottom:16px"><b>Fundador</b> y <b>Gerente</b> lo pueden hacer todo. A los conductores se les aplican los permisos de su rol; si no tienen rol, los de «Sin rol».</div>
+      <div class="grid g3"><div class="card"><div class="row between"><b>Sin rol</b>${S.mgr ? '<button class="btn sm" data-perms="">🔐 Permisos</button>' : ''}</div>
+        <div class="muted" style="margin-top:10px">Conductores sin rol asignado</div><div class="muted" style="font-size:12px;margin-top:8px">${c.members.filter((m) => m.role === 'driver' && !m.title).length} miembros · ${nPerms(basePerms(info))}</div></div>
+      ${roles.map((r, i) => `<div class="card"><div class="row between">${chip(r)}${S.mgr ? `<div class="row" style="gap:6px"><button class="btn sm" data-perms="${esc(r.name)}">🔐 Permisos</button><button class="btn sm ghost" data-delrole="${i}">Borrar</button></div>` : ''}</div>
+        <div class="muted" style="margin-top:10px">${esc(r.desc || 'Sin descripción')}</div><div class="muted" style="font-size:12px;margin-top:8px">${c.members.filter((m) => m.title === r.name).length} miembros · ${nPerms(rolePerms(info, r.name))}</div></div>`).join('')}</div>`;
   },
   async tags(c, info) {
     const tags = info.tags || [];
@@ -282,7 +304,7 @@ const SECTIONS = {
     return head('Trabajos', 'Todas las entregas de los conductores de la empresa', `<select id="cj-driver" style="width:220px"><option value="">Todos los conductores</option>${c.members.map((m) => `<option value="${m.id}" ${f === m.id ? 'selected' : ''}>${esc(m.name)}</option>`).join('')}</select>`) +
       `<div class="card">${list.length ? `<table><thead><tr><th>Fecha</th><th>Conductor</th><th>Carga</th><th>Ruta</th><th class="num">Distancia</th><th class="num">Aporte</th><th class="num">Multas</th><th class="num">Puntos</th></tr></thead><tbody>
       ${list.map((j, i) => `<tr class="click" data-cjob="${i}"><td class="muted">${dateStr(j.finishedAt)}</td><td><b>${esc(j.driverName)}</b></td><td>${j.type === 'bus' ? '🚌 ' : ''}${esc(j.cargo)}${j.multiplayer ? ' <span class="pill mp" style="padding:1px 7px">MP</span>' : ''}</td>
-        <td>${esc(j.from)} → ${esc(j.to)}</td><td class="num">${dist(j.km || 0)}</td><td class="num pos">${money(j.companyCut || 0, j.game)}</td><td class="num">${j.fineCount || 0}</td><td class="num">${j.score ?? '—'}</td></tr>`).join('')}</tbody></table>` : '<div class="empty"><div class="big">🛣️</div>Aún no hay entregas</div>'}</div>`;
+        <td>${esc(j.from)} → ${esc(j.to)}</td><td class="num">${dist(j.km || 0)}</td><td class="num pos">${can('comisiones') ? money(j.companyCut || 0, j.game) : '—'}</td><td class="num">${j.fineCount || 0}</td><td class="num">${j.score ?? '—'}</td></tr>`).join('')}</tbody></table>` : '<div class="empty"><div class="big">🛣️</div>Aún no hay entregas</div>'}</div>`;
   },
   async stats(c, info) {
     const days = [...Array(30)].map((_, i) => { const d = new Date(); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() - 29 + i); return d; });
@@ -299,7 +321,7 @@ const SECTIONS = {
       <div class="card stat"><span class="k">Multas (recientes)</span><span class="v mono">${c.fines.length}</span></div></div>
     <div class="grid g2">
       <div class="card"><h2>Kilómetros por día</h2>${barChart(byDay((j) => j.km || 0), labels, '#4C8DFF', (v) => dist(v))}</div>
-      <div class="card"><h2>Ingresos para la empresa</h2>${barChart(byDay((j) => Math.max(0, j.companyCut || 0)), labels, '#19C3B1', (v) => money(v))}</div>
+      ${can('comisiones') ? `<div class="card"><h2>Ingresos para la empresa</h2>${barChart(byDay((j) => Math.max(0, j.companyCut || 0)), labels, '#19C3B1', (v) => money(v))}</div>` : ''}
       <div class="card"><h2>Distancia por conductor</h2>${barChart(c.members.slice(0, 12).map((m) => m.km || 0), c.members.slice(0, 12).map((m) => m.name.slice(0, 6)), '#9B7BFF', (v) => dist(v))}</div>
       <div class="card"><h2>Cargas más transportadas</h2>${top((j) => j.cargo).map(([k, v]) => `<div class="list-item"><span style="flex:1">${esc(k)}</span><b class="mono">${v}</b></div>`).join('') || '<div class="empty">Sin datos</div>'}</div>
     </div>`;
@@ -317,17 +339,17 @@ const SECTIONS = {
   async balance(c, info) {
     const mgr = S.mgr;
     return head('Saldo', 'Banco principal, cuentas y movimientos') + `<div class="grid g3" style="margin-bottom:16px">${S.accounts.map((a) => `<div class="card" style="border-top:3px solid ${esc(a.color || 'var(--accent)')}">
-        <div class="row between"><span class="muted">${a.id === 'main' ? '🏦' : a.id === 'empresa' ? '🏢' : '💼'} ${esc(a.name)}</span>${mgr && a.id !== 'main' && a.id !== 'empresa' ? `<button class="btn sm ghost" data-close-acc="${a.id}">Cerrar</button>` : ''}</div>
+        <div class="row between"><span class="muted">${a.id === 'main' ? '🏦' : a.id === 'empresa' ? '🏢' : '💼'} ${esc(a.name)}</span>${can('dinero') && a.id !== 'main' && a.id !== 'empresa' ? `<button class="btn sm ghost" data-close-acc="${a.id}">Cerrar</button>` : ''}</div>
         <div class="stat" style="margin-top:6px"><span class="v mono">${money(a.balance || 0)}</span></div></div>`).join('')}
-      ${mgr ? '<div class="card flat" style="display:grid;place-items:center"><button class="btn" id="acc-new">＋ Crear cuenta</button><div class="muted" style="font-size:12px;margin-top:6px">Salarios, flota, ahorro…</div></div>' : ''}</div>
+      ${can('dinero') ? '<div class="card flat" style="display:grid;place-items:center"><button class="btn" id="acc-new">＋ Crear cuenta</button><div class="muted" style="font-size:12px;margin-top:6px">Salarios, flota, ahorro…</div></div>' : ''}</div>
       <div class="grid g2"><div class="grid" style="align-content:start">
         <div class="card"><h2>Ingresar de mi cartera</h2><div class="grid g2"><label class="field"><span>Cantidad</span><input type="number" id="dep-amt" min="1" placeholder="Tienes ${money(S.profile.wallet)}"></label>${accSelect('dep-to', 'A la cuenta')}</div>
           <button class="btn teal" id="dep-btn" style="margin-top:12px">Ingresar</button></div>
-        ${mgr ? `<div class="card"><h2>Mover dinero entre cuentas</h2><div class="grid g2">${accSelect('mv-from', 'Desde')}${accSelect('mv-to', 'Hacia')}</div>
+        ${can('dinero') ? `<div class="card"><h2>Mover dinero entre cuentas</h2><div class="grid g2">${accSelect('mv-from', 'Desde')}${accSelect('mv-to', 'Hacia')}</div>
           <div class="row" style="margin-top:12px;flex-wrap:nowrap"><input type="number" id="mv-amt" min="1" placeholder="Cantidad"><button class="btn primary" id="mv-btn">Mover</button></div></div>` : ''}
-        ${loanCard(info, mgr)}
+        ${loanCard(info, can('prestamos'))}
         <div class="card"><h2>Cómo entra el dinero</h2><div class="muted">• ${info.commission}% de cada entrega<br>• La comisión entra en la Cuenta de empresa y de ahí salen los sueldos<br>• ${money(300000)} por cada conductor nuevo<br>• Ingresos de los miembros y ventas</div></div></div>
-      <div class="card"><h2>Movimientos</h2>${c.bank.map((b) => `<div class="list-item"><div class="avatar">${{ commission: '📦', bonus: '💸', salary: '💼', purchase: '🛒', sale: '🏷️', deposit: '🏦', joinbonus: '🎉', move: '🔁', repair: '🔧', info: 'ℹ️', loan: '🏛️', loanpay: '🏛️' }[b.kind] || '•'}</div>
+      <div class="card"><h2>Movimientos</h2>${c.bank.filter((b) => can('comisiones') || !(b.account === 'empresa' || ['commission', 'salary', 'loanpay'].includes(b.kind))).map((b) => `<div class="list-item"><div class="avatar">${{ commission: '📦', bonus: '💸', salary: '💼', purchase: '🛒', sale: '🏷️', deposit: '🏦', joinbonus: '🎉', move: '🔁', repair: '🔧', info: 'ℹ️', loan: '🏛️', loanpay: '🏛️' }[b.kind] || '•'}</div>
         <div style="flex:1">${esc(b.note)}<div class="muted" style="font-size:12px">${esc(b.by)} · ${ago(b.at)}</div></div><b class="mono ${b.amount >= 0 ? 'pos' : 'neg'}">${b.amount ? (b.amount > 0 ? '+' : '') + money(b.amount) : ''}</b></div>`).join('') || '<div class="empty">Sin movimientos</div>'}</div></div>`;
   },
   async garages(c) {
@@ -341,8 +363,8 @@ const SECTIONS = {
         <div class="row between"><h2 style="margin:0">📍 ${esc(g.city)}</h2><span class="pill">${esc((G[g.size] || {}).name || g.size)}</span></div>
         <div class="muted" style="margin:6px 0">${parked.length} / ${g.slots} vehículos aparcados</div>
         <div class="row" style="gap:6px">${parked.map((f) => `<span class="chip">${kindIcon(f.kind)} ${esc(f.model)}</span>`).join('')}</div>
-        ${S.mgr ? `<button class="btn sm danger" style="margin-top:10px" data-sellg="${g.id}">Vender (${money(Math.round(g.price * .6))})</button>` : ''}</div>`; }).join('') || '<div class="card span2"><div class="empty"><div class="big">🏗️</div>Todavía no hay garajes</div></div>'}</div>
-      ${S.mgr ? `<div class="card" style="align-self:start"><h2>Comprar garaje</h2><div class="grid">
+        ${can('vender') ? `<button class="btn sm danger" style="margin-top:10px" data-sellg="${g.id}">Vender (${money(Math.round(g.price * .6))})</button>` : ''}</div>`; }).join('') || '<div class="card span2"><div class="empty"><div class="big">🏗️</div>Todavía no hay garajes</div></div>'}</div>
+      ${can('comprar') ? `<div class="card" style="align-self:start"><h2>Comprar garaje</h2><div class="grid">
         <label class="field"><span>Ciudad</span><input type="text" id="g-city" placeholder="Madrid"></label>
         <label class="field"><span>Tamaño</span><select id="g-size">${Object.entries(G).map(([k, g]) => `<option value="${k}">${g.name[0].toUpperCase() + g.name.slice(1)} · ${g.slots} plazas · ${money(g.price)}</option>`).join('')}</select></label>
         ${accSelect('g-from', 'Pagar desde')}<button class="btn primary" id="g-buy">Comprar garaje</button></div></div>` : ''}</div>`;
@@ -355,7 +377,7 @@ const SECTIONS = {
         ${f.kind !== 'Remolque' ? `<div><div class="row between" style="font-size:12px"><span class="muted">Estado</span><b style="color:${condColor(f.condition ?? 100)}">${Math.round(f.condition ?? 100)}%</b></div>
           <div class="bar" style="margin-top:4px"><i style="width:${f.condition ?? 100}%;background:${condColor(f.condition ?? 100)}"></i></div></div>` : ''}
         <div class="muted" style="font-size:12px">${f.assignedTo ? '👤 ' + esc(f.assignedTo) : 'Sin asignar'} · ${f.garageId ? '📍 ' + esc((c.garages.find((g) => g.id === f.garageId) || {}).city || 'Garaje') : 'En la sede'} · ${dist(f.km || 0)}</div>
-        ${S.mgr ? `<div class="row" style="gap:6px"><button class="btn sm" data-assign="${f.id}">Asignar</button>${f.kind !== 'Remolque' ? `<button class="btn sm" data-park="${f.id}">Aparcar</button>` : ''}<button class="btn sm danger" data-sell="${f.id}">Vender</button></div>` : ''}</div>`).join('')}</div>`
+        ${can('flota') || can('vender') ? `<div class="row" style="gap:6px">${can('flota') ? `<button class="btn sm" data-assign="${f.id}">Asignar</button>${f.kind !== 'Remolque' ? `<button class="btn sm" data-park="${f.id}">Aparcar</button>` : ''}` : ''}${can('vender') ? `<button class="btn sm danger" data-sell="${f.id}">Vender</button>` : ''}</div>` : ''}</div>`).join('')}</div>`
         : '<div class="card"><div class="empty"><div class="big">🅿️</div>El garaje está vacío. ¡Compra el primer vehículo en el concesionario!</div></div>');
   },
   async dealer(c, info) {
@@ -392,7 +414,7 @@ const SECTIONS = {
       ${list.map((f) => { const cond = Math.round(f.condition ?? 100); return `<tr><td>${kindIcon(f.kind)} <b>${esc(f.model)}</b></td><td>${esc(f.assignedTo || '—')}</td><td class="num">${dist(f.km || 0)}</td>
         <td style="min-width:160px"><div class="row" style="gap:8px;flex-wrap:nowrap"><div class="bar" style="flex:1"><i style="width:${cond}%;background:${condColor(cond)}"></i></div><b style="color:${condColor(cond)}">${cond}%</b></div></td>
         <td class="num muted">${f.lastService ? dayStr(f.lastService) : '—'}</td><td class="num">${money(repairCost(f))}</td>
-        <td class="num">${S.mgr && cond < 100 ? `<button class="btn sm primary" data-repair="${f.id}">🔧 Reparar</button>` : ''}</td></tr>`; }).join('')}</tbody></table>` : '<div class="empty"><div class="big">🔧</div>No hay vehículos en la flota</div>'}</div>`;
+        <td class="num">${can('reparar') && cond < 100 ? `<button class="btn sm primary" data-repair="${f.id}">🔧 Reparar</button>` : ''}</td></tr>`; }).join('')}</tbody></table>` : '<div class="empty"><div class="big">🔧</div>No hay vehículos en la flota</div>'}</div>`;
   },
   // ---------------------------------------------------------- EVENTOS
   async calendar(c) {
@@ -411,7 +433,7 @@ const SECTIONS = {
     const now = Date.now();
     const up = c.events.filter((e) => new Date(e.date) >= now - 3 * 3600000).sort((a, b) => new Date(a.date) - new Date(b.date));
     const past = c.events.filter((e) => new Date(e.date) < now - 3 * 3600000);
-    return head('Eventos', 'Convoyes de la empresa en TruckersMP o en solitario', S.mgr ? '<button class="btn primary" id="ev-new">＋ Crear evento</button>' : '') +
+    return head('Eventos', 'Convoyes de la empresa en TruckersMP o en solitario', can('eventos') ? '<button class="btn primary" id="ev-new">＋ Crear evento</button>' : '') +
       `<div class="grid g2" style="align-content:start">${up.map((e) => `<div class="card">${eventCard(e, true)}</div>`).join('') || '<div class="card span2"><div class="empty"><div class="big">📅</div>No hay eventos próximos</div></div>'}</div>
       ${past.length ? `<h2 style="margin-top:22px">Eventos pasados</h2><div class="card">${past.slice(0, 15).map((e) => `<div class="list-item"><span class="muted" style="width:110px">${dayStr(e.date)}</span><b style="flex:1">${esc(e.title)}</b><span class="muted">${(e.attendees || []).length} asistentes</span></div>`).join('')}</div>` : ''}`;
   },
@@ -463,12 +485,12 @@ const SECTIONS = {
         <div class="grid g3" style="max-width:720px;margin:0 auto 18px;text-align:left">
           <div class="mini-stat"><span>Precio</span><b>${money(price)}</b></div><div class="mini-stat"><span>Las rutas pagan</span><b>×${nf(S.data.busBoost || 1.5, 1)}</b></div><div class="mini-stat"><span>Saldo</span><b>${money(info.balance || 0)}</b></div></div>
         <div class="muted" style="font-size:13px;margin-bottom:16px">🎁 Incluye un autobús Mercedes-Benz Travego de regalo · ✓ Rutas propias con paradas y pago extra · ✓ Todo lo que se gana en ellas vale un 50% más · ✓ Para siempre, se paga una vez</div>
-        ${S.mgr ? `<button class="btn primary" id="bus-unlock" ${(info.balance || 0) < price ? 'disabled' : ''}>Activar por ${money(price)}</button>${(info.balance || 0) < price ? '<div class="muted" style="font-size:12px;margin-top:8px">No hay saldo suficiente: puedes pedir un préstamo en Saldo.</div>' : ''}` : '<div class="muted">Solo el fundador o un gerente pueden activarlo.</div>'}</div>`;
+        ${can('comprar') ? `<button class="btn primary" id="bus-unlock" ${(info.balance || 0) < price ? 'disabled' : ''}>Activar por ${money(price)}</button>${(info.balance || 0) < price ? '<div class="muted" style="font-size:12px;margin-top:8px">No hay saldo suficiente: puedes pedir un préstamo en Saldo.</div>' : ''}` : '<div class="muted">No tienes permiso para activarlo.</div>'}</div>`;
     }
     const routes = c.busRoutes || [];
     const done = (r) => c.jobs.filter((j) => j.routeId === r.id);
     S.busRoutes = routes;
-    return head('Rutas de bus', 'Líneas de autobús de la empresa con sus paradas, billete y pago extra', S.mgr ? '<button class="btn primary" id="route-new">＋ Nueva ruta</button>' : '') +
+    return head('Rutas de bus', 'Líneas de autobús de la empresa con sus paradas, billete y pago extra', can('rutas') ? '<button class="btn primary" id="route-new">＋ Nueva ruta</button>' : '') +
       (!info.busGiftClaimed && S.mgr ? '<div class="notice" style="margin-bottom:16px;display:flex;align-items:center;gap:12px"><span style="font-size:26px">🎁</span><div style="flex:1"><b>Tenéis un autobús de regalo</b><div class="muted">El servicio de autobuses incluye un Mercedes-Benz Travego para la flota.</div></div><button class="btn primary" id="bus-gift">Recoger autobús</button></div>' : '') +
       bannerHero(info.busBanner, info.name, `${routes.length} ${routes.length === 1 ? 'ruta' : 'rutas'} · todo lo que se gana vale ×${nf(S.data.busBoost || 1.5, 1)}`,
         S.mgr ? `<button class="btn sm" id="bus-cbanner">🖼️ ${info.busBanner ? 'Cambiar' : 'Poner'} banner de buses</button>${info.busBanner ? '<button class="btn sm ghost" id="bus-cbanner-del">Quitar</button>' : ''}` : '', 'Rutas de bus') +
@@ -481,15 +503,15 @@ const SECTIONS = {
         ${r.description ? `<div class="muted" style="font-size:13px;margin-bottom:10px;white-space:pre-wrap">${esc(r.description)}</div>` : ''}
         <div class="grid g3" style="margin-bottom:12px"><div class="mini-stat"><span>Billete</span><b>${money(r.fare)}</b></div><div class="mini-stat"><span>Pago extra</span><b>${money(r.bonus || 0)}</b></div><div class="mini-stat"><span>Completada</span><b>${full}×</b></div></div>
         <div class="row">${r.active === false ? '' : `<button class="btn primary sm" data-drive="${r.id}">▶ Conducir esta ruta</button>`}
-          ${S.mgr ? `<button class="btn sm" data-editroute="${r.id}">Editar</button><button class="btn sm ghost" data-delroute="${r.id}">Borrar</button>` : ''}</div></div>`; }).join('')}</div>`
-        : `<div class="card"><div class="empty"><div class="big">🚏</div>La empresa todavía no tiene rutas de bus.${S.mgr ? '<br>Crea la primera con «Nueva ruta».' : ''}</div></div>`) +
+          ${can('rutas') ? `<button class="btn sm" data-editroute="${r.id}">Editar</button><button class="btn sm ghost" data-delroute="${r.id}">Borrar</button>` : ''}</div></div>`; }).join('')}</div>`
+        : `<div class="card"><div class="empty"><div class="big">🚏</div>La empresa todavía no tiene rutas de bus.${can('rutas') ? '<br>Crea la primera con «Nueva ruta».' : ''}</div></div>`) +
       '<div class="notice" style="margin-top:16px">Cada vez que te detienes 12 segundos cuenta como la siguiente parada de la lista. Si haces todas las paradas, cobras el pago extra de la ruta.</div>';
   },
   async news(c) {
     const list = [...c.news].sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0));
-    return head('Noticias', 'Avisos y novedades para los conductores', S.mgr ? '<button class="btn primary" id="news-new">＋ Publicar noticia</button>' : '') +
+    return head('Noticias', 'Avisos y novedades para los conductores', can('noticias') ? '<button class="btn primary" id="news-new">＋ Publicar noticia</button>' : '') +
       `<div class="grid" style="max-width:860px">${list.map((n) => `<article class="card news">${n.image ? `<img class="news-img" src="${esc(n.image)}" alt="">` : ''}
-        <div class="row between"><h2 style="margin:0">${n.pinned ? '📌 ' : ''}${esc(n.title)}</h2>${S.mgr ? `<button class="btn sm ghost" data-delnews="${n.id}">Borrar</button>` : ''}</div>
+        <div class="row between"><h2 style="margin:0">${n.pinned ? '📌 ' : ''}${esc(n.title)}</h2>${can('noticias') ? `<button class="btn sm ghost" data-delnews="${n.id}">Borrar</button>` : ''}</div>
         <div class="row" style="gap:8px;margin:8px 0 12px">${avatar(n.authorPhoto, n.author, 26)}<span class="muted" style="font-size:12px">${esc(n.author)} · ${dateStr(n.at)}</span></div>
         <div style="white-space:pre-wrap;line-height:1.55">${esc(n.body)}</div></article>`).join('') || '<div class="card"><div class="empty"><div class="big">📰</div>Todavía no hay noticias</div></div>'}</div>`;
   },
@@ -499,7 +521,7 @@ function jobsList(list) {
   S.cjobsView = list;
   return list.length ? list.map((j, i) => `<div class="list-item" data-cjob="${i}" style="cursor:pointer">${avatar(j.driverPhoto, j.driverName)}
     <div style="flex:1;min-width:0"><b>${esc(j.driverName)}</b> · ${esc(j.cargo)}<div class="muted" style="font-size:12px">${esc(j.from)} → ${esc(j.to)} · ${dist(j.km)} · ${ago(j.finishedAt)}${j.fineCount ? ` · 🚨 ${j.fineCount}` : ''}</div></div>
-    <div style="text-align:right"><b class="mono pos">+${money(j.companyCut || 0, j.game)}</b><div class="muted" style="font-size:12px">${j.score} pts</div></div></div>`).join('') : '<div class="empty">Aún no hay entregas</div>';
+    <div style="text-align:right"><b class="mono pos">${can('comisiones') ? '+' + money(j.companyCut || 0, j.game) : ''}</b><div class="muted" style="font-size:12px">${j.score} pts</div></div></div>`).join('') : '<div class="empty">Aún no hay entregas</div>';
 }
 function eventCard(e, full = false) {
   const d = new Date(e.date); const me = (S.profile.online || {}).name || '';
@@ -510,7 +532,7 @@ function eventCard(e, full = false) {
     ${full && e.description ? `<div class="muted" style="margin-top:6px;white-space:pre-wrap">${esc(e.description)}</div>` : ''}
     <div class="row" style="margin-top:10px;gap:6px"><span class="muted" style="font-size:12px">${(e.attendees || []).length} van: ${(e.attendees || []).slice(0, 6).map(esc).join(', ')}</span></div>
     ${full ? `<div class="row" style="margin-top:10px;gap:6px"><button class="btn sm ${going ? '' : 'teal'}" data-attend="${e.id}" data-going="${going ? 0 : 1}">${going ? 'Ya no voy' : '✋ Me apunto'}</button>
-      ${e.tmpUrl ? `<button class="btn sm" data-url="${esc(e.tmpUrl)}">Ver en TruckersMP</button>` : ''}${S.mgr ? `<button class="btn sm danger" data-delev="${e.id}">Borrar</button>` : ''}</div>` : ''}</div></div>`;
+      ${e.tmpUrl ? `<button class="btn sm" data-url="${esc(e.tmpUrl)}">Ver en TruckersMP</button>` : ''}${can('eventos') ? `<button class="btn sm danger" data-delev="${e.id}">Borrar</button>` : ''}</div>` : ''}</div></div>`;
 }
 
 // ---------------------------------------------------------------- lobby (sin empresa)
@@ -661,7 +683,19 @@ function mountCompany(root) {
   on('#role-new', async () => formModal('Nuevo rol', `<label class="field"><span>Nombre</span><input type="text" id="r-n" maxlength="24" placeholder="Jefe de tráfico"></label>
       <label class="field"><span>Descripción</span><input type="text" id="r-d" maxlength="120"></label><label class="field"><span>Color</span>${colorInput('r-c', '#FF5A8A')}</label>`,
     async (bg) => { const n = $('#r-n', bg).value.trim(); if (!n) throw new Error('Pon un nombre'); await K.call('company:update', { roles: [...(info.roles || []), { name: n, desc: $('#r-d', bg).value, color: $('#r-c', bg).value }] }); }));
-  $$('[data-delrole]', root).forEach((b) => b.onclick = () => act(b, () => saveList('roles', (info.roles || []).filter((_, i) => i !== +b.dataset.delrole))));
+  $$('[data-delrole]', root).forEach((b) => b.onclick = () => act(b, async () => {
+    const name = (info.roles || [])[+b.dataset.delrole].name; const rp = { ...(info.rolePerms || {}) }; delete rp[name];
+    await K.call('company:update', { roles: (info.roles || []).filter((_, i) => i !== +b.dataset.delrole), rolePerms: rp }); render();
+  }));
+  $$('[data-perms]', root).forEach((b) => b.onclick = () => {
+    const name = b.dataset.perms; const cur = name ? rolePerms(info, name) : basePerms(info);
+    formModal(`Permisos · ${esc(name || 'Sin rol')}`, PERMS.map(([label, list]) => `<div class="field"><span>${label}</span><div class="grid g2" style="gap:6px">${list.map(([k, t]) =>
+      `<label class="row" style="gap:8px;flex-wrap:nowrap"><input type="checkbox" data-perm="${k}" ${cur.includes(k) ? 'checked' : ''}>${t}</label>`).join('')}</div></div>`).join(''),
+    async (bg) => {
+      const list = $$('[data-perm]', bg).filter((x) => x.checked).map((x) => x.dataset.perm);
+      await K.call('company:update', name ? { rolePerms: { ...(info.rolePerms || {}), [name]: list } } : { basePerms: list });
+    });
+  });
   on('#tag-new', async () => formModal('Nueva etiqueta', `<label class="field"><span>Nombre</span><input type="text" id="t-n" maxlength="18" placeholder="Convoy"></label><label class="field"><span>Color</span>${colorInput('t-c', '#9B7BFF')}</label>`,
     async (bg) => { const n = $('#t-n', bg).value.trim(); if (!n) throw new Error('Pon un nombre'); await K.call('company:update', { tags: [...(info.tags || []), { name: n, color: $('#t-c', bg).value }] }); }));
   $$('[data-deltag]', root).forEach((b) => b.onclick = () => act(b, () => saveList('tags', (info.tags || []).filter((_, i) => i !== +b.dataset.deltag))));
@@ -748,9 +782,9 @@ function mountCompany(root) {
     const bg = modal(`<div class="row between"><div><div class="muted" style="font-size:11px;letter-spacing:.14em;text-transform:uppercase">${esc(m.brand || m.kind)}</div><h2 style="margin:0">${esc(m.name)}</h2></div><button class="btn sm ghost" data-close>Cerrar</button></div>
       <div id="buy-img" style="margin:14px 0">${vehImg(m.id, m.cut ? m.tint : info.color, true)}</div><div class="muted">${esc(m.specs || '')}</div>
       <div class="grid g2" style="margin-top:12px"><label class="field"><span>Color del vehículo</span>${colorInput('buy-c', m.cut ? m.tint : info.color)}</label>${accSelect('buy-from', 'Pagar desde')}</div>
-      ${S.mgr ? '' : '<div class="notice warn" style="margin-top:12px">Solo el fundador y los gerentes pueden comprar.</div>'}
+      ${can('comprar') ? '' : '<div class="notice warn" style="margin-top:12px">No tienes permiso para comprar.</div>'}
       <div class="row between" style="margin-top:14px"><span style="font-family:var(--display);font-size:28px;font-weight:700;color:var(--teal)">${money(m.price)}</span>
-      ${S.mgr ? '<button class="btn primary" id="buy-ok">Comprar</button>' : ''}</div>`, (bg2, close) => {
+      ${can('comprar') ? '<button class="btn primary" id="buy-ok">Comprar</button>' : ''}</div>`, (bg2, close) => {
       bindVehPhotos(bg2);
       $('#buy-c', bg2).oninput = (e) => { if (!$('.veh-photo', bg2)) { $('#buy-img', bg2).innerHTML = vehImg(m.id, e.target.value, true); bindVehPhotos(bg2); } };
       const ok = $('#buy-ok', bg2); if (ok) ok.onclick = () => act(ok, async () => { await K.call('company:buy', m.id, $('#buy-c', bg2).value, $('#buy-from', bg2).value); close(); toast({ title: 'Compra realizada 🛒', body: `${m.brand || ''} ${m.name}`, kind: 'money' }); S.companyTab = 'fleet'; render(); });

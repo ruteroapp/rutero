@@ -404,7 +404,7 @@ class Cloud {
     return this.joinById(c, me);
   }
   async updateCompany(id, data) {
-    const allowed = ['name', 'tag', 'color', 'description', 'commission', 'recruiting', 'language', 'logo', 'roles', 'tags', 'ranks', 'banner', 'busBanner', 'discord', 'website', 'rules', 'joinMode', 'requirements'];
+    const allowed = ['name', 'tag', 'color', 'description', 'commission', 'recruiting', 'language', 'logo', 'roles', 'tags', 'ranks', 'banner', 'busBanner', 'discord', 'website', 'rules', 'joinMode', 'requirements', 'rolePerms', 'basePerms'];
     const clean = Object.fromEntries(Object.entries(data).filter(([k]) => allowed.includes(k)));
     if (clean.joinMode !== undefined) { if (!['open', 'apply', 'closed'].includes(clean.joinMode)) clean.joinMode = 'apply'; clean.recruiting = clean.joinMode !== 'closed'; }
     if (clean.requirements !== undefined) clean.requirements = cleanReqs(clean.requirements);
