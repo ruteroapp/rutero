@@ -1,0 +1,20 @@
+# Une las versiones 1.4.3, 1.4.4 y 1.4.5 en una sola (se lanza una vez)
+name: Unir versiones
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/unir.yml']
+permissions:
+  contents: write
+jobs:
+  unir:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release edit v1.4.5 --notes-file .github/notas-1.4.5.md
+          gh release delete v1.4.3 --yes || true
+          gh release delete v1.4.4 --yes || true
