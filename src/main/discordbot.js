@@ -12,6 +12,7 @@ const { levelFromXp } = require('./progress');
 
 const API = 'https://discord.com/api/v10';
 const GUILD = '1563305086074093690';
+const LOGO_VERSION = 2; // súbelo al cambiar build/icon-256.png para que el bot y los webhooks cambien de foto
 const SITE = 'https://ruteroapp.github.io/rutero/';
 const REPO = 'ruteroapp/rutero';
 const P = { VIEW: 1n << 10n, SEND: 1n << 11n, EMBED: 1n << 14n, ATTACH: 1n << 15n, HISTORY: 1n << 16n, REACT: 1n << 6n, CONNECT: 1n << 20n, SPEAK: 1n << 21n, THREADS: 1n << 38n, PUB_THREADS: 1n << 35n };
@@ -176,11 +177,11 @@ class DiscordBot {
     if (this.ws) { try { this.ws.close(1000); } catch { /* */ } this.ws = null; }
   }
   async setAvatar() {
-    if (this.mem.avatarSet) return;
+    if (this.mem.avatarSet === LOGO_VERSION) return;
     const f = path.join(this.root, 'build', 'icon-256.png');
     const b64 = fs.readFileSync(f).toString('base64');
     await this.api('PATCH', '/users/@me', { avatar: `data:image/png;base64,${b64}` });
-    this.setMem({ avatarSet: true });
+    this.setMem({ avatarSet: LOGO_VERSION });
   }
 
   // ---------------------------------------------------------------- gateway (presencia y bienvenida)
@@ -538,8 +539,10 @@ class DiscordBot {
       const list = await this.api('GET', `/channels/${chId}/webhooks`);
       let w = list.find((x) => x.name === 'Rutero' && x.token);
       if (!w) w = await this.api('POST', `/channels/${chId}/webhooks`, { name: 'Rutero', avatar });
+      else if (this.mem.hookAvatar !== LOGO_VERSION) await this.api('PATCH', `/webhooks/${w.id}`, { avatar });
       hooks[k] = `https://discord.com/api/webhooks/${w.id}/${w.token}`;
     }
+    this.setMem({ hookAvatar: LOGO_VERSION });
     const cloud = this.getCloud();
     if (cloud && cloud.uid) await cloud.setDiscordConfig({ hooks, guild: GUILD, updatedAt: new Date(), hq: (this.mem.cats || {}).hq || '',
       channels: { register: ids.register || '', promo: ids.promo || '', updates: ids.updates || '', registerEn: ids.registerEn || '', promoEn: ids.promoEn || '', updatesEn: ids.updatesEn || '' }, modRole: (this.findRole(ROLE.mod) || {}).id || '' });
