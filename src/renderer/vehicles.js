@@ -70,12 +70,42 @@
       ${wheels.map((wx) => wheel(wx, 150, 16)).join('')}`;
   }
 
+  // garaje (pequeño) o sede (grande): nave con persianas, una abierta con un camión dentro, oficina y cartel con el color de la empresa
   function building(col, big) {
-    const w = big ? 300 : 210, x = 200 - w / 2;
-    return `<rect x="${x}" y="${big ? 30 : 60}" width="${w}" height="${big ? 126 : 96}" rx="6" fill="#D5DBE5"/>
-      <rect x="${x}" y="${big ? 30 : 60}" width="${w}" height="16" rx="6" fill="${col}"/>
-      ${[...Array(big ? 4 : 2)].map((_, i) => `<rect x="${x + 16 + i * (big ? 72 : 100)}" y="${big ? 96 : 92}" width="${big ? 60 : 84}" height="${big ? 60 : 64}" fill="#5B6375"/>` + [...Array(5)].map((__, j) => `<line x1="${x + 16 + i * (big ? 72 : 100)}" y1="${(big ? 96 : 92) + 10 + j * 11}" x2="${x + 16 + i * (big ? 72 : 100) + (big ? 60 : 84)}" y2="${(big ? 96 : 92) + 10 + j * 11}" stroke="#7A8294"/>`).join('')).join('')}
-      ${big ? [...Array(8)].map((_, i) => `<rect x="${x + 18 + i * 35}" y="56" width="24" height="26" rx="2" fill="#B9D6F2"/>`).join('') : ''}`;
+    const id = `bd${++uid}`;
+    const w = big ? 340 : 270, x = 200 - w / 2, top = big ? 20 : 46, base = 158;
+    const doors = big ? 3 : 2, dw = big ? 70 : 76, dh = big ? 64 : 70, gap = 12;
+    const doorX = (i) => x + 16 + i * (dw + gap);
+    const offX = doorX(doors) + 4, offW = x + w - 14 - offX;
+    const door = (i) => {
+      const dx = doorX(i), dy = base - dh, open = i === doors - 1;
+      const shut = open ? dh * .42 : dh;
+      return `<rect x="${dx - 4}" y="${dy - 4}" width="${dw + 8}" height="${dh + 4}" rx="2" fill="#7D8597"/>
+        ${open ? `<rect x="${dx}" y="${dy}" width="${dw}" height="${dh}" fill="#151922"/>
+          <g transform="translate(${dx + dw / 2} ${base})"><rect x="-24" y="-40" width="48" height="36" rx="4" fill="${col}"/><rect x="-20" y="-36" width="40" height="13" rx="2" fill="#9CC4EA" opacity=".85"/>
+          <rect x="-15" y="-19" width="30" height="9" rx="1.5" fill="#2A2F3A"/><rect x="-22" y="-12" width="8" height="4" rx="1" fill="#FFE9A8"/><rect x="14" y="-12" width="8" height="4" rx="1" fill="#FFE9A8"/>
+          <rect x="-25" y="-5" width="50" height="5" rx="1.5" fill="#3B4252"/></g>` : ''}
+        <rect x="${dx}" y="${dy}" width="${dw}" height="${shut}" fill="url(#${id}d)"/>
+        ${[...Array(Math.floor(shut / 6))].map((_, j) => `<line x1="${dx}" y1="${dy + 6 + j * 6}" x2="${dx + dw}" y2="${dy + 6 + j * 6}" stroke="rgba(0,0,0,.22)" stroke-width="1"/>`).join('')}
+        <rect x="${dx}" y="${dy + shut - 3}" width="${dw}" height="3" fill="#3B4252"/>
+        <rect x="${dx + dw / 2 - 7}" y="${dy - 12}" width="14" height="4" rx="2" fill="#2A2F3A"/><path d="M${dx + dw / 2 - 6} ${dy - 8} L${dx + dw / 2 + 6} ${dy - 8} L${dx + dw / 2 + 22} ${dy + 26} L${dx + dw / 2 - 22} ${dy + 26}Z" fill="#FFE9A8" opacity=".13"/>
+        <line x1="${dx - 2}" y1="${base + 3}" x2="${dx - 12}" y2="${base + 18}" stroke="rgba(255,255,255,.5)" stroke-width="2"/>`;
+    };
+    return `<defs><linearGradient id="${id}w" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E6EAF1"/><stop offset="1" stop-color="#C3CAD6"/></linearGradient>
+        <linearGradient id="${id}d" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9AA3B5"/><stop offset="1" stop-color="#6E778A"/></linearGradient>
+        <linearGradient id="${id}g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#BFE0FA"/><stop offset="1" stop-color="#6E9CC8"/></linearGradient></defs>
+      <rect x="0" y="${base}" width="400" height="22" fill="#2C313C"/><rect x="0" y="${base}" width="400" height="2" fill="#4A5160"/>
+      ${big ? `<line x1="${x + w - 6}" y1="${top - 8}" x2="${x + w - 6}" y2="3" stroke="#AEB6C4" stroke-width="2"/><path d="M${x + w - 6} 4 l24 6 l-24 6z" fill="${col}"/>` : ''}
+      <rect x="${x - 6}" y="${top - 8}" width="${w + 12}" height="10" rx="2" fill="#5D6576"/>
+      <rect x="${x}" y="${top}" width="${w}" height="${base - top}" fill="url(#${id}w)"/>
+      <rect x="${x}" y="${top + 2}" width="${w}" height="6" fill="${col}"/>
+      ${big ? `<rect x="${x + 14}" y="${top + 34}" width="${w - 28}" height="24" rx="2" fill="url(#${id}g)"/>${[...Array(9)].map((_, i) => `<rect x="${x + 14 + (i + 1) * (w - 28) / 10 - 1}" y="${top + 34}" width="2" height="24" fill="#8A93A6"/>`).join('')}` : ''}
+      <rect x="${200 - (big ? 60 : 46)}" y="${top + 14}" width="${big ? 120 : 92}" height="${big ? 20 : 18}" rx="3" fill="${col}"/>
+      <text x="200" y="${top + (big ? 28 : 27)}" text-anchor="middle" font-family="Arial, sans-serif" font-weight="700" font-size="${big ? 13 : 11}" letter-spacing="2" fill="#fff">${big ? 'SEDE' : 'GARAJE'}</text>
+      ${[...Array(doors)].map((_, i) => door(i)).join('')}
+      <rect x="${offX}" y="${base - 66}" width="${offW}" height="34" rx="2" fill="url(#${id}g)"/><rect x="${offX + offW / 2 - 1}" y="${base - 66}" width="2" height="34" fill="#8A93A6"/>
+      <rect x="${offX + offW / 2 - 11}" y="${base - 28}" width="22" height="28" rx="1.5" fill="#3B4252"/><rect x="${offX + offW / 2 - 8}" y="${base - 25}" width="16" height="12" fill="url(#${id}g)" opacity=".8"/>
+      <circle cx="${offX + offW / 2 + 6}" cy="${base - 12}" r="1.3" fill="#D5DBE5"/>`;
   }
 
   const ART = {

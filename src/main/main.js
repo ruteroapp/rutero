@@ -456,7 +456,7 @@ function startTelemetry() {
 
 // ------------------------------------------------------------- IPC
 const { CATALOG, BRANDS } = require('./catalog');
-const TRUCK_SHOP = CATALOG.filter((m) => !['garage', 'hq'].includes(m.id));
+const TRUCK_SHOP = CATALOG.filter((m) => !['garage', 'hq'].includes(m.id) && m.kind !== 'Remolque'); // los remolques ya no se venden
 
 function wrap(fn) {
   return async (_e, ...args) => {

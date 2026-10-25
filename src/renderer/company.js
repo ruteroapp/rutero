@@ -379,7 +379,7 @@ const SECTIONS = {
   },
   async dealer(c, info) {
     const shop = S.data.shop; const brandsInfo = S.data.brands || {};
-    const cat = S.dealerCat || 'Camión';
+    const cat = S.dealerCat === 'Autobús' ? 'Autobús' : 'Camión';
     const game = S.dealerGame || (gameOf() === 'ats' ? 'ats' : 'ets2');
     const pool = shop.filter((m) => m.kind === cat && (cat !== 'Camión' || m.game === game));
     const brands = [...new Set(pool.map((m) => m.brand).filter(Boolean))].sort((a, b) => (pool.some((m) => m.brand === a && m.soon) - pool.some((m) => m.brand === b && m.soon)) || a.localeCompare(b));
@@ -390,7 +390,7 @@ const SECTIONS = {
     const models = (brands.length ? pool.filter((m) => m.brand === brand) : pool).slice().sort((a, b) => hasImg(a) - hasImg(b));
     const sl = slotsInfo(c);
     return head('Concesionario', `Saldo ${money(info.balance || 0)} · plazas ${sl.used}/${sl.total}`, '<button class="btn sm ghost" id="ph-refresh" title="Vuelve a buscar las fotos en internet">🔄 Buscar fotos de nuevo</button>') +
-      `<div class="row" style="margin-bottom:16px"><div class="tabs dealer-tabs">${[['Camión', 'Camiones'], ['Autobús', 'Autobuses'], ['Remolque', 'Remolques']].map(([k, n]) => `<button data-dcat="${k}" class="${cat === k ? 'on' : ''}">${n}</button>`).join('')}</div>
+      `<div class="row" style="margin-bottom:16px"><div class="tabs dealer-tabs">${[['Camión', 'Camiones'], ['Autobús', 'Autobuses']].map(([k, n]) => `<button data-dcat="${k}" class="${cat === k ? 'on' : ''}">${n}</button>`).join('')}</div>
       ${cat === 'Camión' ? `<div class="tabs">${[['ets2', 'Europa · ETS2'], ['ats', 'América · ATS']].map(([k, n]) => `<button data-dgame="${k}" class="${game === k ? 'on' : ''}">${n}</button>`).join('')}</div>` : ''}</div>
       <div class="dealer">${brands.length ? `<div><div class="dlabel">Elige una marca</div><div class="brand-grid">${brands.map((b) => { const bi = brandsInfo[b] || {};
           return `<button class="brand-tile ${b === brand ? 'on' : ''}" data-dbrand="${esc(b)}" style="--bc:${esc(bi.color || '#4C8DFF')};--bt:${esc(bi.text || '#fff')}">${BRAND_LOGOS.includes(b) ? `<img class="blogo" src="brands/${b.toLowerCase().replace(/ /g, '-')}.png" alt="${esc(b)}">` : `<span class="bname${b.length > 12 ? ' xl' : b.length > 6 ? ' l' : ''}">${esc(b)}</span>`}<span class="bcount">${pool.some((m) => m.brand === b && m.soon) ? 'Próximamente' : (() => { const n = pool.filter((m) => m.brand === b).length; return `${n} modelo${n === 1 ? '' : 's'}`; })()}</span></button>`; }).join('')}</div></div>` : ''}
