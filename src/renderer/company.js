@@ -433,11 +433,13 @@ const SECTIONS = {
             <div class="list-item"><span>🎭</span><b style="flex:1">Rol «🏢 ${esc(info.tag)} · ${esc(info.name)}»</b>${map && map.roleId ? '<span class="pill ok">Listo</span>' : '<span class="pill warn">Pendiente</span>'}</div>
             <div class="list-item"><span>🏠</span><b style="flex:1">Sede privada de texto y voz</b>${map && map.textId ? '<span class="pill ok">Lista</span>' : '<span class="pill warn">Pendiente</span>'}</div>
             <div class="list-item"><span>👑</span><b style="flex:1">Rol 🏢 Dueño de empresa para el fundador</b><span class="pill ok">Auto</span></div>
-            <div class="muted" style="font-size:12px;margin-top:10px">Solo ven la sede los miembros que han conectado su Discord en Rutero.</div>`
+            <div class="muted" style="font-size:12px;margin-top:10px">Solo ven la sede los miembros que han conectado su Discord en Rutero.</div>
+            ${S.mgr ? `<label class="field" style="margin-top:12px"><span>🌐 Idioma de los canales privados</span><select id="dc-lang"><option value="es"${info.hqLang==='en'?'':' selected'}>🇪🇸 Español</option><option value="en"${info.hqLang==='en'?' selected':''}>🇬🇧 English</option></select></label><button class="btn sm" id="dc-lang-save" style="margin-top:8px">Cambiar idioma</button>` : ''}`
           : `<div class="muted" style="margin-bottom:14px">Al registrarla, el bot anuncia tu empresa en <b>#registro-de-empresas</b> y crea:</div>
             <div class="list-item"><span>🎭</span><b style="flex:1">Un rol con el nombre y color de tu empresa</b></div>
             <div class="list-item"><span>🏠</span><b style="flex:1">Una sede privada (canal de texto y de voz)</b></div>
             <div class="list-item"><span>👑</span><b style="flex:1">El rol 🏢 Dueño de empresa para el fundador</b></div>
+            ${S.mgr ? `<label class="field" style="margin-top:12px"><span>🌐 Idioma de los canales privados</span><select id="dc-lang"><option value="es"${info.hqLang==='en'?'':' selected'}>🇪🇸 Español</option><option value="en"${info.hqLang==='en'?' selected':''}>🇬🇧 English</option></select></label>` : ''}
             ${S.mgr ? '<button class="btn primary" id="dc-register" style="margin-top:14px">📝 Registrar empresa en Discord</button>' : '<div class="muted" style="margin-top:12px">Solo el fundador o un gerente pueden registrarla.</div>'}`}
         </div>
         <div class="card"><div class="card-title"><h2>📢 Promocionar</h2>${wait ? `<span class="pill warn">Otra en ${Math.ceil(wait / 864e5)} ${Math.ceil(wait / 864e5) === 1 ? 'día' : 'días'}</span>` : '<span class="pill ok">Disponible</span>'}</div>
@@ -784,7 +786,8 @@ function mountCompany(root) {
   on('#loan-pay-all', async () => { await K.call('company:repay', (info.loan && info.loan.owed) || 0); toast({ title: 'Préstamo devuelto ✅', body: '' }); render(); });
   on('#dc-join', async () => openDiscord());
   bindDiscordLink(root);
-  on('#dc-register', async () => { await K.call('company:discord', 'register'); toast({ title: 'Empresa registrada', body: 'Ya está anunciada en Discord. Vuestro rol y vuestra sede llegarán en cuanto el bot se sincronice', kind: 'money' }); await reload(); });
+  on('#dc-lang-save', async () => { const lang = $('#dc-lang', root).value; await K.call('company:discord', 'lang', { lang }); toast({ title: lang === 'en' ? 'Idioma: English' : 'Idioma: español', body: 'El bot cambiará la sede en cuanto se sincronice', kind: 'money' }); await reload(); });
+  on('#dc-register', async () => { await K.call('company:discord', 'register', { lang: ($('#dc-lang', root) || {}).value || 'es' }); toast({ title: 'Empresa registrada', body: 'Ya está anunciada en Discord. Vuestro rol y vuestra sede llegarán en cuanto el bot se sincronice', kind: 'money' }); await reload(); });
   const pmText = $('#pm-text', root);
   if (pmText) pmText.oninput = () => { S.promo.text = pmText.value; const pv = $('#pm-prev-text', root); if (pv) pv.textContent = pmText.value; };
   on('#pm-photo', async () => { const img = await cropImage({ w: 1280, h: 720, title: 'Foto de la promoción', maxKB: 450 }); if (img) { S.promo.photo = img; render(); } });

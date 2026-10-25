@@ -700,11 +700,11 @@ function registerIpc() {
   });
   h('discord:unlink', async () => { me = await cloud.unlinkDiscord(); send('profile', publicProfile()); return publicProfile(); });
   h('company:discord', async (type, extra) => {
-    if (!['register', 'promo'].includes(type)) throw new Error('Petición no válida');
+    if (!['register', 'promo', 'lang'].includes(type)) throw new Error('Petición no válida');
     extra = extra || {};
     // las apps de todos publican directamente con el enlace de publicación del canal (sin el token del bot)
     const cfg = await cloud.discordConfig().catch(() => null);
-    const hook = cfg && cfg.hooks && cfg.hooks[type];
+    const hook = type !== 'lang' && cfg && cfg.hooks && cfg.hooks[type];
     await cloud.discordRequest(me.companyId, type, { ...extra, posted: !!hook }, me);
     if (hook) {
       const c = await cloud.getDoc(`companies/${me.companyId}`);

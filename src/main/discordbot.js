@@ -97,6 +97,16 @@ const CHANNELS = [
 const VOICE_EN = ['🔊┃ɢᴇɴᴇʀᴀʟ', '🚛┃ᴄᴏɴᴠᴏʏ 𝟏', '🚛┃ᴄᴏɴᴠᴏʏ 𝟐', '🚌┃ʙᴜꜱ ʀᴏᴜᴛᴇ'];
 
 const slug = (s) => String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40) || 'empresa';
+// textos de la sede privada de cada empresa, según el idioma que eligió al registrarla
+const HQ_TEXT = {
+  es: { topic: (c) => `Sede privada de ${c.name} [${c.tag}]`, title: (c) => `🏠 **Sede de ${c.name}**`,
+    welcome: 'Este canal y su canal de voz solo los ve vuestra empresa (y los moderadores).\nLos conductores reciben el rol automáticamente al enlazar su cuenta de Rutero con Discord.',
+    changed: '🌐 Los canales de la sede ahora están en **español**.' },
+  en: { topic: (c) => `Private HQ of ${c.name} [${c.tag}]`, title: (c) => `🏠 **${c.name} HQ**`,
+    welcome: 'Only your company (and the moderators) can see this channel and its voice channel.\nDrivers get the role automatically when they link their Rutero account with Discord.',
+    changed: '🌐 The HQ channels are now in **English**.' },
+};
+const hqLang = (c) => (c && c.hqLang === 'en' ? 'en' : 'es');
 const hex = (c) => { const n = parseInt(String(c || '').replace('#', ''), 16); return Number.isFinite(n) ? n : BLUE; };
 const stars = (sum, n) => { if (!n) return '☆☆☆☆☆ · sin valoraciones'; const a = sum / n, f = Math.round(a); return `${'★'.repeat(f)}${'☆'.repeat(5 - f)} · ${a.toFixed(1).replace('.', ',')} (${n} ${n === 1 ? 'valoración' : 'valoraciones'})`; };
 const nf = (n) => Math.round(Number(n) || 0).toLocaleString('es-ES');
@@ -500,6 +510,7 @@ class DiscordBot {
         if (c) {
           if (q.type === 'register') await this.registerCompany(cloud, c, q);
           if (q.type === 'promo') await this.promoteCompany(c, q);
+          if (q.type === 'lang') { const map = await this.ensureCompanyHq(cloud, c); if (map.textId) await this.api('POST', `/channels/${map.textId}/messages`, { content: HQ_TEXT[hqLang(c)].changed }).catch(() => {}); }
         }
       } catch (e) { this.log('cola', e.message); }
       await cloud.discordQueueDone(q.id).catch(() => {});
@@ -509,7 +520,8 @@ class DiscordBot {
     const map = await this.ensureCompanyHq(cloud, c);
     const ch = this.mem.channels || {};
     if (!q.posted) for (const [id, lang] of [[ch.register, 'es'], [ch.registerEn, 'en']]) if (id) { const { msg, files } = buildRegister(c, q, map.roleId, lang); await this.api('POST', `/channels/${id}/messages`, msg, files); }
-    if (map.textId) await this.api('POST', `/channels/${map.textId}/messages`, { content: `🏠 **Sede de ${c.name}** · <@&${map.roleId}>`, embeds: [{ color: hex(c.color), description: 'Este canal y su canal de voz solo los ve vuestra empresa (y los moderadores).\nLos conductores reciben el rol automáticamente al enlazar su cuenta de Rutero con Discord.' }], allowed_mentions: { roles: [map.roleId] } }).catch(() => {});
+    const t = HQ_TEXT[hqLang(c)];
+    if (map.textId) await this.api('POST', `/channels/${map.textId}/messages`, { content: `${t.title(c)} · <@&${map.roleId}>`, embeds: [{ color: hex(c.color), description: t.welcome }], allowed_mentions: { roles: [map.roleId] } }).catch(() => {});
   }
   async promoteCompany(c, q) {
     const ch = this.mem.channels || {};
@@ -549,10 +561,13 @@ class DiscordBot {
       ...(mod ? [{ id: mod.id, type: 0, allow: bits(P.VIEW, P.HISTORY), deny: '0' }] : [])];
     let textId = cur.textId, voiceId = cur.voiceId;
     const exists = async (id) => { if (!id) return false; try { await this.api('GET', `/channels/${id}`); return true; } catch { return false; } };
-    if (!(await exists(textId))) textId = (await this.api('POST', `/guilds/${GUILD}/channels`, { name: `🏢┃${slug(`${c.tag}-${c.name}`)}`, type: 0, parent_id: cats.hq, topic: `Sede privada de ${c.name} [${c.tag}]`.slice(0, 1000), permission_overwrites: ow })).id;
-    if (!(await exists(voiceId))) voiceId = (await this.api('POST', `/guilds/${GUILD}/channels`, { name: `🔊 ${c.tag || c.name}`.slice(0, 100), type: 2, parent_id: cats.hq, permission_overwrites: ow })).id;
-    const map = { roleId: role.id, textId, voiceId, name: c.name, tag: c.tag || '' };
-    if (map.roleId !== cur.roleId || map.textId !== cur.textId || map.voiceId !== cur.voiceId || map.name !== cur.name) await cloud.setDiscordMap(c.id, map);
+    const lang = hqLang(c), topic = HQ_TEXT[lang].topic(c).slice(0, 1000);
+    const textName = `🏢┃${slug(`${c.tag}-${c.name}`)}`, voiceName = `🔊 ${c.tag || c.name}`.slice(0, 100);
+    if (!(await exists(textId))) textId = (await this.api('POST', `/guilds/${GUILD}/channels`, { name: textName, type: 0, parent_id: cats.hq, topic, permission_overwrites: ow })).id;
+    else if ((cur.lang || 'es') !== lang) await this.api('PATCH', `/channels/${textId}`, { topic }).catch(() => {}); // cambio de idioma: se renombra, no se borra nada
+    if (!(await exists(voiceId))) voiceId = (await this.api('POST', `/guilds/${GUILD}/channels`, { name: voiceName, type: 2, parent_id: cats.hq, permission_overwrites: ow })).id;
+    const map = { roleId: role.id, textId, voiceId, name: c.name, tag: c.tag || '', lang };
+    if (map.roleId !== cur.roleId || map.textId !== cur.textId || map.voiceId !== cur.voiceId || map.name !== cur.name || map.lang !== (cur.lang || 'es')) await cloud.setDiscordMap(c.id, map);
     return map;
   }
   async syncCompanies(cloud) {
@@ -561,7 +576,7 @@ class DiscordBot {
     this.companyMaps = {};
     for (const c of list) {
       const m = maps[c.id];
-      if (!m || m.name !== c.name || !m.roleId) { try { this.companyMaps[c.id] = await this.ensureCompanyHq(cloud, c, maps); } catch (e) { this.log('sede', e.message); } }
+      if (!m || m.name !== c.name || !m.roleId || (m.lang || 'es') !== hqLang(c)) { try { this.companyMaps[c.id] = await this.ensureCompanyHq(cloud, c, maps); } catch (e) { this.log('sede', e.message); } }
       else this.companyMaps[c.id] = m;
       this.companyMaps[c.id] && (this.companyMaps[c.id].ownerUid = c.ownerUid);
     }

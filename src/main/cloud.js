@@ -705,7 +705,9 @@ class Cloud {
     const doc = { type, cid, by: this.uid, byName: me.name || '', byDiscord: me.discordId || '', at: new Date(),
       text: String(extra.text || '').slice(0, 600), photo: type === 'promo' && !extra.posted ? String(extra.photo || '').slice(0, 700000) : '', posted: !!extra.posted };
     const writes = [this.create(`discordQueue/${newId()}`, doc)];
-    if (type === 'register') writes.push(this.upd(`companies/${cid}`, { discordRegistered: true, discordRegisteredAt: new Date() }));
+    const hqLang = extra.lang === 'en' ? 'en' : 'es';
+    if (type === 'register') writes.push(this.upd(`companies/${cid}`, { discordRegistered: true, discordRegisteredAt: new Date(), hqLang }));
+    if (type === 'lang') writes.push(this.upd(`companies/${cid}`, { hqLang }));
     if (type === 'promo') writes.push(this.upd(`companies/${cid}`, { lastPromoAt: new Date() }));
     await this.commit(writes);
   }
@@ -722,7 +724,7 @@ class Cloud {
   }
   async discordCompanies() {
     return this.query('', { from: [{ collectionId: 'companies' }], where: { fieldFilter: { field: { fieldPath: 'discordRegistered' }, op: 'EQUAL', value: { booleanValue: true } } },
-      select: { fields: ['name', 'tag', 'color', 'ownerUid', 'ownerName', 'description', 'membersCount'].map((f) => ({ fieldPath: f })) }, limit: 500 });
+      select: { fields: ['name', 'tag', 'color', 'ownerUid', 'ownerName', 'description', 'membersCount', 'hqLang'].map((f) => ({ fieldPath: f })) }, limit: 500 });
   }
   async discordMap() { const l = await this.query('', { from: [{ collectionId: 'discordMap' }], limit: 1000 }); return Object.fromEntries(l.map((x) => [x.id, x])); }
   async setDiscordMap(cid, data) { await this.commit([this.upd(`discordMap/${cid}`, data)]); }
