@@ -505,3 +505,7 @@ input:focus, select:focus, textarea:focus { box-shadow: 0 0 0 3px rgba(76,141,25
 @keyframes shimmer { to { background-position: -300% 0; } }
 
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+.nav-lock { margin-left: auto; font-size: 12px; opacity: .75; }
+.bus-locked { text-align: center; padding: 46px 24px; }
+.bus-locked .lock-ic { font-size: 54px; margin-bottom: 10px; animation: lockbob 2.6s ease-in-out infinite; }
+@keyframes lockbob { 50% { transform: translateY(-6px) rotate(-4deg); } }

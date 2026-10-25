@@ -169,7 +169,7 @@ function renderSide() {
   const prog = p ? Math.min(1, (p.xp - p.xpThis) / Math.max(1, p.xpNext - p.xpThis)) : 0;
   $('#side').innerHTML = NAV.map((n) => {
     if (typeof n === 'string') return n.length > 1 ? `<div class="sep"></div><div class="label">${n.slice(1)}</div>` : '<div class="sep"></div>';
-    return `<button class="nav ${S.page === n[0] ? 'active' : ''}" data-page="${n[0]}">${ICONS[n[2]]}${n[1]}</button>`;
+    return `<button class="nav ${S.page === n[0] ? 'active' : ''}" data-page="${n[0]}">${ICONS[n[2]]}${n[1]}${n[0] === 'bus' && S.data && !S.data.busUnlocked ? '<span class="nav-lock">🔒</span>' : ''}</button>`;
   }).join('') + `
     <div class="me-card">
       <div class="row" style="gap:10px">
@@ -674,6 +674,14 @@ async function startCompanyRoute(r) {
 const PAGE_BUS = {
   id: 'bus',
   async html() {
+    await refreshState();
+    if (!S.data.busUnlocked && !S.bus) {
+      const hasCo = !!(S.profile && S.profile.online && S.profile.online.companyId);
+      return `<div class="page-head"><div><h1>Modo autobús</h1><div class="subtitle">Rutas de pasajeros con paradas, billetes y puntuación</div></div></div>
+        <div class="card bus-locked"><div class="lock-ic">🔒</div><h2>Servicio de autobuses bloqueado</h2>
+          <div class="muted" style="max-width:460px;margin:0 auto 16px">${hasCo ? 'Tu empresa todavía no ha activado el servicio de autobuses. El fundador o un gerente pueden activarlo en Mi empresa → Rutas de bus.' : 'Únete a una empresa con el servicio de autobuses activado para poder conducir rutas de bus.'}</div>
+          <button class="btn primary" id="bus-go-co">${hasCo ? '🚌 Ir a Rutas de bus' : '🏢 Ir a Mi empresa'}</button></div>`;
+    }
     const b = S.bus; const trips = S.data.jobs.filter((j) => j.type === 'bus');
     const me = (S.profile && S.profile.online) || {};
     let routes = [];
@@ -726,6 +734,7 @@ const PAGE_BUS = {
       <tbody>${trips.map((j, i) => `<tr class="click" data-trip="${i}"><td class="muted">${dateStr(j.finishedAt)}</td><td>${esc(j.line)}</td><td>${esc(j.from)} → ${esc(j.to)}</td><td class="num">${j.stops}</td><td class="num">${j.passengers}</td><td class="num">${dist(j.km)}</td><td class="num pos">${money(j.net ?? j.revenue)}</td><td class="num">${j.score}</td></tr>`).join('')}</tbody></table>`}</div>`;
   },
   mount(root) {
+    const gc = $('#bus-go-co'); if (gc) gc.onclick = () => { if (S.profile.online && S.profile.online.companyId) S.companyTab = 'busroutes'; go('company'); };
     const st = $('#bus-start');
     if (st) st.onclick = () => act(st, async () => { S.bus = await K.call('bus:start', { line: $('#b-line').value, from: $('#b-from').value, to: $('#b-to').value, fare: $('#b-fare').value }); render(); });
     const en = $('#bus-end');
@@ -992,6 +1001,8 @@ const PAGE_SETTINGS = {
         <div class="muted" style="font-size:12px;margin-top:8px">En Discord puedes pedir ayuda, promocionar tu empresa, buscar convoyes y hablar con otros conductores.</div>
         ${discordLinkBox()}</div>
       <div class="card span2" id="bot-card" style="display:none"></div>
+      <div class="card span2"><h2>🔊 Sonido de las puertas del autobús</h2><div class="muted" style="margin-bottom:12px">Suena al abrir y cerrar las puertas con la tecla del autobús. Pruébalo aquí:</div>
+        <div class="row"><button class="btn" id="snd-open">🚪 Abrir puertas</button><button class="btn" id="snd-close">🚪 Cerrar puertas</button></div></div>
       <div class="card span2" id="upd-card">${updateCard()}</div>
       <div class="card span2"><h2>Plugin de telemetría</h2><div class="muted" style="margin-bottom:12px">Rutero lee los datos del juego con el plugin abierto <b>scs-sdk-plugin</b>. Cierra el juego antes de instalarlo.</div>
         ${['ets2', 'ats'].map((g) => { const x = games[g]; const nm = g === 'ets2' ? 'Euro Truck Simulator 2' : 'American Truck Simulator';
@@ -1005,6 +1016,7 @@ const PAGE_SETTINGS = {
     bindUpdateCard();
     bindAuthForm(root, 'a');
     $('#st-discord').onclick = openDiscord;
+    $('#snd-open').onclick = () => SFX.doorOpen(); $('#snd-close').onclick = () => SFX.doorClose();
     $('#st-report').onclick = () => reportModal();
     bindDiscordLink(root);
     loadBotCard();
