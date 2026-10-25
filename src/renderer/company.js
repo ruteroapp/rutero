@@ -261,7 +261,6 @@ const SECTIONS = {
         <td class="num">${m.salaryPerKm || m.salaryPerJob ? `${nf(m.salaryPerKm, 2)}/km${m.salaryPerJob ? `<br><span class="muted">+${money(m.salaryPerJob)}</span>` : ''}` : '<span class="muted">—</span>'}</td>
         <td class="num ${m.finesCount ? 'neg' : ''}">${m.finesCount || 0}</td>
         <td class="num"><div class="row" style="justify-content:flex-end;gap:6px;flex-wrap:nowrap">
-          ${m.id !== me.uid ? `<button class="btn sm" data-send="${m.id}" title="Enviar dinero de tu cartera">💸</button>` : ''}
           ${mgr ? `<button class="btn sm" data-manage="${m.id}">Gestionar ▾</button>` : ''}
         </div></td></tr>`; }).join('')}</tbody></table></div>`;
   },
@@ -343,12 +342,10 @@ const SECTIONS = {
         <div class="stat" style="margin-top:6px"><span class="v mono">${money(a.balance || 0)}</span></div></div>`).join('')}
       ${can('dinero') ? '<div class="card flat" style="display:grid;place-items:center"><button class="btn" id="acc-new">＋ Crear cuenta</button><div class="muted" style="font-size:12px;margin-top:6px">Salarios, flota, ahorro…</div></div>' : ''}</div>
       <div class="grid g2"><div class="grid" style="align-content:start">
-        <div class="card"><h2>Ingresar de mi cartera</h2><div class="grid g2"><label class="field"><span>Cantidad</span><input type="number" id="dep-amt" min="1" placeholder="Tienes ${money(S.profile.wallet)}"></label>${accSelect('dep-to', 'A la cuenta')}</div>
-          <button class="btn teal" id="dep-btn" style="margin-top:12px">Ingresar</button></div>
         ${can('dinero') ? `<div class="card"><h2>Mover dinero entre cuentas</h2><div class="grid g2">${accSelect('mv-from', 'Desde')}${accSelect('mv-to', 'Hacia')}</div>
           <div class="row" style="margin-top:12px;flex-wrap:nowrap"><input type="number" id="mv-amt" min="1" placeholder="Cantidad"><button class="btn primary" id="mv-btn">Mover</button></div></div>` : ''}
         ${loanCard(info, can('prestamos'))}
-        <div class="card"><h2>Cómo entra el dinero</h2><div class="muted">• ${info.commission}% de cada entrega<br>• La comisión entra en la Cuenta de empresa y de ahí salen los sueldos<br>• ${money(300000)} por cada conductor nuevo<br>• Ingresos de los miembros y ventas</div></div></div>
+        <div class="card"><h2>Cómo entra el dinero</h2><div class="muted">• ${info.commission}% de cada entrega<br>• La comisión entra en la Cuenta de empresa y de ahí salen los sueldos<br>• ${money(300000)} por cada conductor nuevo<br>• Ventas de vehículos y garajes</div></div></div>
       <div class="card"><h2>Movimientos</h2>${c.bank.filter((b) => can('comisiones') || !(b.account === 'empresa' || ['commission', 'salary', 'loanpay'].includes(b.kind))).map((b) => `<div class="list-item"><div class="avatar">${{ commission: '📦', bonus: '💸', salary: '💼', purchase: '🛒', sale: '🏷️', deposit: '🏦', joinbonus: '🎉', move: '🔁', repair: '🔧', info: 'ℹ️', loan: '🏛️', loanpay: '🏛️' }[b.kind] || '•'}</div>
         <div style="flex:1">${esc(b.note)}<div class="muted" style="font-size:12px">${esc(b.by)} · ${ago(b.at)}</div></div><b class="mono ${b.amount >= 0 ? 'pos' : 'neg'}">${b.amount ? (b.amount > 0 ? '+' : '') + money(b.amount) : ''}</b></div>`).join('') || '<div class="empty">Sin movimientos</div>'}</div></div>`;
   },
@@ -711,7 +708,7 @@ function mountCompany(root) {
     const m = member(b.dataset.manage); const owner = S.myRole === 'owner'; const self = m.id === me.uid;
     const bg = modal(`<div class="row" style="gap:12px">${avatar(m.photo, m.name, 48)}<div><h2 style="margin:0">${esc(m.name)}</h2><div class="muted">${ROLE[m.role]}${m.title ? ' · ' + esc(m.title) : ''}</div></div></div>
       <div class="manage-grid">
-        <button class="btn" data-meta="${m.id}">🏷️ Rol y etiquetas</button><button class="btn" data-salary="${m.id}">💼 Sueldo</button><button class="btn" data-bonus="${m.id}">💸 Pagar desde la empresa</button>
+        <button class="btn" data-meta="${m.id}">🏷️ Rol y etiquetas</button><button class="btn" data-salary="${m.id}">💼 Sueldo</button>
         <button class="btn" data-mview="${m.id}">📊 Ver ficha</button>
         ${!self && m.role !== 'owner' && owner ? `<button class="btn" data-role="${m.id}">${m.role === 'admin' ? '↓ Pasar a conductor' : '↑ Hacer gerente'}</button><button class="btn" data-owner="${m.id}">👑 Ceder la empresa</button>` : ''}
         ${!self && m.role !== 'owner' ? `<button class="btn danger" data-kick="${m.id}">Expulsar</button>` : ''}
@@ -888,7 +885,7 @@ async function driverModal(uid, member) {
     const me = S.profile.online || {};
     const bg = modal(`<div class="row between"><div class="row" style="gap:14px">${avatar(u.photo, u.name, 64, 'linear-gradient(135deg,var(--accent),var(--accent2))', '#fff')}<div><h2 style="margin:0">${esc(u.name || 'Conductor')}</h2>
         <div class="muted">${u.companyName ? esc(u.companyName) : 'Sin empresa'}${m.role ? ' · ' + ROLE[m.role] : ''}${u.tmpName ? ' · TruckersMP: ' + esc(u.tmpName) : ''}</div></div></div>
-        <div class="row">${uid !== me.uid ? '<button class="btn sm" id="dm-send">💸 Enviar dinero</button><button class="btn sm ghost" id="dm-rep" title="Reportar conductor">🚩</button>' : ''}<button class="btn sm ghost" data-close>Cerrar</button></div></div>
+        <div class="row">${uid !== me.uid ? '<button class="btn sm ghost" id="dm-rep" title="Reportar conductor">🚩</button>' : ''}<button class="btn sm ghost" data-close>Cerrar</button></div></div>
       <div class="kv" style="margin-top:16px"><div><div class="k">Distancia</div><div class="v mono">${dist(u.km || 0)}</div></div><div><div class="k">Entregas</div><div class="v mono">${nf(u.jobs)}</div></div>
         <div><div class="k">Nivel</div><div class="v mono">${Math.floor(Math.sqrt((u.xp || 0) / 120)) + 1}</div></div><div><div class="k">Multas</div><div class="v mono">${nf(u.fineCount || 0)}</div></div>
         ${member ? `<div><div class="k">Ha ganado</div><div class="v mono pos">${money(m.driverEarned || 0)}</div></div><div><div class="k">Aportado</div><div class="v mono">${money(m.earned || 0)}</div></div>

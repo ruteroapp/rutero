@@ -160,7 +160,7 @@ const fineName = (k) => FINES[k] || (k ? k.replace(/_/g, ' ') : 'Infracción');
 // ------------------------------------------------------------------ navegación
 const NAV = [
   ['dash', 'Panel', 'dash'], ['jobs', 'Trabajos', 'jobs'], ['fines', 'Multas', 'fine'], ['stats', 'Estadísticas', 'stats'], ['bus', 'Autobús', 'bus'],
-  '—Comunidad', ['company', 'Mi empresa', 'company'], ['wallet', 'Cartera', 'wallet'], ['ranking', 'Ranking', 'ranking'], ['achievements', 'Logros y nivel', 'trophy'], ['tmp', 'TruckersMP', 'globe'],
+  '—Comunidad', ['company', 'Mi empresa', 'company'], ['ranking', 'Ranking', 'ranking'], ['achievements', 'Logros y nivel', 'trophy'], ['tmp', 'TruckersMP', 'globe'],
   '—', ['settings', 'Ajustes', 'settings'],
 ];
 function renderSide() {
@@ -178,7 +178,6 @@ function renderSide() {
         <div class="sub">Nivel ${p ? p.level : 1} · ${esc(p ? p.rank : 'Novato')}</div></div>
       </div>
       <div class="xpbar"><i style="width:${prog * 100}%"></i></div>
-      <div class="row between" style="margin-top:10px"><span class="muted" style="font-size:12px">Cartera</span><b class="mono">${p ? money(p.wallet) : '—'}</b></div>
       ${p && p.online && p.online.companyName ? `<div class="row between" style="margin-top:4px"><span class="muted" style="font-size:12px">Empresa</span><span class="tag">${esc(p.online.companyTag || p.online.companyName)}</span></div>` : ''}
     </div>`;
   $$('[data-page]').forEach((b) => b.onclick = () => go(b.dataset.page));
