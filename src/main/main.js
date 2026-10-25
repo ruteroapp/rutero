@@ -509,8 +509,17 @@ function notify(title, body) { sendOverlay('toast', { title, body }); send('rec'
 const publicRec = () => ({ startedAt: recording.startedAt, count: Object.keys(recording.points).length, stops: Object.keys(recording.points).map(Number).sort((a, b) => a - b) });
 // el modo autobús solo funciona si la empresa ha activado el servicio de autobuses
 const busAllowed = () => !!(myCompany && myCompany.busUnlocked);
+// permiso «rutas» del rol (Roles y permisos): gerentes y fundador siempre pueden
+const canRoutes = () => {
+  if (!myCompany || !myMember) return false;
+  if (myMember.role === 'owner' || myMember.role === 'admin') return true;
+  const rp = myCompany.rolePerms || {};
+  const list = (myMember.title && rp[myMember.title]) || myCompany.basePerms || [];
+  return list.includes('rutas');
+};
 function recordKey(k) {
   if (!busAllowed()) return;
+  if (k === 'F1' && !recording && !canRoutes()) return notify('Sin permiso', 'Tu rol no puede crear rutas de bus');
   const p = last && last.pos;
   if (!p) return;
   const here = { x: Math.round(p.x * 10) / 10, z: Math.round(p.z * 10) / 10 };
@@ -553,7 +562,7 @@ function registerIpc() {
   const h = (ch, fn) => ipcMain.handle(ch, wrap(async (...a) => { if (NEEDS_ME.test(ch)) await ensureMe(); return fn(...a); }));
   h('win', (cmd) => { if (cmd === 'min') win.minimize(); else if (cmd === 'max') win.isMaximized() ? win.unmaximize() : win.maximize(); else if (cmd === 'close') win.hide(); else if (cmd === 'quit') { app.isQuitting = true; app.quit(); } });
   h('state', () => ({
-    lang: langNow(), busUnlocked: busAllowed(), busName: (myCompany && myCompany.busName) || '', links: loadLinks(), loanOptions: LOAN_OPTIONS, loanRate: LOAN_RATE, loanAutopay: LOAN_AUTOPAY, busUnlockPrice: BUS_UNLOCK_PRICE, busBoost: BUS_BOOST,
+    lang: langNow(), busUnlocked: busAllowed(), canRoutes: canRoutes(), busName: (myCompany && myCompany.busName) || '', links: loadLinks(), loanOptions: LOAN_OPTIONS, loanRate: LOAN_RATE, loanAutopay: LOAN_AUTOPAY, busUnlockPrice: BUS_UNLOCK_PRICE, busBoost: BUS_BOOST,
     settings: safeSettings(), profile: publicProfile(), jobs: store.get('jobs').slice(0, 300), expenses: store.get('expenses').slice(0, 200),
     achievements: P.ACHIEVEMENTS.map(({ test, ...a }) => ({ ...a, unlockedAt: store.get('achievements')[a.id] || null })),
     daily: { ...dailyState(), list: P.dailyChallenges(dailyState().day) },
@@ -605,6 +614,7 @@ function registerIpc() {
   h('bus:rec', () => (recording ? publicRec() : null));
   h('bus:recCancel', () => { recording = null; send('rec', null); return null; });
   h('bus:routeSave', (r) => {
+    if (!canRoutes()) throw new Error('Tu rol no puede crear rutas de bus');
     const stops = (Array.isArray(r.stops) ? r.stops : String(r.stops || '').split('\n')).map((x) => String(x).trim()).filter(Boolean).slice(0, 60);
     if (!String(r.name || '').trim()) throw new Error('Pon un nombre a la ruta');
     if (stops.length < 2) throw new Error('La ruta necesita al menos 2 paradas (salida y destino)');
