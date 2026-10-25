@@ -995,3 +995,7 @@ No tienes permiso para comprar. | You don't have permission to buy. | Vous n'ave
 • Ventas de vehículos y garajes | • Vehicle and garage sales | • Ventes de véhicules et de garages | • Verkauf von Fahrzeugen und Garagen | • Vendite di veicoli e garage | • Vendas de veículos e garagens | • Sprzedaż pojazdów i garaży
 Solo en TruckersMP | TruckersMP only | Uniquement sur TruckersMP | Nur in TruckersMP | Solo su TruckersMP | Só no TruckersMP | Tylko w TruckersMP
 Rutero solo registra trabajos jugando en TruckersMP | Rutero only records jobs while playing on TruckersMP | Rutero n'enregistre les missions que sur TruckersMP | Rutero zeichnet Aufträge nur in TruckersMP auf | Rutero registra i lavori solo giocando su TruckersMP | O Rutero só registra trabalhos jogando no TruckersMP | Rutero zapisuje zlecenia tylko podczas gry w TruckersMP
+Forma | Shape | Forme | Form | Forma | Formato | Kształt
+Caja | Box | Boîte | Box | Riquadro | Caixa | Okno
+Barra larga | Long bar | Barre longue | Lange Leiste | Barra lunga | Barra longa | Długi pasek
+Abajo en el centro | Bottom centre | En bas au centre | Unten mittig | In basso al centro | Embaixo no centro | Na dole na środku

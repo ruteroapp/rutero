@@ -32,6 +32,23 @@
   body.compact .rows { grid-template-columns: 1fr; }
   body.compact .brand { display: none; }
   .hide { display: none !important; }
+  /* forma de barra larga (como una tira abajo o arriba de la pantalla) */
+  body.strip #box { display: inline-flex; width: max-content; align-items: center; gap: 14px; max-width: none; min-width: 0; padding: 8px 16px; border-radius: 14px; }
+  body.strip #box > *:not(.hide):not(:first-child) { padding-left: 14px; border-left: 1px solid var(--line); }
+  body.strip .top { gap: 10px; }
+  body.strip .speed { font-size: 38px; }
+  body.strip .limit { margin-left: 0; width: 38px; height: 38px; font-size: 14px; }
+  body.strip .gear { height: 36px; min-width: 36px; font-size: 18px; }
+  body.strip .rpm { width: 70px; margin: 0; flex: none; }
+  body.strip .job { margin: 0; max-width: 240px; }
+  body.strip .nav { margin: 0; padding: 6px 10px; gap: 8px; }
+  body.strip .nav .arw { width: 40px; height: 40px; } body.strip .nav .arw svg { width: 28px; height: 28px; } body.strip .nav .nvd { font-size: 22px; }
+  body.strip .rows { display: flex; gap: 16px; margin: 0; }
+  body.strip .row { flex-direction: column; gap: 1px; font-size: 10px; letter-spacing: .06em; text-transform: uppercase; }
+  body.strip .row b { font-size: 16px; letter-spacing: 0; text-transform: none; }
+  body.strip [data-w="fuel"] { min-width: 110px; } body.strip [data-w="fuel"] .row { margin-top: 0 !important; }
+  body.strip .toast { margin: 0; max-width: 240px; }
+  body.strip .brand { writing-mode: vertical-rl; transform: rotate(180deg); margin: 0; font-size: 8px; letter-spacing: .25em; }
   /* guía hacia la próxima parada del autobús */
   .nav { display: none; align-items: center; gap: 12px; margin-top: 10px; padding: 10px 12px; border-radius: 12px; background: var(--chip); border: 1px solid var(--line); }
   .nav.on { display: flex; }

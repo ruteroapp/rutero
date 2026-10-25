@@ -83,7 +83,7 @@ function createWindow() {
 // ---------- overlay personalizable ----------
 const OVERLAY_DEFAULT = {
   widgets: { speed: true, limit: true, gear: true, job: true, remaining: true, eta: true, score: true, fuel: true, damage: false, clock: false, rpm: false, cruise: false, earnings: false, rest: false },
-  position: 'tl', scale: 1, accent: '#4C8DFF', theme: 'dark', compact: false, locked: false, opacity: 0.88, x: null, y: null,
+  position: 'tl', layout: 'box', scale: 1, accent: '#4C8DFF', theme: 'dark', compact: false, locked: false, opacity: 0.88, x: null, y: null,
 };
 const overlayCfg = () => {
   const c = store.get('settings').overlayCfg || {};
@@ -97,8 +97,8 @@ function placeOverlay(w, h) {
   let x, y;
   if (c.position === 'free' && c.x !== null && c.y !== null) { x = c.x; y = c.y; }
   else {
-    const right = c.position === 'tr' || c.position === 'br'; const bottom = c.position === 'bl' || c.position === 'br';
-    const center = c.position === 'tc';
+    const right = c.position === 'tr' || c.position === 'br'; const bottom = c.position === 'bl' || c.position === 'br' || c.position === 'bc';
+    const center = c.position === 'tc' || c.position === 'bc';
     x = center ? Math.round(wa.x + (wa.width - w) / 2) : right ? wa.x + wa.width - w - m : wa.x + m;
     y = bottom ? wa.y + wa.height - h - m : wa.y + m;
   }

@@ -963,7 +963,8 @@ const PAGE_SETTINGS = {
         <div class="grid g2">
           <div><h3>Qué mostrar</h3><div class="ov-checks">${OV_WIDGETS.map(([k, n]) => `<label class="ov-check"><input type="checkbox" data-ow="${k}" ${(k === 'nav' ? oc.widgets[k] !== false : oc.widgets[k]) ? 'checked' : ''}><span>${n}</span></label>`).join('')}</div></div>
           <div class="grid" style="align-content:start;gap:12px">
-            <label class="field"><span>Posición</span><select id="ov-pos">${[['tl', 'Arriba a la izquierda'], ['tc', 'Arriba en el centro'], ['tr', 'Arriba a la derecha'], ['bl', 'Abajo a la izquierda'], ['br', 'Abajo a la derecha'], ['free', 'Libre (arrástralo)']].map(([k, n]) => `<option value="${k}" ${oc.position === k ? 'selected' : ''}>${n}</option>`).join('')}</select></label>
+            <label class="field"><span>Forma</span><select id="ov-layout"><option value="box" ${oc.layout !== 'bar' ? 'selected' : ''}>Caja</option><option value="bar" ${oc.layout === 'bar' ? 'selected' : ''}>Barra larga</option></select></label>
+            <label class="field"><span>Posición</span><select id="ov-pos">${[['tl', 'Arriba a la izquierda'], ['tc', 'Arriba en el centro'], ['tr', 'Arriba a la derecha'], ['bl', 'Abajo a la izquierda'], ['bc', 'Abajo en el centro'], ['br', 'Abajo a la derecha'], ['free', 'Libre (arrástralo)']].map(([k, n]) => `<option value="${k}" ${oc.position === k ? 'selected' : ''}>${n}</option>`).join('')}</select></label>
             <label class="field"><span>Tamaño · <b id="ov-scale-v">${Math.round((oc.scale || 1) * 100)}%</b></span><input type="range" id="ov-scale" min="0.7" max="1.6" step="0.05" value="${oc.scale || 1}"></label>
             <label class="field"><span>Opacidad · <b id="ov-op-v">${Math.round((oc.opacity ?? .88) * 100)}%</b></span><input type="range" id="ov-op" min="0.35" max="1" step="0.05" value="${oc.opacity ?? .88}"></label>
             <label class="field"><span>Estilo</span><select id="ov-theme"><option value="dark" ${oc.theme === 'dark' ? 'selected' : ''}>Oscuro</option><option value="glass" ${oc.theme === 'glass' ? 'selected' : ''}>Cristal (transparente)</option><option value="light" ${oc.theme === 'light' ? 'selected' : ''}>Claro</option></select></label>
@@ -1017,6 +1018,10 @@ const PAGE_SETTINGS = {
     $('#ov-reset').onclick = async () => { await K.call('overlay:reset'); render(); };
     $$('[data-ow]', root).forEach((c) => c.onchange = () => saveOv({ widgets: { ...S.ovCfg.widgets, [c.dataset.ow]: c.checked } }));
     $('#ov-pos').onchange = (e) => saveOv({ position: e.target.value, x: null, y: null });
+    // barra larga: por defecto abajo en el centro
+    $('#ov-layout').onchange = (e) => { const bar = e.target.value === 'bar'; const patch = { layout: e.target.value };
+      if (bar && S.ovCfg.position !== 'free') { patch.position = 'bc'; patch.x = null; patch.y = null; $('#ov-pos').value = 'bc'; }
+      saveOv(patch); };
     $('#ov-scale').oninput = (e) => { $('#ov-scale-v').textContent = `${Math.round(e.target.value * 100)}%`; saveOv({ scale: +e.target.value }); };
     $('#ov-op').oninput = (e) => { $('#ov-op-v').textContent = `${Math.round(e.target.value * 100)}%`; saveOv({ opacity: +e.target.value }); };
     $('#ov-theme').onchange = (e) => saveOv({ theme: e.target.value });

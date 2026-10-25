@@ -6,7 +6,7 @@ let imperial = false, toastTimer, bus = null, units = 'auto', cfg = null;
 function applyCfg(c) {
   cfg = c;
   document.documentElement.style.setProperty('--acc', c.accent || '#4C8DFF');
-  document.body.className = [c.theme === 'light' ? 'light' : c.theme === 'glass' ? 'glass' : '', c.compact ? 'compact' : '', c.locked ? 'locked' : ''].join(' ');
+  document.body.className = [c.theme === 'light' ? 'light' : c.theme === 'glass' ? 'glass' : '', c.compact ? 'compact' : '', c.locked ? 'locked' : '', c.layout === 'bar' ? 'strip' : ''].join(' ');
   $('box').style.opacity = c.opacity ?? 0.88;
   $('box').style.transform = `scale(${c.scale || 1})`;
   document.querySelectorAll('[data-w]').forEach((el) => el.classList.toggle('hide', !c.widgets[el.dataset.w]));
