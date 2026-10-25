@@ -456,7 +456,9 @@ function startTelemetry() {
 
 // ------------------------------------------------------------- IPC
 const { CATALOG, BRANDS } = require('./catalog');
-const TRUCK_SHOP = CATALOG.filter((m) => !['garage', 'hq'].includes(m.id) && m.kind !== 'Remolque'); // los remolques ya no se venden
+// en venta: autobuses y solo los camiones que tienen foto sacada del juego (config/fotos/<id>.png…); los remolques ya no se venden
+const hasGamePhoto = (id) => [RES, ROOT].some((r) => ['png', 'webp', 'jpg', 'jpeg'].some((e) => fs.existsSync(path.join(r, 'config', 'fotos', `${id}.${e}`))));
+const TRUCK_SHOP = CATALOG.filter((m) => !['garage', 'hq'].includes(m.id) && m.kind !== 'Remolque' && (m.kind !== 'Camión' || hasGamePhoto(m.id)));
 
 function wrap(fn) {
   return async (_e, ...args) => {
