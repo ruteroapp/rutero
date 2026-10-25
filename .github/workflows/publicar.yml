@@ -14,8 +14,46 @@ permissions:
   contents: write
 
 jobs:
-  windows:
-    runs-on: windows-latest
+  # crea la etiqueta y la versión (borrador) una sola vez: los tres sistemas suben sus archivos a la misma
+  preparar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - name: Etiqueta de la versión (v + package.json)
+        shell: bash
+        run: |
+          V="v$(node -p "require('./package.json').version")"
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          if git ls-remote --exit-code --tags origin "refs/tags/$V" >/dev/null; then
+            echo "La etiqueta $V ya existe"
+          else
+            git tag "$V" && git push origin "$V"
+          fi
+          if ! gh release view "$V" >/dev/null 2>&1; then
+            # las novedades salen del mensaje del commit (el bot de Discord las anuncia en #actualizaciones)
+            NOTES="$(git log -1 --pretty=%b | grep -vE '^(Co-Authored-By|Claude-Session):' | sed '/^[[:space:]]*$/d')"
+            [ -z "$NOTES" ] && NOTES="Rutero ${V#v}. Se instala sola desde el botón de actualizar de la app."
+            gh release create "$V" --draft --title "Rutero ${V#v}" --notes "$NOTES"
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  compilar:
+    needs: preparar
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            args: --win nsis --x64
+          - os: macos-latest
+            args: --mac
+          - os: ubuntu-latest
+            args: --linux
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
 
@@ -35,35 +73,20 @@ jobs:
           $json = $cfg | ConvertTo-Json -Compress
           Set-Content -Path config/cloud.json -Value $json -Encoding utf8NoBOM
 
-      - name: Etiqueta de la versión (v + package.json)
-        shell: bash
-        run: |
-          V="v$(node -p "require('./package.json').version")"
-          git config user.name "github-actions"
-          git config user.email "github-actions@users.noreply.github.com"
-          if git ls-remote --exit-code --tags origin "refs/tags/$V" >/dev/null; then
-            echo "La etiqueta $V ya existe"
-          else
-            git tag "$V" && git push origin "$V"
-          fi
-          # se crea la versión (borrador) antes de compilar: así los archivos se suben todos a la misma
-          if ! gh release view "$V" >/dev/null 2>&1; then
-            # las novedades salen del mensaje del commit (el bot de Discord las anuncia en #actualizaciones)
-            NOTES="$(git log -1 --pretty=%b | grep -vE '^(Co-Authored-By|Claude-Session):' | sed '/^[[:space:]]*$/d')"
-            [ -z "$NOTES" ] && NOTES="Rutero ${V#v}. Se instala sola desde el botón de actualizar de la app."
-            gh release create "$V" --draft --title "Rutero ${V#v}" --notes "$NOTES"
-          fi
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Instalar dependencias
         run: npm install --no-audit --no-fund
 
       - name: Crear y publicar el instalador
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npx electron-builder --win nsis --x64 --publish always
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+        run: npx electron-builder ${{ matrix.args }} --publish always
 
+  publicar:
+    needs: compilar
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
       - name: Publicar la versión (quitar borrador y marcar como la última)
         shell: bash
         env:
