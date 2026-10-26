@@ -56,6 +56,13 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Comprobar que la app arranca (sin canales repetidos)
+        shell: bash
+        run: |
+          for f in src/main/*.js src/renderer/*.js; do node --check "$f"; done
+          DUP=$(grep -o "^  h('[^']*'" src/main/main.js | sort | uniq -d)
+          if [ -n "$DUP" ]; then echo "Canales repetidos (la app no abriría): $DUP"; exit 1; fi
+
       - name: Instalar dependencias
         run: npm install --no-audit --no-fund
 
