@@ -393,11 +393,12 @@ async function refreshOnline() {
 function startTelemetry() {
   reader = new SharedMemoryReader();
   tracker = new Tracker((type, data) => {
-    // Rutero solo cuenta en TruckersMP: en el juego base no se guardan trabajos, rutas ni multas
+    // Rutero solo cuenta en multijugador (TruckersMP o HaulMP): en el juego base no se guardan trabajos, rutas ni multas
     if (['job:started', 'job:delivered', 'job:cancelled', 'bus:finished', 'expense'].includes(type) && !(data.multiplayer || (last && last.multiplayer) || tmpRunning)) {
-      if (type === 'job:started' || type === 'bus:finished') toast('Solo en TruckersMP', 'Rutero solo registra trabajos jugando en TruckersMP', 'warn');
+      if (type === 'job:started' || type === 'bus:finished') toast('Solo en multijugador', 'Rutero solo registra trabajos jugando en TruckersMP o HaulMP', 'warn');
       return;
     }
+    if (['job:delivered', 'job:cancelled', 'bus:finished'].includes(type)) { data.multiplayer = true; data.mp = tmpRunning || 'TruckersMP'; }
     switch (type) {
       case 'job:started': { const { samples, expenses, ...d } = data; data = d; } send('job', data); toast('Nueva carga', `${data.cargo}: ${data.from} → ${data.to}`); break;
       case 'job:delivered': handleTrip({ type: 'cargo', ...data }); toast('Carga entregada ✅', `${data.cargo} · ${Math.round(data.km)} km · ${data.score} pts`, 'money'); break;
@@ -430,7 +431,7 @@ function startTelemetry() {
   let n = 0;
   setInterval(() => {
     const buf = reader.read();
-    if (!buf) { status = 'waiting'; if (n++ % 10 === 0) send('status', { status, tmp: tmpRunning }); return; }
+    if (!buf) { status = 'waiting'; if (n++ % 10 === 0) send('status', { status, tmp: !!tmpRunning, mpName: tmpRunning || 'TruckersMP' }); return; }
     const t = parse(buf);
     if (!t.sdkActive) status = 'menu';
     else if (t.pluginRev && t.pluginRev !== EXPECTED_REV) status = 'plugin-version';
@@ -441,7 +442,7 @@ function startTelemetry() {
     if (n % 2 === 0) {
       const pj = tracker.publicJob(); if (pj) { delete pj.samples; delete pj.expenses; }
       if (n % 50 === 0) todayStats = computeToday();
-      const live = { ...t, status, tmp: tmpRunning || t.multiplayer, ...todayStats, job: pj || null, rawJob: t.job, session: tracker.session };
+      const live = { ...t, status, tmp: !!(tmpRunning || t.multiplayer), mpName: tmpRunning || 'TruckersMP', ...todayStats, job: pj || null, rawJob: t.job, session: tracker.session };
       send('telemetry', live); sendOverlay('telemetry', live);
     }
     n++;

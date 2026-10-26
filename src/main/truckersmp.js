@@ -28,12 +28,12 @@ const tmp = {
   vtcNews: (id) => get(`/vtc/${encodeURIComponent(id)}/news`, 300_000),
   vtcEvents: (id) => get(`/vtc/${encodeURIComponent(id)}/events`, 300_000),
   rules: () => get('/rules', 3_600_000),
-  // ¿Está abierto el lanzador / cliente de TruckersMP?
+  // ¿Qué multijugador está abierto? 'TruckersMP', 'HaulMP' o false
   running: () => new Promise((res) => {
     if (process.platform !== 'win32') return res(false);
     exec('tasklist /FO CSV /NH', { windowsHide: true }, (err, out) => {
       if (err) return res(false);
-      res(/truckersmp|ets2mp|atsmp/i.test(out));
+      res(/truckersmp|ets2mp|atsmp/i.test(out) ? 'TruckersMP' : /haul[\s_-]?mp/i.test(out) ? 'HaulMP' : false);
     });
   }),
 };

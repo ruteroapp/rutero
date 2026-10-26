@@ -372,7 +372,7 @@ function tripModal(j) {
   const expenses = j.expenses || [];
   modal(`<div class="row between"><div><h2 style="margin:0">${j.type === 'bus' ? '🚌 ' : '📦 '}${esc(j.cargo || j.line || 'Viaje')}</h2>
       <div class="muted">${esc(j.from || '?')}${j.fromCompany ? ' · ' + esc(j.fromCompany) : ''} → ${esc(j.to || '?')}${j.toCompany ? ' · ' + esc(j.toCompany) : ''}</div></div>
-      <div class="row">${j.status === 'delivered' ? '<span class="pill ok"><span class="dot"></span>Entregada</span>' : '<span class="pill bad"><span class="dot"></span>Cancelada</span>'}${j.multiplayer ? '<span class="pill mp">TruckersMP</span>' : ''}<button class="btn sm ghost" data-close>Cerrar</button></div></div>
+      <div class="row">${j.status === 'delivered' ? '<span class="pill ok"><span class="dot"></span>Entregada</span>' : '<span class="pill bad"><span class="dot"></span>Cancelada</span>'}${j.multiplayer ? `<span class="pill mp">${esc(j.mp || 'TruckersMP')}</span>` : ''}<button class="btn sm ghost" data-close>Cerrar</button></div></div>
     <div class="kv" style="margin-top:16px">
       ${kv('Distancia', dist(j.km || 0, 1))}${kv('Duración', j.durationMin ? dur(j.durationMin) : '—')}${kv('Vel. media', j.avgSpeed ? `${spd(j.avgSpeed)} ${spdUnit()}` : '—')}${kv('Vel. máxima', `${spd(j.maxSpeed || 0)} ${spdUnit()}`)}
       ${kv('Puntuación', `${j.score ?? '—'}/100`, j.score >= 90 ? 'pos' : j.score < 70 ? 'neg' : '')}${kv('Daño carga', pct(j.damage), (j.damage || 0) > .05 ? 'neg' : '')}${kv('Combustible', j.fuelUsed ? `${nf(j.fuelUsed)} L` : '—')}${kv('Exceso velocidad', `${Math.round(j.speedingSec || 0)} s`, (j.speedingSec || 0) > 60 ? 'neg' : '')}
@@ -441,7 +441,7 @@ function updateLive() {
   $('#lv-cons').innerHTML = t.fuelAvg ? `${nf(t.fuelAvg * 100, 1)}<small>L/100</small>` : '—';
   $('#lv-truck').textContent = `${t.truck.brand} ${t.truck.name}`.trim() || '—';
   $('#lv-plate').textContent = t.truck.plate || '';
-  $('#lv-sub').textContent = `${t.game.toUpperCase()} ${t.gameVersion}${t.tmp ? ' · TruckersMP' : ''}`;
+  $('#lv-sub').textContent = `${t.game.toUpperCase()} ${t.gameVersion}${t.tmp ? ' · ' + (t.mpName || 'TruckersMP') : ''}`;
   const w = t.wear;
   $('#lv-wear').innerHTML = [['Motor', w.engine], ['Transmisión', w.transmission], ['Cabina', w.cabin], ['Chasis', w.chassis], ['Ruedas', w.wheels]].slice(0, 4).map(([k, v]) =>
     `<div><div class="row between"><span class="muted">${k}</span><b class="mono">${pct(v)}</b></div><div class="bar ${v > .25 ? 'red' : v > .1 ? 'amber' : ''}" style="margin-top:6px"><i style="width:${Math.max(2, v * 100)}%"></i></div></div>`).join('');
@@ -455,7 +455,7 @@ function renderJob(t) {
     S.lastJobKey = key;
     box.innerHTML = !j ? `<div class="card-title"><h2>Trabajo actual</h2></div>
       <div class="empty" style="padding:24px"><div class="big">🅿️</div>Sin carga ahora mismo. Acepta un trabajo y Rutero lo registrará solo.</div>`
-      : `<div class="card-title"><h2>Trabajo actual</h2><div class="row">${j.special ? '<span class="pill warn">Especial</span>' : ''}${j.multiplayer || t.tmp ? '<span class="pill mp">TruckersMP</span>' : ''}<span class="pill">${esc(MARKET[j.market] || j.market || 'Trabajo')}</span></div></div>
+      : `<div class="card-title"><h2>Trabajo actual</h2><div class="row">${j.special ? '<span class="pill warn">Especial</span>' : ''}${j.multiplayer || t.tmp ? `<span class="pill mp">${t.mpName || 'TruckersMP'}</span>` : ''}<span class="pill">${esc(MARKET[j.market] || j.market || 'Trabajo')}</span></div></div>
       <div class="job-cargo">📦 ${esc(j.cargo)} · ${nf((j.cargoMass || 0) / 1000, 1)} t</div>
       <div class="route"><div><div class="city">${esc(j.from)}</div><div class="comp">${esc(j.fromCompany)}</div></div><div class="arrow">━━▶</div>
         <div style="text-align:right"><div class="city">${esc(j.to)}</div><div class="comp">${esc(j.toCompany)}</div></div></div>
@@ -1145,19 +1145,19 @@ K.on('update', (u) => { S.update = u; updatePill(); if (S.page === 'settings') b
 const PAGES = { dash: PAGE_DASH, jobs: PAGE_JOBS, fines: PAGE_FINES, wallet: PAGE_WALLET, stats: PAGE_STATS, bus: PAGE_BUS, company: PAGE_COMPANY, ranking: PAGE_RANKING, achievements: PAGE_ACH, tmp: PAGE_TMP, settings: PAGE_SETTINGS };
 
 // ------------------------------------------------------------------ eventos del proceso principal
-function setStatusPill(st, mp) {
+function setStatusPill(st, mp, name) {
   const el = $('#tb-status');
   const map = { driving: ['ok', 'Conectado al juego'], paused: ['warn', 'Juego en pausa'], menu: ['warn', 'En el menú del juego'], waiting: ['', 'Esperando al juego'], 'plugin-version': ['bad', 'Plugin desactualizado'] };
   const [cls, txt] = map[st] || map.waiting;
   el.className = `pill ${cls}`; el.innerHTML = `<span class="dot"></span>${txt}`;
-  $('#tb-mp').style.display = mp ? '' : 'none';
+  $('#tb-mp').style.display = mp ? '' : 'none'; if (name) $('#tb-mp').textContent = name;
 }
 K.on('telemetry', (t) => {
   const was = S.live && S.live.status;
-  S.live = t; setStatusPill(t.status, t.tmp);
+  S.live = t; setStatusPill(t.status, t.tmp, t.mpName);
   if (S.page === 'dash') { if (was !== t.status && $('#lv-unit')) $('#lv-unit').textContent = spdUnit(); updateLive(); }
 });
-K.on('status', (s) => { setStatusPill(s.status, s.tmp); if (S.live) S.live.status = s.status; if (S.page === 'dash' && s.status === 'waiting') { S.live = null; updateLive(); } });
+K.on('status', (s) => { setStatusPill(s.status, s.tmp, s.mpName); if (S.live) S.live.status = s.status; if (S.page === 'dash' && s.status === 'waiting') { S.live = null; updateLive(); } });
 K.on('toast', toast);
 // sonidos de las puertas del autobús (aire comprimido + aviso), hechos con Web Audio
 const SFX = (() => {

@@ -156,7 +156,7 @@ class Cloud {
     const isBus = trip.type === 'bus';
     const salary = Math.round(split.salary || 0);
     const doc = {
-      type: trip.type || 'cargo', status: trip.status, game: trip.game || '', multiplayer: !!trip.multiplayer,
+      type: trip.type || 'cargo', status: trip.status, game: trip.game || '', multiplayer: !!trip.multiplayer, mp: trip.mp || '',
       cargo: trip.cargo || trip.line || '', from: trip.from || '', to: trip.to || '',
       fromCompany: trip.fromCompany || '', toCompany: trip.toCompany || '',
       km, revenue: Math.round(trip.revenue || 0), net: Math.round(split.net), companyCut: Math.round(split.companyCut), salary,
