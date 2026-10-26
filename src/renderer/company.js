@@ -692,10 +692,10 @@ function mountCompany(root) {
   $$('[data-buyco]', root).forEach((b) => b.onclick = () => act(b, async () => {
     const c = (S.saleList || []).find((x) => x.id === b.dataset.buyco); if (!c) return;
     if (!confirm(`¿Comprar ${c.name} por ${money(c.salePrice)}? Se paga de tu cartera.`)) return;
-    const n = await K.call('company:buy', c.id); toast({ title: 'Empresa comprada 🏢', body: n, kind: 'achievement' }); S.showLobby = false; await reload();
+    const n = await K.call('company:buyCompany', c.id); toast({ title: 'Empresa comprada 🏢', body: n, kind: 'achievement' }); S.showLobby = false; await reload();
   }));
-  on('#sell-save', async () => { await K.call('company:sell', $('#sell-price').value); toast({ title: 'Empresa puesta a la venta 🏷️', body: money(+$('#sell-price').value) }); render(); });
-  on('#sell-stop', async () => { await K.call('company:sell', 0); toast({ title: 'Venta retirada', body: '' }); render(); });
+  on('#sell-save', async () => { await K.call('company:sellCompany', $('#sell-price').value); toast({ title: 'Empresa puesta a la venta 🏷️', body: money(+$('#sell-price').value) }); render(); });
+  on('#sell-stop', async () => { await K.call('company:sellCompany', 0); toast({ title: 'Venta retirada', body: '' }); render(); });
   on('#c-create', async () => {
     const name = $('#c-name').value.trim(); if (name.length < 3) throw new Error('Pon un nombre de al menos 3 letras');
     await K.call('company:create', { name, tag: $('#c-tag').value || name.slice(0, 3), description: $('#c-desc').value, commission: $('#c-com').value, color: $('#c-color').value, logo: newLogo });
