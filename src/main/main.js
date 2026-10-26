@@ -682,6 +682,7 @@ function registerIpc() {
   h('company:get', (id) => cloud.company(id || (me && me.companyId)));
   h('company:browse', () => cloud.browseCompanies());
   h('company:mine', async () => { await ensureMe(); return cloud.myCompanies(me); });
+  h('company:createPrice', async () => { await ensureMe(); return cloud.createPrice(await cloud.me()); });
   h('company:switch', async (cid) => { await cloud.switchCompany(cid, me); await refreshOnline(); return publicProfile(); });
   h('company:forSale', () => cloud.companiesForSale());
   h('company:sell', async (price) => { await cloud.setForSale(me.companyId, price); });

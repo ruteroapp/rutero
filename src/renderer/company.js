@@ -585,6 +585,7 @@ async function companyLobby(me) {
   const list = await K.call('company:browse').catch(() => []);
   S.lobby = list;
   const forSale = await K.call('company:forSale').catch(() => []);
+  const price = await K.call('company:createPrice').catch(() => 0); const wallet = (S.profile && S.profile.wallet) || 0;
   return `<div class="page-head"><div><h1>Empresas</h1><div class="subtitle">Funda tu propia empresa de transporte o únete a una</div></div>${me.companyId ? '<button class="btn" id="lobby-back">← Volver a mi empresa</button>' : ''}</div>
   ${forSale.length ? `<div class="card" style="margin-bottom:16px"><h2>🏷️ Empresas en venta</h2>${saleList(forSale, me)}</div>` : ''}
   ${me.pendingCompanyId ? `<div class="notice" style="margin-bottom:16px">⏳ Has enviado una solicitud a <b>${esc((list.find((c) => c.id === me.pendingCompanyId) || {}).name || 'una empresa')}</b>. Te avisaremos cuando respondan. <button class="btn sm ghost" id="req-cancel">Cancelar solicitud</button></div>` : ''}
@@ -596,8 +597,8 @@ async function companyLobby(me) {
       <label class="field"><span>Descripción</span><textarea id="c-desc" rows="3" maxlength="1000" placeholder="Convoyes los fines de semana en TruckersMP, todos bienvenidos"></textarea></label>
       <div class="grid g2"><label class="field"><span>Comisión de la empresa (%)</span><input type="number" id="c-com" value="15" min="0" max="50"></label>
       <label class="field"><span>Color</span>${colorInput('c-color', '#4C8DFF')}</label></div>
-      <div class="notice">Fundar una empresa cuesta ${money(S.data.createPrice || 600000)} de tu cartera (tienes ${money((S.profile && S.profile.wallet) || 0)}). La empresa empieza con ${money(300000)} y recibe ${money(300000)} más por cada conductor que entre.</div>
-      <button class="btn primary" id="c-create" ${((S.profile && S.profile.wallet) || 0) < (S.data.createPrice || 600000) ? 'disabled' : ''}>🏢 Fundar empresa · ${money(S.data.createPrice || 600000)}</button></div></div>
+      <div class="notice">${price ? `Fundar otra empresa cuesta ${money(price)} de tu cartera (tienes ${money(wallet)}).` : 'Tu primera empresa es gratis.'} La empresa empieza con ${money(300000)} y recibe ${money(300000)} más por cada conductor que entre.</div>
+      <button class="btn primary" id="c-create" ${wallet < price ? 'disabled' : ''}>🏢 Fundar empresa${price ? ` · ${money(price)}` : ''}</button></div></div>
     <div class="grid" style="align-content:start">
       <div class="card"><h2>Unirse con código</h2><div class="muted" style="margin-bottom:12px">Pide el código de 6 letras al fundador o a un gerente.</div>
         <div class="row" style="flex-wrap:nowrap"><input type="text" id="j-code" maxlength="6" placeholder="ABC123" style="text-transform:uppercase;letter-spacing:.3em;font-family:var(--display);font-size:20px"><button class="btn teal" id="j-join">Unirme</button></div></div>

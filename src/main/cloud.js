@@ -275,8 +275,10 @@ class Cloud {
     return { name: me.name || '', photo: me.photo || '', role, km: 0, jobs: 0, earned: 0, driverEarned: 0, salaryEarned: 0, pendingBonus: 0, salaryPerKm: 0, salaryPerJob: 0, finesCount: 0, finesAmount: 0, joinedAt: new Date() };
   }
   async createCompany({ name, tag, color, description, commission, language, recruiting, logo, joinMode, rules, requirements }, me) {
+    // la primera empresa es gratis; las siguientes cuestan CREATE_PRICE
     const u = await this.me();
-    if ((u.money || 0) < CREATE_PRICE) throw new Error(`Fundar una empresa cuesta ${CREATE_PRICE.toLocaleString('es-ES')}: no tienes tanto dinero en la cartera`);
+    const price = (await this.createPrice(u));
+    if ((u.money || 0) < price) throw new Error(`Fundar otra empresa cuesta ${CREATE_PRICE.toLocaleString('es-ES')}: no tienes tanto dinero en la cartera`);
     const id = newId();
     const data = {
       name, tag: (tag || '').toUpperCase().slice(0, 5), color: color || '#4C8DFF', description: description || '', logo: logo || '',
@@ -289,7 +291,7 @@ class Cloud {
       this.create(`companies/${id}`, data),
       this.create(`companies/${id}/members/${this.uid}`, this.memberDoc(me, 'owner')),
       this.upd(`users/${this.uid}`, { companyId: id, companyName: name, companyTag: data.tag, pendingCompanyId: '' },
-        [inc('money', -CREATE_PRICE), { fieldPath: 'joinedCompanies', appendMissingElements: { values: [{ stringValue: id }] } }, { fieldPath: 'memberOf', appendMissingElements: { values: [{ stringValue: id }] } }]),
+        [inc('money', -price), inc('founded', 1), { fieldPath: 'joinedCompanies', appendMissingElements: { values: [{ stringValue: id }] } }, { fieldPath: 'memberOf', appendMissingElements: { values: [{ stringValue: id }] } }]),
       this.create(`companies/${id}/bank/${newId()}`, { kind: 'joinbonus', amount: JOIN_BONUS, by: me.name || '', note: `Empresa fundada · capital inicial por ${me.name}`, at: new Date() }),
     ]);
     return id;
@@ -359,6 +361,11 @@ class Cloud {
     if (comp && comp.ownerUid === this.uid) writes.push({ delete: this.path(`companies/${c}`) });
     else writes.push(this.upd(`companies/${c}`, { lastActivity: new Date() }, [inc('membersCount', -1)]));
     await this.commit(writes);
+  }
+  async createPrice(u) {
+    if ((u.founded || 0) > 0) return CREATE_PRICE;
+    const mine = await this.myCompanies(u).catch(() => []);
+    return mine.some((x) => x.owner) ? CREATE_PRICE : 0;
   }
   // ---------- varias empresas por jugador ----------
   async myCompanies(me) {
