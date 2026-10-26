@@ -717,7 +717,7 @@ const PAGE_BUS = {
     const hero = mine || S.busCompanyBanner || '';
     return `${bannerHero(hero, S.data.busName || 'Modo autobús', S.busCompanyName && !mine && S.busCompanyBanner ? 'Con las líneas de tu empresa' : 'Rutas de pasajeros con paradas, billetes y puntuación',
       `<button class="btn sm" id="bus-banner">🖼️ ${mine ? 'Cambiar' : 'Poner'} banner</button>${mine ? '<button class="btn sm ghost" id="bus-banner-del">Quitar</button>' : ''}`)}
-    ${S.rec ? `<div class="rec-bar"><span class="rec-dot"></span><div style="flex:1"><b>Grabando ruta · ${S.rec.count - 1} ${S.rec.count - 1 === 1 ? 'parada' : 'paradas'}</b><div class="muted">Pulsa F2–F11 en cada parada y <b class="kbd">F1</b> al terminar para guardarla.</div></div><button class="btn sm ghost" id="rec-cancel">Cancelar grabación</button></div>` : ''}
+    ${S.rec ? `<div class="rec-bar"><span class="rec-dot"></span><div style="flex:1"><b>Grabando ruta · ${S.rec.count - 1} ${S.rec.count - 1 === 1 ? 'parada' : 'paradas'}</b><div class="muted"><b class="kbd">F2</b> en cada parada · <b class="kbd">F3</b> deshacer · <b class="kbd">F1</b> en el destino para guardarla.</div></div><button class="btn sm ghost" id="rec-cancel">Cancelar grabación</button></div>` : ''}
     ${isBus && !b ? '<div class="notice" style="margin-bottom:16px">🚌 Parece que conduces un autobús. ¡Empieza una ruta!</div>' : ''}
     ${b ? `<div class="card"><div class="card-title"><h2>${esc(b.line)} · ${esc(b.from || '?')} → ${esc(b.to || '?')}</h2><span class="pill ok"><span class="dot"></span>En servicio</span></div>
       <div class="door-bar ${b.doors ? 'open' : ''}" id="bus-doorbar"></div>
@@ -740,12 +740,13 @@ const PAGE_BUS = {
         <label class="field"><span>Precio billete</span><input type="number" id="b-fare" value="5" step="0.5" min="0"></label></div>
         <div class="row" style="margin-top:14px"><button class="btn primary" id="bus-start">▶ Empezar ruta</button><span class="muted">Funciona con cualquier mod de autobús o con un camión.</span></div></div>`}
     <div class="card keys-card" style="margin-top:16px"><div class="card-title"><h2>⌨️ Teclas en el juego</h2>
-        <label class="row" style="gap:8px"><span class="switch"><input type="checkbox" id="bus-hk" ${S.data.settings.busHotkeys !== false ? 'checked' : ''}><i></i></span><span class="muted">F1–F11 activadas</span></label></div>
-      <div class="muted" style="margin-bottom:12px">Funcionan con la ventana de ETS2 o ATS delante. Rutero solo «escucha» la tecla: el juego también la recibe, así que si usas F1–F11 para otra cosa del juego puedes desactivarlas aquí.</div>
+        <label class="row" style="gap:8px"><span class="switch"><input type="checkbox" id="bus-hk" ${S.data.settings.busHotkeys !== false ? 'checked' : ''}><i></i></span><span class="muted">F1, F2 y F3 activadas</span></label></div>
+      <div class="muted" style="margin-bottom:12px">Funcionan con la ventana de ETS2 o ATS delante. Rutero solo «escucha» la tecla: el juego también la recibe, así que si usas F1, F2 o F3 para otra cosa del juego puedes desactivarlas aquí.</div>
       <div class="keys-grid">
         <div class="kk"><b class="kbd">${esc(key)}</b><div><b>Abrir / cerrar puertas</b><span>Con el autobús parado en la parada: primero bajan y luego suben pasajeros. Al cerrar cuenta la parada y se guarda dónde está.</span></div></div>
-        <div class="kk"><b class="kbd">F1</b><div><b>Grabar una ruta nueva</b><span>Púlsala en la salida: guarda dónde estás y empieza a grabar. Vuelve a pulsarla al final para terminar y guardar la ruta.</span></div></div>
-        <div class="kk"><b class="kbd">F2–F11</b><div><b>Guardar paradas 1 a 10</b><span>Mientras grabas, al llegar a cada parada pulsa F2 (parada 1), F3 (parada 2)… hasta F11 (parada 10). Si te equivocas, vuelve a pulsar la misma tecla en el sitio correcto.</span></div></div>
+        <div class="kk"><b class="kbd">F1</b><div><b>Empezar y terminar</b><span>Púlsala en la salida para empezar a grabar. Al llegar al destino vuelve a pulsarla: ese sitio queda como destino y la ruta se guarda.</span></div></div>
+        <div class="kk"><b class="kbd">F2</b><div><b>Marcar parada</b><span>Mientras grabas, pulsa F2 en cada parada. Se numeran solas y puedes poner todas las que quieras.</span></div></div>
+        <div class="kk"><b class="kbd">F3</b><div><b>Deshacer</b><span>Borra la última parada marcada si te has equivocado.</span></div></div>
         <div class="kk"><b class="kbd">🧭</b><div><b>Guía en el overlay</b><span>Cuando conduces una ruta con paradas guardadas, el overlay muestra una flecha, «gira a la derecha / sigue recto» y los metros que faltan.</span></div></div>
       </div>
       <div class="muted" style="font-size:12px;margin-top:10px">Las rutas grabadas aparecen en «Mis rutas» como «Ruta grabada…»: pulsa Editar para ponerles nombre a la línea y a cada parada.</div></div>
