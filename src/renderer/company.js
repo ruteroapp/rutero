@@ -53,10 +53,11 @@ const CICONS = {
   events: CI('<rect x="3" y="4" width="18" height="17" rx="2"/><path d="M6 11h3v3H6zm5 0h3v3h-3zm5 0h2v3h-2zM6 16h3v2H6zm5 0h3v2h-3z" fill="#141A2C"/>'),
   busroutes: CI('<path d="M5 3h14a2 2 0 0 1 2 2v11a2 2 0 0 1-1 1.7V20a1 1 0 0 1-1 1h-1a1 1 0 0 1-1-1v-1H7v1a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-2.3A2 2 0 0 1 3 16V5a2 2 0 0 1 2-2z"/><path d="M5 6h14v5H5z" fill="#141A2C"/><circle cx="7.5" cy="14.5" r="1.3" fill="#141A2C"/><circle cx="16.5" cy="14.5" r="1.3" fill="#141A2C"/>'),
   liveries: CI('<path d="M12 3a9 9 0 1 0 0 18c1.1 0 1.6-.7 1.6-1.5 0-.5-.2-.8-.4-1.1-.3-.3-.4-.6-.4-1 0-.8.7-1.4 1.5-1.4H16a5 5 0 0 0 5-5c0-4.4-4-8-9-8z"/><circle cx="7.5" cy="11" r="1.5" fill="#141A2C"/><circle cx="10" cy="7" r="1.5" fill="#141A2C"/><circle cx="14.5" cy="7" r="1.5" fill="#141A2C"/><circle cx="17" cy="11" r="1.5" fill="#141A2C"/>'),
+  market: CI('<path d="M3 9 5 4h14l2 5v1a3 3 0 0 1-5 2 3 3 0 0 1-4 0 3 3 0 0 1-4 0 3 3 0 0 1-5-2z"/><path d="M5 13.5V20h14v-6.5a4.5 4.5 0 0 1-3-1 4.5 4.5 0 0 1-4 1 4.5 4.5 0 0 1-4-1 4.5 4.5 0 0 1-3 1z"/>'),
   news: CI('<path d="M3 4h14v16H5a2 2 0 0 1-2-2z"/><path d="M17 8h4v10a2 2 0 0 1-4 0z"/><path d="M6 8h8v2H6zm0 4h8v1.5H6zm0 3h5v1.5H6z" fill="#141A2C"/>'),
 };
 const CNAV = [
-  ['Compañía', [['dashboard', 'Tablero de mandos', '#FF5A8A'], ['settings', 'Ajustes de compañía', '#FF5A8A', 'mgr'], ['discord', 'Discord', '#5865F2']]],
+  ['Compañía', [['dashboard', 'Tablero de mandos', '#FF5A8A'], ['settings', 'Ajustes de compañía', '#FF5A8A', 'mgr'], ['discord', 'Discord', '#5865F2'], ['market', 'Mis empresas y mercado', '#FF9F1C']]],
   ['Miembros', [['members', 'Miembros', '#9B7BFF'], ['roles', 'Roles y permisos', '#FF5A8A'], ['tags', 'Etiquetas', '#9B7BFF'], ['ranks', 'Rangos', '#19C3B1'], ['requests', 'Solicitudes', '#FF5A8A', 'mgr']]],
   ['Trabajos', [['jobs', 'Trabajos', '#9B7BFF'], ['busroutes', 'Rutas de bus', '#FF9F1C'], ['stats', 'Estadísticas', '#FF5A8A'], ['fines', 'Multas', '#FF9F1C']]],
   ['Flota y finanzas', [['balance', 'Saldo', '#19C3B1'], ['garages', 'Garajes', '#19C3B1'], ['fleet', 'Flota', '#FF5A8A'], ['dealer', 'Concesionario', '#4C8DFF'], ['maintenance', 'Mantenimiento', '#FF5A5F'], ['liveries', 'Diseños', '#FF9F1C']]],
@@ -159,7 +160,7 @@ const PAGE_COMPANY = {
     if (!S.data.cloudReady) return `<div class="page-head"><h1>Mi empresa</h1></div>${noCloud()}`;
     if (!S.data.loggedIn) return `<div class="page-head"><h1>Mi empresa</h1></div>${needLogin('crear o unirte a una empresa')}`;
     const me = S.profile.online || {};
-    if (!me.companyId) { S.company = null; return companyLobby(me); }
+    if (!me.companyId || S.showLobby) { S.company = null; return companyLobby(me); }
     S.company = await K.call('company:get');
     const c = S.company; const info = c.info;
     if (!info) return '<div class="empty">No se ha podido cargar la empresa</div>';
@@ -168,7 +169,7 @@ const PAGE_COMPANY = {
     const mgr = myRole !== 'driver';
     Object.assign(S, { myRole, mgr, perms: permsOf(info, { ...myMember, role: myRole }) });
     S.accounts = [{ id: 'main', name: 'Banco principal', balance: info.balance || 0, color: info.color }, ...(can('comisiones') ? [{ color: 'var(--teal)', ...c.companyAccount, name: 'Cuenta de empresa' }] : []), ...c.accounts];
-    const visible = (i) => (i[3] === 'mgr' ? mgr : i[0] === 'dashboard' || can('ver:' + i[0]));
+    const visible = (i) => (i[3] === 'mgr' ? mgr : ['dashboard', 'market'].includes(i[0]) || can('ver:' + i[0]));
     let sec = S.companyTab || 'dashboard';
     const allowed = CNAV.flatMap(([, items]) => items).filter(visible).map((i) => i[0]);
     if (!allowed.includes(sec)) sec = 'dashboard';
@@ -268,6 +269,7 @@ const SECTIONS = {
         <td class="num">${m.salaryPerKm || m.salaryPerJob ? `${nf(m.salaryPerKm, 2)}/km${m.salaryPerJob ? `<br><span class="muted">+${money(m.salaryPerJob)}</span>` : ''}` : '<span class="muted">—</span>'}</td>
         <td class="num ${m.finesCount ? 'neg' : ''}">${m.finesCount || 0}</td>
         <td class="num"><div class="row" style="justify-content:flex-end;gap:6px;flex-wrap:nowrap">
+          ${m.id !== me.uid ? `<button class="btn sm" data-send="${m.id}" title="Enviar dinero de tu cartera">💸</button>` : ''}
           ${mgr ? `<button class="btn sm" data-manage="${m.id}">Gestionar ▾</button>` : ''}
         </div></td></tr>`; }).join('')}</tbody></table></div>`;
   },
@@ -349,12 +351,27 @@ const SECTIONS = {
         <div class="stat" style="margin-top:6px"><span class="v mono">${money(a.balance || 0)}</span></div></div>`).join('')}
       ${can('dinero') ? '<div class="card flat" style="display:grid;place-items:center"><button class="btn" id="acc-new">＋ Crear cuenta</button><div class="muted" style="font-size:12px;margin-top:6px">Salarios, flota, ahorro…</div></div>' : ''}</div>
       <div class="grid g2"><div class="grid" style="align-content:start">
+        <div class="card"><h2>Ingresar de mi cartera</h2><div class="grid g2"><label class="field"><span>Cantidad</span><input type="number" id="dep-amt" min="1" placeholder="Tienes ${money(S.profile.wallet)}"></label>${accSelect('dep-to', 'A la cuenta')}</div>
+          <button class="btn teal" id="dep-btn" style="margin-top:12px">Ingresar</button></div>
         ${can('dinero') ? `<div class="card"><h2>Mover dinero entre cuentas</h2><div class="grid g2">${accSelect('mv-from', 'Desde')}${accSelect('mv-to', 'Hacia')}</div>
           <div class="row" style="margin-top:12px;flex-wrap:nowrap"><input type="number" id="mv-amt" min="1" placeholder="Cantidad"><button class="btn primary" id="mv-btn">Mover</button></div></div>` : ''}
         ${loanCard(info, can('prestamos'))}
-        <div class="card"><h2>Cómo entra el dinero</h2><div class="muted">• ${info.commission}% de cada entrega<br>• La comisión entra en la Cuenta de empresa y de ahí salen los sueldos<br>• ${money(300000)} por cada conductor nuevo<br>• Ventas de vehículos y garajes</div></div></div>
+        <div class="card"><h2>Cómo entra el dinero</h2><div class="muted">• ${info.commission}% de cada entrega<br>• La comisión entra en la Cuenta de empresa y de ahí salen los sueldos<br>• ${money(300000)} por cada conductor nuevo<br>• Ingresos de los miembros y ventas</div></div></div>
       <div class="card"><h2>Movimientos</h2>${c.bank.filter((b) => can('comisiones') || !(b.account === 'empresa' || ['commission', 'salary', 'loanpay'].includes(b.kind))).map((b) => `<div class="list-item"><div class="avatar">${{ commission: '📦', bonus: '💸', salary: '💼', purchase: '🛒', sale: '🏷️', deposit: '🏦', joinbonus: '🎉', move: '🔁', repair: '🔧', info: 'ℹ️', loan: '🏛️', loanpay: '🏛️' }[b.kind] || '•'}</div>
         <div style="flex:1">${esc(b.note)}<div class="muted" style="font-size:12px">${esc(b.by)} · ${ago(b.at)}</div></div><b class="mono ${b.amount >= 0 ? 'pos' : 'neg'}">${b.amount ? (b.amount > 0 ? '+' : '') + money(b.amount) : ''}</b></div>`).join('') || '<div class="empty">Sin movimientos</div>'}</div></div>`;
+  },
+  async market(c, info, me) {
+    const [mine, sale] = await Promise.all([K.call('company:mine').catch(() => []), K.call('company:forSale').catch(() => [])]);
+    const owner = S.myRole === 'owner';
+    return head('Mis empresas y mercado', 'Cambia de empresa, funda otra o compra una que esté a la venta', '<button class="btn primary" id="mk-new">＋ Fundar o unirme a otra</button>') +
+      `<div class="grid g2"><div class="card"><h2>Mis empresas</h2>${mine.map((x) => `<div class="list-item">${companyLogo(x, 40)}<div style="flex:1;min-width:0"><b translate="no">${esc(x.name)}</b> <span class="tag" translate="no">${esc(x.tag || '')}</span>
+          <div class="muted" style="font-size:12px">${ROLE[x.role] || x.role}${x.forSale ? ` · 🏷️ En venta por ${money(x.salePrice)}` : ''}</div></div>
+          ${x.id === me.companyId ? '<span class="pill ok"><span class="dot"></span>Activa</span>' : `<button class="btn sm" data-switchco="${x.id}">Cambiar a esta</button>`}</div>`).join('') || '<div class="empty">—</div>'}
+        <div class="muted" style="font-size:12px;margin-top:10px">Tus viajes cuentan para la empresa activa.</div></div>
+        ${owner ? `<div class="card"><h2>🏷️ Vender <span translate="no">${esc(info.name)}</span></h2><div class="muted" style="margin-bottom:12px">Pon un precio y cualquier conductor podrá comprarla. El dinero va a tu cartera y tú pasas a ser gerente.</div>
+          ${info.forSale ? `<div class="notice" style="margin-bottom:12px">Está a la venta por <b>${money(info.salePrice || 0)}</b></div>` : ''}
+          <div class="row"><input type="number" id="sell-price" style="flex:1;min-width:140px" min="1000" step="1000" placeholder="Precio" value="${info.salePrice || ''}"><button class="btn primary" id="sell-save">${info.forSale ? 'Cambiar precio' : 'Poner a la venta'}</button>${info.forSale ? '<button class="btn ghost" id="sell-stop">Retirar</button>' : ''}</div></div>` : ''}</div>
+      <div class="card" style="margin-top:16px"><h2>Empresas en venta</h2>${saleList(sale, me)}</div>`;
   },
   async liveries(c) {
     const list = c.liveries || [];
@@ -552,11 +569,24 @@ function eventCard(e, full = false) {
       ${e.tmpUrl ? `<button class="btn sm" data-url="${esc(e.tmpUrl)}">Ver en TruckersMP</button>` : ''}${can('eventos') ? `<button class="btn sm danger" data-delev="${e.id}">Borrar</button>` : ''}</div>` : ''}</div></div>`;
 }
 
+// empresas a la venta (se pagan con la cartera del jugador)
+function saleList(list, me) {
+  S.saleList = list;
+  if (!list.length) return '<div class="empty"><div class="big">🏷️</div>Ahora mismo no hay empresas a la venta</div>';
+  const wallet = (S.profile && S.profile.wallet) || 0;
+  return list.map((c) => `<div class="list-item">${companyLogo(c, 44)}<div style="flex:1;min-width:0"><b translate="no">${esc(c.name)}</b> <span class="tag" translate="no">${esc(c.tag || '')}</span>
+    <div class="muted" style="font-size:12px">${c.membersCount || 1} conductores · ${dist(c.km || 0)} · saldo ${money(c.balance || 0)}</div></div>
+    <b class="mono" style="color:var(--amber)">${money(c.salePrice || 0)}</b>
+    ${c.ownerUid === me.uid ? '<span class="pill">Tuya</span>' : `<button class="btn sm primary" data-buyco="${c.id}" ${wallet < (c.salePrice || 0) ? 'disabled title="No tienes suficiente dinero en la cartera"' : ''}>Comprar</button>`}</div>`).join('');
+}
+
 // ---------------------------------------------------------------- lobby (sin empresa)
 async function companyLobby(me) {
   const list = await K.call('company:browse').catch(() => []);
   S.lobby = list;
-  return `<div class="page-head"><div><h1>Empresas</h1><div class="subtitle">Funda tu propia empresa de transporte o únete a una</div></div></div>
+  const forSale = await K.call('company:forSale').catch(() => []);
+  return `<div class="page-head"><div><h1>Empresas</h1><div class="subtitle">Funda tu propia empresa de transporte o únete a una</div></div>${me.companyId ? '<button class="btn" id="lobby-back">← Volver a mi empresa</button>' : ''}</div>
+  ${forSale.length ? `<div class="card" style="margin-bottom:16px"><h2>🏷️ Empresas en venta</h2>${saleList(forSale, me)}</div>` : ''}
   ${me.pendingCompanyId ? `<div class="notice" style="margin-bottom:16px">⏳ Has enviado una solicitud a <b>${esc((list.find((c) => c.id === me.pendingCompanyId) || {}).name || 'una empresa')}</b>. Te avisaremos cuando respondan. <button class="btn sm ghost" id="req-cancel">Cancelar solicitud</button></div>` : ''}
   <div class="grid g2">
     <div class="card"><h2>Fundar una empresa</h2><div class="grid">
@@ -566,8 +596,8 @@ async function companyLobby(me) {
       <label class="field"><span>Descripción</span><textarea id="c-desc" rows="3" maxlength="1000" placeholder="Convoyes los fines de semana en TruckersMP, todos bienvenidos"></textarea></label>
       <div class="grid g2"><label class="field"><span>Comisión de la empresa (%)</span><input type="number" id="c-com" value="15" min="0" max="50"></label>
       <label class="field"><span>Color</span>${colorInput('c-color', '#4C8DFF')}</label></div>
-      <div class="notice">La empresa empieza con ${money(300000)} y recibe ${money(300000)} más por cada conductor que entre.</div>
-      <button class="btn primary" id="c-create">🏢 Fundar empresa</button></div></div>
+      <div class="notice">Fundar una empresa cuesta ${money(S.data.createPrice || 600000)} de tu cartera (tienes ${money((S.profile && S.profile.wallet) || 0)}). La empresa empieza con ${money(300000)} y recibe ${money(300000)} más por cada conductor que entre.</div>
+      <button class="btn primary" id="c-create" ${((S.profile && S.profile.wallet) || 0) < (S.data.createPrice || 600000) ? 'disabled' : ''}>🏢 Fundar empresa · ${money(S.data.createPrice || 600000)}</button></div></div>
     <div class="grid" style="align-content:start">
       <div class="card"><h2>Unirse con código</h2><div class="muted" style="margin-bottom:12px">Pide el código de 6 letras al fundador o a un gerente.</div>
         <div class="row" style="flex-wrap:nowrap"><input type="text" id="j-code" maxlength="6" placeholder="ABC123" style="text-transform:uppercase;letter-spacing:.3em;font-family:var(--display);font-size:20px"><button class="btn teal" id="j-join">Unirme</button></div></div>
@@ -655,10 +685,20 @@ function mountCompany(root) {
   // ----- lobby
   let newLogo = '';
   on('#c-logo', async () => { const img = await pickLogo(); if (img) { newLogo = img; $('#c-logo-prev').innerHTML = companyLogo({ logo: img }, 64); } });
+  on('#lobby-back', async () => { S.showLobby = false; render(); });
+  on('#mk-new', async () => { S.showLobby = true; render(); });
+  $$('[data-switchco]', root).forEach((b) => b.onclick = () => act(b, async () => { await K.call('company:switch', b.dataset.switchco); S.companyTab = 'dashboard'; await reload(); }));
+  $$('[data-buyco]', root).forEach((b) => b.onclick = () => act(b, async () => {
+    const c = (S.saleList || []).find((x) => x.id === b.dataset.buyco); if (!c) return;
+    if (!confirm(`¿Comprar ${c.name} por ${money(c.salePrice)}? Se paga de tu cartera.`)) return;
+    const n = await K.call('company:buy', c.id); toast({ title: 'Empresa comprada 🏢', body: n, kind: 'achievement' }); S.showLobby = false; await reload();
+  }));
+  on('#sell-save', async () => { await K.call('company:sell', $('#sell-price').value); toast({ title: 'Empresa puesta a la venta 🏷️', body: money(+$('#sell-price').value) }); render(); });
+  on('#sell-stop', async () => { await K.call('company:sell', 0); toast({ title: 'Venta retirada', body: '' }); render(); });
   on('#c-create', async () => {
     const name = $('#c-name').value.trim(); if (name.length < 3) throw new Error('Pon un nombre de al menos 3 letras');
     await K.call('company:create', { name, tag: $('#c-tag').value || name.slice(0, 3), description: $('#c-desc').value, commission: $('#c-com').value, color: $('#c-color').value, logo: newLogo });
-    toast({ title: 'Empresa fundada 🏢', body: `${name} · capital inicial ${money(300000)}`, kind: 'achievement' }); S.companyTab = 'dashboard'; await reload();
+    toast({ title: 'Empresa fundada 🏢', body: `${name} · capital inicial ${money(300000)}`, kind: 'achievement' }); S.companyTab = 'dashboard'; S.showLobby = false; await reload();
   });
   on('#j-join', async () => { await K.call('company:join', $('#j-code').value); toast({ title: 'Bienvenido 🎉', body: 'Ya formas parte de la empresa', kind: 'money' }); await reload(); });
   on('#req-cancel', async () => { await K.call('company:cancelRequest'); await reload(); });
@@ -731,7 +771,7 @@ function mountCompany(root) {
     const m = member(b.dataset.manage); const owner = S.myRole === 'owner'; const self = m.id === me.uid;
     const bg = modal(`<div class="row" style="gap:12px">${avatar(m.photo, m.name, 48)}<div><h2 style="margin:0">${esc(m.name)}</h2><div class="muted">${ROLE[m.role]}${m.title ? ' · ' + esc(m.title) : ''}</div></div></div>
       <div class="manage-grid">
-        <button class="btn" data-meta="${m.id}">🏷️ Rol y etiquetas</button><button class="btn" data-salary="${m.id}">💼 Sueldo</button>
+        <button class="btn" data-meta="${m.id}">🏷️ Rol y etiquetas</button><button class="btn" data-salary="${m.id}">💼 Sueldo</button><button class="btn" data-bonus="${m.id}">💸 Pagar desde la empresa</button>
         <button class="btn" data-mview="${m.id}">📊 Ver ficha</button>
         ${!self && m.role !== 'owner' && owner ? `<button class="btn" data-role="${m.id}">${m.role === 'admin' ? '↓ Pasar a conductor' : '↑ Hacer gerente'}</button><button class="btn" data-owner="${m.id}">👑 Ceder la empresa</button>` : ''}
         ${!self && m.role !== 'owner' ? `<button class="btn danger" data-kick="${m.id}">Expulsar</button>` : ''}
@@ -919,7 +959,7 @@ async function driverModal(uid, member) {
     const me = S.profile.online || {};
     const bg = modal(`<div class="row between"><div class="row" style="gap:14px">${avatar(u.photo, u.name, 64, 'linear-gradient(135deg,var(--accent),var(--accent2))', '#fff')}<div><h2 style="margin:0">${esc(u.name || 'Conductor')}</h2>
         <div class="muted">${u.companyName ? esc(u.companyName) : 'Sin empresa'}${m.role ? ' · ' + ROLE[m.role] : ''}${u.tmpName ? ' · TruckersMP: ' + esc(u.tmpName) : ''}</div></div></div>
-        <div class="row">${uid !== me.uid ? '<button class="btn sm ghost" id="dm-rep" title="Reportar conductor">🚩</button>' : ''}<button class="btn sm ghost" data-close>Cerrar</button></div></div>
+        <div class="row">${uid !== me.uid ? '<button class="btn sm" id="dm-send">💸 Enviar dinero</button><button class="btn sm ghost" id="dm-rep" title="Reportar conductor">🚩</button>' : ''}<button class="btn sm ghost" data-close>Cerrar</button></div></div>
       <div class="kv" style="margin-top:16px"><div><div class="k">Distancia</div><div class="v mono">${dist(u.km || 0)}</div></div><div><div class="k">Entregas</div><div class="v mono">${nf(u.jobs)}</div></div>
         <div><div class="k">Nivel</div><div class="v mono">${Math.floor(Math.sqrt((u.xp || 0) / 120)) + 1}</div></div><div><div class="k">Multas</div><div class="v mono">${nf(u.fineCount || 0)}</div></div>
         ${member ? `<div><div class="k">Ha ganado</div><div class="v mono pos">${money(m.driverEarned || 0)}</div></div><div><div class="k">Aportado</div><div class="v mono">${money(m.earned || 0)}</div></div>

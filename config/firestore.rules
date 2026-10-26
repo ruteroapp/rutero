@@ -16,6 +16,11 @@ service cloud.firestore {
         && p in (memberDoc(cid).get('title', '') != '' && company(cid).get('rolePerms', {}).get(memberDoc(cid).title, null) != null
           ? company(cid).rolePerms[memberDoc(cid).title] : company(cid).get('basePerms', [])));
     }
+    // compra de una empresa puesta a la venta: el comprador queda como dueño en el mismo lote
+    function buying(cid) {
+      return signed() && get(/databases/$(db)/documents/companies/$(cid)).data.get('forSale', false) == true
+        && getAfter(/databases/$(db)/documents/companies/$(cid)).data.ownerUid == me();
+    }
     // existsAfter: cuenta los cambios del mismo lote (al fundar o unirse)
     function isBotAdmin() { return signed() && get(/databases/$(db)/documents/config/discord).data.adminUid == me(); }
     function isMember(cid) { return signed() && existsAfter(/databases/$(db)/documents/companies/$(cid)/members/$(me())); }
@@ -41,6 +46,9 @@ service cloud.firestore {
       allow update: if isManager(cid)
         || (signed() && request.resource.data.diff(resource.data).affectedKeys()
               .hasOnly(['km', 'jobs', 'balance', 'membersCount', 'lastActivity', 'ratingSum', 'ratingCount', 'loan']))
+        || (signed() && resource.data.get('forSale', false) == true && request.resource.data.ownerUid == me()
+            && request.resource.data.forSale == false
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['ownerUid', 'ownerName', 'forSale', 'salePrice', 'lastActivity', 'membersCount']))
         || (can(cid, 'comprar') && request.resource.data.diff(resource.data).affectedKeys()
               .hasOnly(['balance', 'lastActivity', 'busUnlocked', 'busUnlockedAt', 'busGiftClaimed']));
       allow delete: if isOwner(cid);
@@ -49,7 +57,8 @@ service cloud.firestore {
         allow read: if signed();
         allow create: if signed() && me() == uid;
         // el propio conductor no puede cambiarse el rol ni el puesto
-        allow update: if (signed() && me() == uid && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'title'])) || isManager(cid);
+        allow update: if (signed() && me() == uid && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'title'])) || isManager(cid)
+          || (buying(cid) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['role']));
         allow delete: if (signed() && me() == uid) || isManager(cid);
       }
       match /requests/{uid} {

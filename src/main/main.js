@@ -4,7 +4,7 @@ const fs = require('fs');
 const { parse, SharedMemoryReader, EXPECTED_REV } = require('./telemetry');
 const { Tracker } = require('./tracker');
 const { Store } = require('./store');
-const { Cloud, GARAGES, BASE_SLOTS, LOAN_OPTIONS, LOAN_RATE, LOAN_AUTOPAY, BUS_UNLOCK_PRICE, BUS_BOOST } = require('./cloud');
+const { Cloud, CREATE_PRICE, GARAGES, BASE_SLOTS, LOAN_OPTIONS, LOAN_RATE, LOAN_AUTOPAY, BUS_UNLOCK_PRICE, BUS_BOOST } = require('./cloud');
 const { tmp } = require('./truckersmp');
 const plugin = require('./plugin');
 const { Photos } = require('./photos');
@@ -562,7 +562,7 @@ function registerIpc() {
   const h = (ch, fn) => ipcMain.handle(ch, wrap(async (...a) => { if (NEEDS_ME.test(ch)) await ensureMe(); return fn(...a); }));
   h('win', (cmd) => { if (cmd === 'min') win.minimize(); else if (cmd === 'max') win.isMaximized() ? win.unmaximize() : win.maximize(); else if (cmd === 'close') win.hide(); else if (cmd === 'quit') { app.isQuitting = true; app.quit(); } });
   h('state', () => ({
-    lang: langNow(), busUnlocked: busAllowed(), canRoutes: canRoutes(), busName: (myCompany && myCompany.busName) || '', links: loadLinks(), loanOptions: LOAN_OPTIONS, loanRate: LOAN_RATE, loanAutopay: LOAN_AUTOPAY, busUnlockPrice: BUS_UNLOCK_PRICE, busBoost: BUS_BOOST,
+    lang: langNow(), createPrice: CREATE_PRICE, busUnlocked: busAllowed(), canRoutes: canRoutes(), busName: (myCompany && myCompany.busName) || '', links: loadLinks(), loanOptions: LOAN_OPTIONS, loanRate: LOAN_RATE, loanAutopay: LOAN_AUTOPAY, busUnlockPrice: BUS_UNLOCK_PRICE, busBoost: BUS_BOOST,
     settings: safeSettings(), profile: publicProfile(), jobs: store.get('jobs').slice(0, 300), expenses: store.get('expenses').slice(0, 200),
     achievements: P.ACHIEVEMENTS.map(({ test, ...a }) => ({ ...a, unlockedAt: store.get('achievements')[a.id] || null })),
     daily: { ...dailyState(), list: P.dailyChallenges(dailyState().day) },
@@ -681,6 +681,11 @@ function registerIpc() {
   h('company:leave', async () => { await cloud.leaveCompany(me); await refreshOnline(); return publicProfile(); });
   h('company:get', (id) => cloud.company(id || (me && me.companyId)));
   h('company:browse', () => cloud.browseCompanies());
+  h('company:mine', async () => { await ensureMe(); return cloud.myCompanies(me); });
+  h('company:switch', async (cid) => { await cloud.switchCompany(cid, me); await refreshOnline(); return publicProfile(); });
+  h('company:forSale', () => cloud.companiesForSale());
+  h('company:sell', async (price) => { await cloud.setForSale(me.companyId, price); });
+  h('company:buy', async (cid) => { await ensureMe(); const c = await cloud.buyCompany(cid, me); await refreshOnline(); return c.name; });
   h('company:update', async (data) => { await cloud.updateCompany(me.companyId, data); await refreshOnline(); });
   h('company:newCode', () => cloud.newJoinCode(me.companyId));
   h('company:role', (uid, role) => cloud.setRole(me.companyId, uid, role));

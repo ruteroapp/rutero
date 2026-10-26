@@ -52,6 +52,7 @@ const GARAGES = {
   big: { name: 'grande', slots: 10, price: 400000 },
 };
 const repairCost = (t) => Math.round((100 - (t.condition ?? 100)) / 100 * (t.price || 0) * 0.25);
+const CREATE_PRICE = 600000; // fundar una empresa cuesta 600.000 de la cartera
 const JOIN_BONUS = 300000; // la empresa recibe 300.000 por cada conductor que entra
 const inc = (fieldPath, n, dbl = false) => ({ fieldPath, increment: dbl ? { doubleValue: n } : { integerValue: String(Math.round(n)) } });
 
@@ -274,7 +275,8 @@ class Cloud {
     return { name: me.name || '', photo: me.photo || '', role, km: 0, jobs: 0, earned: 0, driverEarned: 0, salaryEarned: 0, pendingBonus: 0, salaryPerKm: 0, salaryPerJob: 0, finesCount: 0, finesAmount: 0, joinedAt: new Date() };
   }
   async createCompany({ name, tag, color, description, commission, language, recruiting, logo, joinMode, rules, requirements }, me) {
-    if (me.companyId) throw new Error('Ya perteneces a una empresa');
+    const u = await this.me();
+    if ((u.money || 0) < CREATE_PRICE) throw new Error(`Fundar una empresa cuesta ${CREATE_PRICE.toLocaleString('es-ES')}: no tienes tanto dinero en la cartera`);
     const id = newId();
     const data = {
       name, tag: (tag || '').toUpperCase().slice(0, 5), color: color || '#4C8DFF', description: description || '', logo: logo || '',
@@ -287,7 +289,7 @@ class Cloud {
       this.create(`companies/${id}`, data),
       this.create(`companies/${id}/members/${this.uid}`, this.memberDoc(me, 'owner')),
       this.upd(`users/${this.uid}`, { companyId: id, companyName: name, companyTag: data.tag, pendingCompanyId: '' },
-        [{ fieldPath: 'joinedCompanies', appendMissingElements: { values: [{ stringValue: id }] } }]),
+        [inc('money', -CREATE_PRICE), { fieldPath: 'joinedCompanies', appendMissingElements: { values: [{ stringValue: id }] } }, { fieldPath: 'memberOf', appendMissingElements: { values: [{ stringValue: id }] } }]),
       this.create(`companies/${id}/bank/${newId()}`, { kind: 'joinbonus', amount: JOIN_BONUS, by: me.name || '', note: `Empresa fundada · capital inicial por ${me.name}`, at: new Date() }),
     ]);
     return id;
@@ -304,20 +306,18 @@ class Cloud {
       this.create(`companies/${c.id}/members/${this.uid}`, this.memberDoc(me, 'driver')),
       this.upd(`companies/${c.id}`, { lastActivity: new Date() }, [inc('membersCount', 1), inc('balance', bonus)]),
       this.upd(`users/${this.uid}`, { companyId: c.id, companyName: c.name, companyTag: c.tag, pendingCompanyId: '' },
-        [{ fieldPath: 'joinedCompanies', appendMissingElements: { values: [{ stringValue: c.id }] } }]),
+        [{ fieldPath: 'joinedCompanies', appendMissingElements: { values: [{ stringValue: c.id }] } }, { fieldPath: 'memberOf', appendMissingElements: { values: [{ stringValue: c.id }] } }]),
       this.create(`companies/${c.id}/bank/${newId()}`, { kind: bonus ? 'joinbonus' : 'info', amount: bonus, by: me.name || '', note: bonus ? `${me.name} se ha unido · bono de incorporación` : `${me.name} ha vuelto a la empresa`, at: new Date() }),
     ]);
     return c;
   }
   async joinCompany(code, me) {
-    if (me.companyId) throw new Error('Primero sal de tu empresa actual');
     const c = await this.findByCode(code);
     if (!c) throw new Error('Código no válido');
     return this.joinById(c, me);
   }
   // solicitudes para entrar sin código
   async requestJoin(cid, message, me) {
-    if (me.companyId) throw new Error('Primero sal de tu empresa actual');
     await this.commit([
       { update: { name: this.path(`companies/${cid}/requests/${this.uid}`), fields: fieldsOf({ name: me.name || '', photo: me.photo || '', km: me.km || 0, jobs: me.jobs || 0, message: message || '', status: 'pending', at: new Date() }) } },
       this.upd(`users/${this.uid}`, { pendingCompanyId: cid }),
@@ -327,7 +327,7 @@ class Cloud {
     await this.commit([this.upd(`companies/${cid}/requests/${uid}`, { status: accept ? 'accepted' : 'rejected' })]);
   }
   async checkMyRequest(me) {
-    if (!me.pendingCompanyId || me.companyId) return null;
+    if (!me.pendingCompanyId) return null;
     const cid = me.pendingCompanyId;
     const r = await this.getDoc(`companies/${cid}/requests/${this.uid}`);
     if (!r) { await this.updateMe({ pendingCompanyId: '' }); return null; }
@@ -351,10 +351,60 @@ class Cloud {
     const c = me.companyId; if (!c) return;
     const comp = await this.getDoc(`companies/${c}`);
     if (comp && comp.ownerUid === this.uid && comp.membersCount > 1) throw new Error('Pasa la propiedad a otro miembro antes de salir');
-    const writes = [{ delete: this.path(`companies/${c}/members/${this.uid}`) }, this.upd(`users/${this.uid}`, { companyId: '', companyName: '', companyTag: '' })];
+    // si tiene más empresas, pasa a la siguiente
+    const rest = (await this.myCompanies(me)).filter((x) => x.id !== c);
+    const next = rest[0] || null;
+    const writes = [{ delete: this.path(`companies/${c}/members/${this.uid}`) },
+      this.upd(`users/${this.uid}`, { companyId: next ? next.id : '', companyName: next ? next.name : '', companyTag: next ? next.tag : '' }, [{ fieldPath: 'memberOf', removeAllFromArray: { values: [{ stringValue: c }] } }])];
     if (comp && comp.ownerUid === this.uid) writes.push({ delete: this.path(`companies/${c}`) });
     else writes.push(this.upd(`companies/${c}`, { lastActivity: new Date() }, [inc('membersCount', -1)]));
     await this.commit(writes);
+  }
+  // ---------- varias empresas por jugador ----------
+  async myCompanies(me) {
+    const ids = [...new Set([...(me.memberOf || []), me.companyId].filter(Boolean))];
+    const out = await Promise.all(ids.map(async (id) => {
+      const [c, m] = await Promise.all([this.getDoc(`companies/${id}`).catch(() => null), this.getDoc(`companies/${id}/members/${this.uid}`).catch(() => null)]);
+      return c && m ? { id, name: c.name, tag: c.tag, color: c.color, logo: c.logo || '', role: m.role, owner: c.ownerUid === this.uid, forSale: !!c.forSale, salePrice: c.salePrice || 0 } : null;
+    }));
+    return out.filter(Boolean);
+  }
+  async switchCompany(cid, me) {
+    const [c, m] = await Promise.all([this.getDoc(`companies/${cid}`), this.getDoc(`companies/${cid}/members/${this.uid}`)]);
+    if (!c || !m) throw new Error('No perteneces a esa empresa');
+    await this.commit([this.upd(`users/${this.uid}`, { companyId: cid, companyName: c.name, companyTag: c.tag }, [{ fieldPath: 'memberOf', appendMissingElements: { values: [{ stringValue: cid }] } }])]);
+  }
+  // ---------- compraventa de empresas ----------
+  async setForSale(cid, price) {
+    const c = await this.getDoc(`companies/${cid}`);
+    if (!c || c.ownerUid !== this.uid) throw new Error('Solo el dueño puede vender la empresa');
+    price = Math.round(Number(price) || 0);
+    if (price && price < 1000) throw new Error('Pon un precio de al menos 1.000');
+    await this.commit([this.upd(`companies/${cid}`, { forSale: price > 0, salePrice: price > 0 ? price : 0, lastActivity: new Date() })]);
+  }
+  async companiesForSale() {
+    return this.query(null, { from: [{ collectionId: 'companies' }], where: { fieldFilter: { field: { fieldPath: 'forSale' }, op: 'EQUAL', value: { booleanValue: true } } }, limit: 50 });
+  }
+  async buyCompany(cid, me) {
+    const c = await this.getDoc(`companies/${cid}`);
+    if (!c || !c.forSale) throw new Error('Esa empresa ya no está a la venta');
+    if (c.ownerUid === this.uid) throw new Error('Ya es tu empresa');
+    const price = Math.round(c.salePrice || 0);
+    const u = await this.me();
+    if ((u.money || 0) < price) throw new Error('No tienes tanto dinero en la cartera');
+    const mine = await this.getDoc(`companies/${cid}/members/${this.uid}`);
+    const writes = [
+      this.upd(`users/${this.uid}`, { lastActivity: new Date(), ...(me.companyId ? {} : { companyId: cid, companyName: c.name, companyTag: c.tag }) },
+        [inc('money', -price), { fieldPath: 'memberOf', appendMissingElements: { values: [{ stringValue: cid }] } }, { fieldPath: 'joinedCompanies', appendMissingElements: { values: [{ stringValue: cid }] } }]),
+      this.upd(`companies/${cid}`, { ownerUid: this.uid, ownerName: me.name || '', forSale: false, salePrice: 0, lastActivity: new Date() }, mine ? [] : [inc('membersCount', 1)]),
+      mine ? this.upd(`companies/${cid}/members/${this.uid}`, { role: 'owner' }) : this.create(`companies/${cid}/members/${this.uid}`, this.memberDoc(me, 'owner')),
+      this.upd(`companies/${cid}/members/${c.ownerUid}`, { role: 'admin' }),
+      this.create(`users/${c.ownerUid}/inbox/${newId()}`, { fromUid: this.uid, fromName: me.name || '', amount: price, note: `Venta de la empresa ${c.name}`, at: new Date() }),
+      this.create(`users/${this.uid}/transfers/${newId()}`, { amount: -price, other: c.ownerName || '', note: `Compra de la empresa ${c.name}`, at: new Date() }),
+      this.create(`companies/${cid}/bank/${newId()}`, { kind: 'info', amount: 0, by: me.name || '', note: `${me.name} ha comprado la empresa a ${c.ownerName || ''} por ${price.toLocaleString('es-ES')}`, at: new Date() }),
+    ];
+    await this.commit(writes);
+    return c;
   }
   async company(id) {
     const sub = (col, field, limit = 60) => this.query(`companies/${id}`, { from: [{ collectionId: col }], orderBy: [{ field: { fieldPath: field }, direction: 'DESCENDING' }], limit }).catch(() => []);
@@ -397,7 +447,6 @@ class Cloud {
   }
   // empresas públicas: entrar sin esperar a que te acepten
   async joinOpen(cid, me) {
-    if (me.companyId) throw new Error('Primero sal de tu empresa actual');
     const c = await this.getDoc(`companies/${cid}`);
     if (!c) throw new Error('Esa empresa ya no existe');
     if ((c.joinMode || (c.recruiting ? 'apply' : 'closed')) !== 'open') throw new Error('Esta empresa no es pública: envía una solicitud');
@@ -459,7 +508,11 @@ class Cloud {
   async claimBonus(me) {
     if (!me.companyId) return 0;
     const m = await this.getDoc(`companies/${me.companyId}/members/${this.uid}`);
-    if (!m) { await this.updateMe({ companyId: '', companyName: '', companyTag: '' }); return -1; } // te expulsaron
+    if (!m) { // te expulsaron: pasa a otra de tus empresas si tienes
+      const next = (await this.myCompanies(me)).find((x) => x.id !== me.companyId);
+      await this.commit([this.upd(`users/${this.uid}`, { companyId: next ? next.id : '', companyName: next ? next.name : '', companyTag: next ? next.tag : '' }, [{ fieldPath: 'memberOf', removeAllFromArray: { values: [{ stringValue: me.companyId }] } }])]);
+      return -1;
+    }
     const amount = m.pendingBonus || 0;
     if (amount > 0) {
       await this.commit([
@@ -757,4 +810,4 @@ class Cloud {
   }
 }
 
-module.exports = { LOAN_OPTIONS, LOAN_RATE, LOAN_AUTOPAY, BUS_UNLOCK_PRICE, BUS_BOOST, cleanReqs, Cloud, toFs, fromFs, fieldsOf, newId, JOIN_BONUS, GARAGES, BASE_SLOTS, repairCost };
+module.exports = { CREATE_PRICE, LOAN_OPTIONS, LOAN_RATE, LOAN_AUTOPAY, BUS_UNLOCK_PRICE, BUS_BOOST, cleanReqs, Cloud, toFs, fromFs, fieldsOf, newId, JOIN_BONUS, GARAGES, BASE_SLOTS, repairCost };
