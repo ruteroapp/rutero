@@ -406,7 +406,7 @@ function startTelemetry() {
       case 'bus:finished': handleTrip(data); toast(data.routeDone ? 'Ruta completada 🚌✅' : 'Ruta de autobús terminada 🚌', `${data.stops} paradas · ${data.passengers} pasajeros${data.routeBonus ? ` · +${data.routeBonus.toLocaleString(I18N.locale())} extra` : ''}`, 'money'); break;
       case 'bus:update': send('bus', data); sendOverlay('bus', data); break;
       case 'bus:stop': if (data.doors) send('sound', 'doorClose'); toast(data.name ? `Parada ${data.stop}: ${data.name}` : `Parada ${data.stop}`, `Suben ${data.on} · bajan ${data.off} · a bordo ${data.onBoard}${data.left ? ` · ${data.left} se quedan en tierra` : ''}`); sendOverlay('toast', { title: `🚏 ${data.name || `Parada ${data.stop}`}`, body: `+${data.on} / -${data.off} · ${data.onBoard} a bordo` }); break;
-      case 'bus:doors': send('sound', 'doorOpen'); sendOverlay('toast', { title: '🚪 Puertas abiertas', body: `${data.alighting} bajan · ${data.waiting} esperando${data.name ? ` · ${data.name}` : ''}` }); break;
+      case 'bus:doors': if (data.open === false) break; send('sound', 'doorOpen'); if (data.offStop) break; sendOverlay('toast', { title: '🚪 Puertas abiertas', body: `${data.alighting} bajan · ${data.waiting} esperando${data.name ? ` · ${data.name}` : ''}` }); break;
       case 'bus:stopPos':
         if (data.mine) { store.set('busRoutes', (store.get('busRoutes') || []).map((r) => (r.id === data.routeId ? { ...r, stopPos: [...(r.stopPos || []).filter((x) => !(x.name === data.pos.name && x.g === data.pos.g)), data.pos] } : r))); }
         else if (data.routeId && me && me.companyId) cloud.saveStopPos(me.companyId, data.routeId, data.pos).catch((e) => console.warn('parada', e.message));
@@ -518,7 +518,7 @@ const canRoutes = () => {
   const list = (myMember.title && rp[myMember.title]) || myCompany.basePerms || [];
   return list.includes('rutas');
 };
-// grabar una ruta conduciendo: F1 empieza en la salida y termina en el destino, F2 marca cada parada, F3 deshace la última
+// grabar una ruta conduciendo (con Mayús pulsada): F1 empieza en la salida y termina en el destino, F2 marca cada parada, F3 deshace la última
 function recordKey(k) {
   if (!busAllowed()) return;
   if (k === 'F1' && !recording && !canRoutes()) return notify('Sin permiso', 'Tu rol no puede crear rutas de bus');
@@ -529,12 +529,12 @@ function recordKey(k) {
   if (k === 'F1') {
     if (!recording) {
       recording = { startedAt: Date.now(), game: last.game || '', points: [here] };
-      return notify('⏺ Grabando ruta', 'Salida guardada. F2 en cada parada, F1 en el destino');
+      return notify('⏺ Grabando ruta', 'Salida guardada. Shift+F2 en cada parada, Shift+F1 en el destino');
     }
     // el sitio donde se pulsa F1 es el destino
     const pts = recording.points.slice();
     if (far(pts[pts.length - 1], here)) pts.push(here);
-    if (pts.length < 2) { recording = null; send('rec', null); return notify('Grabación cancelada', 'Conduce hasta el destino antes de pulsar F1'); }
+    if (pts.length < 2) { recording = null; send('rec', null); return notify('Grabación cancelada', 'Conduce hasta el destino antes de pulsar Shift+F1'); }
     const names = pts.map((_, n) => (n === 0 ? 'Salida' : n === pts.length - 1 ? 'Destino' : `Parada ${n}`));
     const d = new Date();
     const route = { id: `r${Date.now().toString(36)}`, code: '', name: `Ruta grabada ${d.toLocaleDateString(I18N.locale(), { day: '2-digit', month: '2-digit' })} ${d.toLocaleTimeString(I18N.locale(), { hour: '2-digit', minute: '2-digit' })}`,
@@ -549,7 +549,7 @@ function recordKey(k) {
   if (k === 'F2') {
     if (!far(recording.points[recording.points.length - 1], here)) return notify('📍 Ya hay una parada aquí', 'Avanza hasta la siguiente parada');
     recording.points.push(here);
-    return notify(`📍 Parada ${recording.points.length - 1} guardada`, 'F2 siguiente parada · F3 deshacer · F1 destino');
+    return notify(`📍 Parada ${recording.points.length - 1} guardada`, 'Shift+F2 siguiente parada · Shift+F3 deshacer · Shift+F1 destino');
   }
   if (k === 'F3') {
     if (recording.points.length < 2) return notify('Nada que deshacer', 'Todavía no has marcado paradas');
@@ -809,8 +809,9 @@ app.whenReady().then(async () => {
   store = new Store(app.getPath('userData'));
   cloud = new Cloud(loadCloudConfig(), store);
   photos = new Photos(store, [path.join(RES, 'config'), path.join(ROOT, 'config')]);
-  const REC_KEYS = ['F1', 'F2', 'F3'];
-  watchKeys(() => REC_KEYS, () => store.get('settings').busHotkeys !== false && status === 'driving', (k) => recordKey(k));
+  // Mayús + F1/F2/F3 (solas, F1–F3 las usa el juego)
+  const REC_KEYS = ['SHIFT+F1', 'SHIFT+F2', 'SHIFT+F3'];
+  watchKeys(() => REC_KEYS, () => store.get('settings').busHotkeys !== false && status === 'driving', (k) => recordKey(k.replace('SHIFT+', '')));
   // tecla de puertas del autobús (U por defecto) mientras haya una ruta en marcha
   watchKey(() => store.get('settings').busDoorKey || 'U', () => !!(tracker && tracker.bus), () => tracker.toggleDoors());
   bot = new DiscordBot({ store, getCloud: () => cloud, root: ROOT, log: (...a) => console.warn('[bot]', ...a) });

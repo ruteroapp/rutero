@@ -181,7 +181,7 @@ class Tracker {
     } else if (!b.doorsUsed && t.speedKmh < 1.5) {
       // modo automático
       b.stoppedSec += dt;
-      if (b.stoppedSec >= 12 && b.sinceLastStopKm >= 0.3) {
+      if (b.stoppedSec >= 12 && b.sinceLastStopKm >= 0.3 && !this.awayFromStop(b)) {
         const off = b.stops === 0 ? 0 : Math.min(b.onBoard, Math.floor(Math.random() * (b.onBoard + 1)));
         const on = Math.min(b.capacity - (b.onBoard - off), 2 + Math.floor(Math.random() * 18));
         b.onBoard = b.onBoard - off + on;
@@ -208,6 +208,11 @@ class Tracker {
     let rel = ((thd - th) * 180 / Math.PI) % 360; if (rel > 180) rel -= 360; if (rel < -180) rel += 360;
     return { name, known: true, dist: Math.round(dist), rel: Math.round(-rel) }; // rel > 0 = a la derecha
   }
+  // true si la posición de la próxima parada es conocida y el autobús está lejos de ella
+  awayFromStop(b) {
+    const nav = b.nav || this.navTo(b);
+    return !!(nav && nav.known && nav.dist > Tracker.STOP_RADIUS);
+  }
   recordStop(b, index) {
     const p = this.busPos; const name = b.stopNames[index];
     if (!p || !name || b.stopPos.some((s) => s.name === name && (!s.g || s.g === p.g))) return;
@@ -224,12 +229,22 @@ class Tracker {
       const first = b.stops === 0, last = n > 0 && b.stops >= n - 1;
       b.doors = true; b.doorsUsed = true; b.flowSec = 0; b.stopOn = 0; b.stopOff = 0;
       b.stopName = b.stopNames[b.stops] || '';
+      // fuera de la parada (si ya se sabe dónde está) se abren las puertas, pero nadie sube ni baja
+      b.offStop = this.awayFromStop(b);
+      if (b.offStop) {
+        b.alighting = 0; b.waiting = 0;
+        this.emit('bus:warn', `Estás a ${b.nav.dist} m de la parada: aquí no sube ni baja nadie`);
+        this.emit('bus:doors', { open: true, name: b.stopName, waiting: 0, alighting: 0, offStop: true, dist: b.nav.dist });
+        this.emit('bus:update', b);
+        return b;
+      }
       const rnd = (a, z) => a + Math.floor(Math.random() * (z - a + 1));
       b.alighting = first ? 0 : last ? b.onBoard : Math.min(b.onBoard, rnd(0, Math.ceil(b.onBoard * 0.6)));
       b.waiting = last ? 0 : first ? rnd(6, 28) : (Math.random() < 0.15 ? 0 : rnd(1, 18));
       this.emit('bus:doors', { open: true, name: b.stopName, waiting: b.waiting, alighting: b.alighting });
     } else {
       b.doors = false;
+      if (b.offStop) { b.offStop = false; this.emit('bus:doors', { open: false, name: b.stopName, offStop: true }); this.emit('bus:update', b); return b; }
       this.recordStop(b, b.stops);
       b.stops += 1; b.sinceLastStopKm = 0;
       b.events.push({ stop: b.stops, name: b.stopName, on: b.stopOn, off: b.stopOff, at: Date.now() });
@@ -256,4 +271,5 @@ class Tracker {
   }
 }
 
+Tracker.STOP_RADIUS = 60; // metros alrededor de la parada en los que se puede subir y bajar
 module.exports = { Tracker };
