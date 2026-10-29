@@ -31,6 +31,16 @@ let myCompany = null;   // datos básicos de mi empresa (comisión)
 let myMember = null;    // mi ficha dentro de la empresa (sueldo)
 let last = null;        // último fotograma
 let status = 'waiting';
+let gameSeenAt = 0; // última vez que el juego estaba abierto
+// Actualización descargada: se instala sola (sin preguntar) cuando el juego lleva 2 minutos cerrado y no hay ruta en marcha.
+let autoInstalling = false;
+function autoInstall() {
+  if (!updater || autoInstalling || updater.state().status !== 'ready') return;
+  if (status !== 'waiting' || Date.now() - gameSeenAt < 2 * 60_000 || (tracker && tracker.bus) || recording) return;
+  autoInstalling = true;
+  toast('Actualizando Rutero', 'Se cierra y se vuelve a abrir solo en unos segundos');
+  setTimeout(() => { if (status === 'waiting') updater.install(true); else autoInstalling = false; }, 12_000);
+}
 let tmpRunning = false;
 let todayStats = { todayEarned: 0, todayFines: 0, todayKm: 0 };
 function computeToday() {
@@ -440,6 +450,7 @@ function startTelemetry() {
   let n = 0;
   setInterval(() => {
     const buf = reader.read();
+    if (buf) gameSeenAt = Date.now();
     if (!buf) { status = 'waiting'; if (n++ % 10 === 0) send('status', { status, tmp: !!tmpRunning, mpName: tmpRunning || 'TruckersMP' }); return; }
     const t = parse(buf);
     if (!t.sdkActive) status = 'menu';
@@ -846,7 +857,8 @@ app.whenReady().then(async () => {
   // tecla de puertas del autobús (U por defecto) mientras haya una ruta en marcha
   watchKey(() => store.get('settings').busDoorKey || 'U', () => !!(tracker && tracker.bus), () => tracker.toggleDoors());
   bot = new DiscordBot({ store, getCloud: () => cloud, root: ROOT, log: (...a) => console.warn('[bot]', ...a) });
-  updater = setupUpdater(send);
+  updater = setupUpdater(send, { onReady: (v) => { toast(`Rutero ${v || ''}`, 'Actualización lista: se instalará sola cuando cierres el juego'); setTimeout(autoInstall, 5000); } });
+  setInterval(autoInstall, 60_000);
   registerIpc();
   createWindow();
   createTray();
@@ -861,7 +873,7 @@ app.whenReady().then(async () => {
   const announce = () => { if (cloud.uid) { announceRelease(cloud, ROOT).catch(() => {}); announceBusWeek(cloud).catch(() => {}); } };
   setTimeout(announce, 60_000);
   setInterval(announce, 3 * 3600_000);
-  setInterval(() => updater.check(), 6 * 3600_000);
+  setInterval(() => updater.check(), 30 * 60_000); // cada 30 minutos
 });
 app.on('second-instance', (e, argv) => { if (win) { win.show(); win.focus(); } handleProtocolUrl((argv || []).find((a) => /^rutero:\/\//i.test(a))); });
 app.on('open-url', (e, u) => { e.preventDefault(); handleProtocolUrl(u); });
