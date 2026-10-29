@@ -769,6 +769,7 @@ const PAGE_BUS = {
         <div class="kk"><b class="kbd">😊</b><div><b>Satisfacción</b><span>Frenazos, curvas rápidas y exceso de velocidad la bajan. Con buena nota dejan propina.</span></div></div>
         <div class="kk"><b class="kbd">⏱</b><div><b>Horario</b><span>Cada parada tiene una hora prevista. Llegar a tiempo da un extra; muy tarde, parte de la gente se va.</span></div></div>
         <div class="kk"><b class="kbd">🕗</b><div><b>Hora punta</b><span>Más gente de 7 a 9 y de 17 a 19 (hora del juego) y en ciudades grandes; menos de noche y en paradas de carretera.</span></div></div>
+        <div class="kk"><b class="kbd">💶</b><div><b>Pago ×6</b><span>Cada billete, cada km, las propinas y la puntualidad se cobran ×6: el precio que pones en la ruta se multiplica.</span></div></div>
         <div class="kk"><b class="kbd">⛽</b><div><b>Gastos</b><span>El combustible gastado y el desgaste del bus se restan de lo ganado.</span></div></div>
       </div></div>
     <div class="card" style="margin-top:16px"><h2>Historial de rutas</h2>${!trips.length ? '<div class="empty"><div class="big">🚏</div>Aún no has hecho rutas</div>' : `
@@ -825,7 +826,7 @@ function updateBus() {
   const b = S.bus;
   const key = (S.data.settings.busDoorKey || 'U').toUpperCase();
   el.innerHTML = [['Paradas', `${b.stops}${b.stopNames && b.stopNames.length ? ` / ${b.stopNames.length}` : ''}`], ['A bordo', `${b.onBoard} / ${b.capacity || 55}`], ['Pasajeros totales', b.passengers], ['Distancia', dist(b.km, 1)],
-    ['Billetes', money(b.ticketMoney ?? b.passengers * b.fare)], ['Por km', money((b.km || 0) * (b.perKm ?? 0))], ['Tiempo', dur((Date.now() - b.startedAt) / 60000)], ['Exceso velocidad', `${Math.round(b.speedingSec)} s`],
+    ['Billetes', money(b.ticketMoney ?? b.passengers * b.fare)], ['Por km', money((b.km || 0) * (b.perKm ?? 0) * (b.pay || 1))], ['Tiempo', dur((Date.now() - b.startedAt) / 60000)], ['Exceso velocidad', `${Math.round(b.speedingSec)} s`],
     ['Satisfacción', `${Math.round(b.sat ?? 100)}%`], ['Puntualidad', b.timed ? `${b.punctual} / ${b.timed}` : '—'], ['Propinas y extras', money((b.tips || 0) + (b.punctualPay || 0))], ['Combustible', `${nf(b.fuelUsed || 0, 1)} L`]]
     .map(([k, v]) => `<div class="stat"><span class="k">${k}</span><span class="v mono" style="font-size:26px">${esc(v)}</span></div>`).join('');
   const db = $('#bus-doorbar');

@@ -161,7 +161,7 @@ class Tracker {
       // satisfacción 0–100 y lo que la ha bajado
       sat: 100, satEv: { brake: 0, turn: 0, speed: 0, doors: 0 }, reputation: Math.max(0, Math.min(100, Number(reputation) || 80)),
       tips: 0, punctual: 0, late: 0, timed: 0, lostLate: 0, punctualPay: 0, eta: null, lastDelay: null,
-      fuelUsed: 0, gameMin: 0, limit: 0, demand: null, announced: -1 };
+      fuelUsed: 0, gameMin: 0, limit: 0, demand: null, announced: -1, pay: Tracker.BUS_PAY };
     this.busAcc = 0; this.busLat = 0; this.busPrev = null; this.busEv = {}; this.busCd = {}; this.busWarnAt = 0; this.busFuel = null;
     this.emit('bus:update', this.bus);
   }
@@ -191,7 +191,7 @@ class Tracker {
         while (b.flowSec >= 0.8) {
           b.flowSec -= 0.8;
           if (b.alighting > 0 && b.onBoard > 0) { b.alighting--; b.onBoard--; b.stopOff++; }
-          else if (b.waiting > 0 && b.onBoard < b.capacity) { b.waiting--; b.onBoard++; b.passengers++; b.stopOn++; b.ticketMoney += b.fare; }
+          else if (b.waiting > 0 && b.onBoard < b.capacity) { b.waiting--; b.onBoard++; b.passengers++; b.stopOn++; b.ticketMoney += b.fare * b.pay; }
           else break;
         }
       }
@@ -205,7 +205,7 @@ class Tracker {
         b.onBoard = b.onBoard - off + on;
         this.recordStop(b, b.stops);
         b.tips += this.tipFor(b, off);
-        b.passengers += on; b.ticketMoney += on * b.fare; b.stops += 1; b.sinceLastStopKm = 0;
+        b.passengers += on; b.ticketMoney += on * b.fare * b.pay; b.stops += 1; b.sinceLastStopKm = 0;
         const name = b.stopNames[b.stops - 1] || '';
         b.next = b.stopNames[b.stops] || '';
         b.events.push({ stop: b.stops, name, on, off, at: Date.now() });
@@ -259,7 +259,7 @@ class Tracker {
     return { mult, rush: hour > 1, night: hour < 0.5, big: place > 1, road: place < 1 };
   }
   // propina de los que bajan si van contentos
-  tipFor(b, off) { const rate = b.sat >= 85 ? 0.3 : b.sat >= 70 ? 0.1 : 0; return Math.round(off * b.fare * rate * 100) / 100; }
+  tipFor(b, off) { const rate = b.sat >= 85 ? 0.3 : b.sat >= 70 ? 0.1 : 0; return Math.round(off * b.fare * rate * b.pay * 100) / 100; }
   // horario: tiempo previsto hasta la siguiente parada (si se conocen las dos posiciones)
   afterStop(b) {
     b.eta = null;
@@ -341,7 +341,7 @@ class Tracker {
       if (b.eta && b.eta.stop === b.stops) {
         const delay = Math.round((Date.now() - b.eta.due) / 1000);
         b.lastDelay = delay; b.timed++;
-        if (delay <= Tracker.ON_TIME) { b.punctual++; const pay = Math.max(10, Math.round(b.fare * 3)); b.punctualPay += pay; b.lastPay = pay; }
+        if (delay <= Tracker.ON_TIME) { b.punctual++; const pay = Math.round(Math.max(10, b.fare * 3) * b.pay); b.punctualPay += pay; b.lastPay = pay; }
         else if (delay > Tracker.VERY_LATE) {
           b.late++; const lost = Math.round(b.waiting * 0.4); b.waiting -= lost; b.lostLate += lost; b.sat = Math.max(0, b.sat - 3);
         }
@@ -366,7 +366,7 @@ class Tracker {
     const b = this.bus; if (!b) return null;
     const score = Tracker.score({ drivingSec: b.drivingSec, speedingSec: b.speedingSec, damage: 0 });
     const tickets = Math.round(b.ticketMoney);
-    const kmPay = Math.round(b.km * b.perKm);
+    const kmPay = Math.round(b.km * b.perKm * b.pay);
     const routeDone = !!(b.stopNames.length && b.stops >= b.stopNames.length);
     const routeBonus = routeDone && b.routeId ? Math.round(b.bonus) : 0;
     const tips = Math.round(b.tips);
@@ -377,7 +377,7 @@ class Tracker {
     const costs = fuelCost + wearCost;
     const satisfaction = Math.round(b.passengers ? b.sat : 100);
     const stars = Math.max(1, Math.min(5, Math.round(satisfaction / 20)));
-    const revenue = Math.max(0, Math.round(tickets + kmPay + (score >= 90 && b.km > 1 ? 50 : 0) + routeBonus + tips + punctualPay - costs));
+    const revenue = Math.max(0, Math.round(tickets + kmPay + (score >= 90 && b.km > 1 ? 50 * b.pay : 0) + routeBonus + tips + punctualPay - costs));
     const trip = { type: 'bus', line: b.line, from: b.from, to: b.to, startedAt: b.startedAt, finishedAt: Date.now(), km: b.km, stops: b.stops, passengers: b.passengers, tickets, kmPay, perKm: b.perKm, revenue, score, maxSpeed: b.maxSpeed, status: 'delivered',
       routeId: b.mine ? '' : (b.routeId || ''), myRouteId: b.mine ? b.routeId : '', routeDone, routeBonus, stopNames: b.stopNames, events: b.events, truck: b.truck || '', game: b.game || '', doorsUsed: b.doorsUsed,
       satisfaction, stars, satEv: b.satEv, tips, punctual: b.punctual, late: b.late, timed: b.timed, lostLate: b.lostLate, punctualPay,
@@ -395,6 +395,7 @@ Tracker.ON_TIME = 120;    // segundos de retraso que aún cuentan como puntual
 Tracker.VERY_LATE = 300;  // a partir de aquí parte de la gente se cansa de esperar
 Tracker.FUEL_PRICE = { ets2: 1.6, ats: 1.1 }; // por litro
 Tracker.WEAR_PER_KM = 0.12;
+Tracker.BUS_PAY = 6; // los billetes, el km, las propinas y la puntualidad se cobran ×6
 // paradas en ciudades grandes (por el nombre que le pones): más pasajeros
 Tracker.BIG_CITY = /madrid|barcelona|valencia|sevilla|bilbao|lisboa|lisbon|porto|par[ií]s|lyon|marseill|london|londres|manchester|birmingham|berl[ií]n|hamburg|m[uü]nchen|munich|frankfurt|k[oö]ln|cologne|stuttgart|wien|vienna|viena|praha|prague|praga|warszawa|warsaw|varsovia|krak[oó]w|budapest|roma|rome|milan|mil[aá]n|napoli|naples|torino|amsterdam|rotterdam|bruxelles|brussels|bruselas|z[uü]rich|gen[eè]v|k[øo]benhavn|copenhag|stockholm|estocolmo|oslo|helsinki|dublin|istanbul|bucure|sofia|athen|atenas|kyiv|kiev|riga|vilnius|tallinn|los angeles|san francisco|san diego|las vegas|phoenix|seattle|portland|denver|dallas|houston|austin|san antonio|chicago|new york|nueva york|salt lake|sacramento|albuquerque|oklahoma|kansas city|estaci[oó]n|station|centro|center|centre|downtown|aeropuerto|airport/i;
 module.exports = { Tracker };

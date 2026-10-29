@@ -1,7 +1,7 @@
 {
   "name": "rutero",
   "productName": "Rutero",
-  "version": "1.7.0",
+  "version": "1.7.1",
   "description": "Compañero de ruta para Euro Truck Simulator 2 y American Truck Simulator, conectado con TruckersMP",
   "main": "src/main/main.js",
   "author": "Rutero",
