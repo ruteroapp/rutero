@@ -1235,7 +1235,14 @@ function say({ text, lang, chime }) {
 if (window.speechSynthesis) speechSynthesis.getVoices();
 K.on('say', say);
 K.on('sound', (k) => { try { if (SFX[k]) SFX[k](); } catch (e) { console.warn('sonido', e); } });
-K.on('profile', (p) => { S.profile = p; renderSide(); });
+// la empresa se carga después de abrir la app: al llegar, se actualiza si tiene el servicio de autobuses (el candado del menú)
+K.on('profile', (p) => {
+  S.profile = p;
+  const busChanged = S.data && (S.data.busUnlocked !== p.busUnlocked || S.data.canRoutes !== p.canRoutes || S.data.busName !== p.busName);
+  if (S.data && p.busUnlocked !== undefined) Object.assign(S.data, { busUnlocked: p.busUnlocked, canRoutes: p.canRoutes, busName: p.busName });
+  renderSide();
+  if (busChanged && S.page === 'bus') render();
+});
 K.on('bus', (b) => { S.bus = b; if (S.page === 'bus') updateBus(); });
 K.on('trip', async () => { await refreshState(); renderSide(); if (['dash', 'jobs', 'stats', 'bus', 'achievements'].includes(S.page)) render(); });
 K.on('plugin:log', (m) => { const el = $('#plugin-log'); if (el) el.textContent = m; });

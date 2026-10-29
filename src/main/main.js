@@ -369,7 +369,7 @@ function publicProfile() {
   const xp = me ? me.xp || 0 : p.xp;
   const level = P.levelFromXp(xp);
   return {
-    local: p, online: me, company: myCompany, member: myMember, level, photo: (me && me.photo) || p.photo || '', rank: P.rankName(level), xp,
+    local: p, online: me, company: myCompany, member: myMember, level, busUnlocked: busAllowed(), canRoutes: canRoutes(), busName: (myCompany && myCompany.busName) || '', photo: (me && me.photo) || p.photo || '', rank: P.rankName(level), xp,
     xpThis: P.xpForLevel(level), xpNext: P.xpForLevel(level + 1),
     wallet: me ? me.money || 0 : p.wallet,
   };
