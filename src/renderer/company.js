@@ -531,10 +531,11 @@ const SECTIONS = {
         <div class="route-line">${r.stops.map((s, i) => `<div class="rstop ${i === 0 || i === r.stops.length - 1 ? 'end' : ''}"><i></i><span>${esc(s)}</span></div>`).join('')}</div>
         ${r.description ? `<div class="muted" style="font-size:13px;margin-bottom:10px;white-space:pre-wrap">${esc(r.description)}</div>` : ''}
         <div class="grid g3" style="margin-bottom:12px"><div class="mini-stat"><span>Billete</span><b>${money(r.fare)}</b></div><div class="mini-stat"><span>Pago extra</span><b>${money(r.bonus || 0)}</b></div><div class="mini-stat"><span>Completada</span><b>${full}×</b></div></div>
+        ${routeRecords(d)}
         <div class="row">${r.active === false ? '' : `<button class="btn primary sm" data-drive="${r.id}">▶ Conducir esta ruta</button>`}
           ${can('rutas') ? `<button class="btn sm" data-editroute="${r.id}">Editar</button><button class="btn sm ghost" data-delroute="${r.id}">Borrar</button>` : ''}</div></div>`; }).join('')}</div>`
         : `<div class="card"><div class="empty"><div class="big">🚏</div>La empresa todavía no tiene rutas de bus.${can('rutas') ? '<br>Crea la primera con «Nueva ruta».' : ''}</div></div>`) +
-      '<div class="notice" style="margin-top:16px">Cada vez que te detienes 12 segundos cuenta como la siguiente parada de la lista. Si haces todas las paradas, cobras el pago extra de la ruta.</div>';
+      '<div class="notice" style="margin-top:16px">En cada parada abre las puertas con la tecla U (o para 12 segundos). Si haces todas las paradas, cobras el pago extra de la ruta. Los récords de cada línea salen de las rutas completadas por los conductores de la empresa.</div>';
   },
   async news(c) {
     const list = [...c.news].sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0));
@@ -546,6 +547,20 @@ const SECTIONS = {
   },
 };
 
+// récords de una línea: ruta más rápida, mejor nota y quién la ha hecho más veces
+function routeRecords(list) {
+  const done = list.filter((j) => j.routeDone && j.status !== 'cancelled');
+  if (!done.length) return '';
+  const fast = done.filter((j) => j.durationMin > 0).sort((a, b) => a.durationMin - b.durationMin)[0];
+  const best = done.filter((j) => j.satisfaction !== undefined).sort((a, b) => b.satisfaction - a.satisfaction || (b.punctual || 0) - (a.punctual || 0))[0];
+  const count = {}; done.forEach((j) => { count[j.driverName] = (count[j.driverName] || 0) + 1; });
+  const [topName, topN] = Object.entries(count).sort((a, b) => b[1] - a[1])[0];
+  const item = (ic, label, val, who) => `<div class="row between" style="font-size:13px;margin-top:4px"><span class="muted">${ic} ${label}</span><span><b>${val}</b>${who ? ` · <span translate="no">${esc(who)}</span>` : ''}</span></div>`;
+  return `<div class="card flat" style="margin:0 0 12px;padding:10px 12px"><b style="font-size:13px">🏆 Récords de la línea</b>
+    ${fast ? item('⏱', 'Más rápida', dur(fast.durationMin), fast.driverName) : ''}
+    ${best ? item('⭐', 'Mejor nota', `${best.satisfaction}%`, best.driverName) : ''}
+    ${item('🔁', 'Más veces', `${topN}×`, topName)}</div>`;
+}
 function jobsList(list) {
   S.cjobsView = list;
   return list.length ? list.map((j, i) => `<div class="list-item" data-cjob="${i}" style="cursor:pointer">${avatar(j.driverPhoto, j.driverName)}

@@ -40,7 +40,7 @@ K.on('telemetry', (t) => {
   $('rpm').style.width = `${Math.min(100, (t.rpm / (t.rpmMax || 2500)) * 100)}%`;
   const j = t.job;
   if (!bus) { const nb = $('nav'); if (nb.classList.contains('on')) { nb.classList.remove('on'); resize(); } }
-  if (bus) $('j').textContent = `${bus.doors ? '🚪 ' + RI18N.tr('Puertas abiertas') + ' · ' + (bus.alighting ? `-${bus.alighting}` : `+${bus.waiting}`) : '🚌 ' + bus.line} · ${bus.next ? `${RI18N.tr('próxima')}: ${bus.next}` : `${RI18N.tr('parada')} ${bus.stops}`} · ${bus.onBoard} ${RI18N.tr('a bordo')}`;
+  if (bus) $('j').textContent = `${bus.doors ? '🚪 ' + RI18N.tr('Puertas abiertas') + ' · ' + (bus.alighting ? `-${bus.alighting}` : `+${bus.waiting}`) : '🚌 ' + bus.line} · ${bus.next ? `${RI18N.tr('próxima')}: ${bus.next}` : `${RI18N.tr('parada')} ${bus.stops}`} · ${bus.onBoard} ${RI18N.tr('a bordo')}${bus.onBoard ? ` · ${bus.sat >= 85 ? '😊' : bus.sat >= 60 ? '😐' : '😠'} ${Math.round(bus.sat ?? 100)}%` : ''}`;
   else $('j').textContent = j ? `📦 ${j.cargo} → ${j.to}` : 'Sin carga';
   $('r').textContent = t.routeKm > 0 ? `${c(t.routeKm).toLocaleString(LOC())} ${imperial ? 'mi' : 'km'}` : '—';
   $('e').textContent = fmtMin(t.routeMin);
@@ -79,7 +79,10 @@ function drawNav() {
   $('arw').style.transform = `rotate(${n.dist < 35 ? 0 : n.rel}deg)`;
   $('nvi').textContent = txt;
   $('nvd').textContent = n.dist < 35 ? '🚏' : fmtD(n.dist);
-  $('nvn').textContent = `${tr('Próxima parada')}: ${n.name}`;
+  // horario: tiempo que queda para la hora prevista (o retraso)
+  let eta = '';
+  if (bus.eta && bus.eta.stop === bus.stops) { const left = Math.round((bus.eta.due - Date.now()) / 1000); const mm = (x) => `${Math.floor(Math.abs(x) / 60)}:${String(Math.abs(x) % 60).padStart(2, '0')}`; eta = left >= 0 ? ` · ⏱ ${mm(left)}` : ` · ⏱ +${mm(left)} ${tr('tarde')}`; }
+  $('nvn').textContent = `${tr('Próxima parada')}: ${n.name}${eta}`;
   $('nvb').style.display = n.dist < 300 && n.dist >= 35 ? 'block' : 'none';
   $('nvbi').style.width = `${Math.round((1 - n.dist / 300) * 100)}%`;
 }

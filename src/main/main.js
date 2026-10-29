@@ -11,7 +11,7 @@ const { Photos } = require('./photos');
 const { setupUpdater } = require('./updater');
 const P = require('./progress');
 const { watchKey, watchKeys } = require('./keys');
-const { DiscordBot, buildRegister, buildPromo, postWebhook, announceRelease } = require('./discordbot');
+const { DiscordBot, buildRegister, buildPromo, postWebhook, announceRelease, announceBusWeek } = require('./discordbot');
 const DISCORD_CLIENT = '1563527823522533426';
 const DISCORD_REDIRECT = 'https://ruteroapp.github.io/rutero/discord.html';
 
@@ -403,10 +403,19 @@ function startTelemetry() {
       case 'job:started': { const { samples, expenses, ...d } = data; data = d; } send('job', data); toast('Nueva carga', `${data.cargo}: ${data.from} → ${data.to}`); break;
       case 'job:delivered': handleTrip({ type: 'cargo', ...data }); toast('Carga entregada ✅', `${data.cargo} · ${Math.round(data.km)} km · ${data.score} pts`, 'money'); break;
       case 'job:cancelled': handleTrip({ type: 'cargo', ...data }); toast('Trabajo cancelado', `Penalización ${Math.abs(data.revenue).toLocaleString(I18N.locale())}`, 'warn'); break;
-      case 'bus:finished': handleTrip(data); toast(data.routeDone ? 'Ruta completada 🚌✅' : 'Ruta de autobús terminada 🚌', `${data.stops} paradas · ${data.passengers} pasajeros${data.routeBonus ? ` · +${data.routeBonus.toLocaleString(I18N.locale())} extra` : ''}`, 'money'); break;
+      case 'bus:finished':
+        // la fama de tus rutas: la media de satisfacción hace que la próxima vez espere más (o menos) gente
+        if (data.myRouteId) store.set('busRoutes', (store.get('busRoutes') || []).map((r) => (r.id === data.myRouteId ? { ...r, rating: Math.round(((r.rating ?? 80) + data.satisfaction) / 2), runs: (r.runs || 0) + 1 } : r)));
+        handleTrip(data); toast(data.routeDone ? 'Ruta completada 🚌✅' : 'Ruta de autobús terminada 🚌', `${data.stops} paradas · ${data.passengers} pasajeros · ${'★'.repeat(data.stars)}${'☆'.repeat(5 - data.stars)}${data.routeBonus ? ` · +${data.routeBonus.toLocaleString(I18N.locale())} extra` : ''}`, 'money'); break;
+      case 'bus:announce': announceStop(data); break;
       case 'bus:update': send('bus', data); sendOverlay('bus', data); break;
-      case 'bus:stop': if (data.doors) send('sound', 'doorClose'); toast(data.name ? `Parada ${data.stop}: ${data.name}` : `Parada ${data.stop}`, `Suben ${data.on} · bajan ${data.off} · a bordo ${data.onBoard}${data.left ? ` · ${data.left} se quedan en tierra` : ''}`); sendOverlay('toast', { title: `🚏 ${data.name || `Parada ${data.stop}`}`, body: `+${data.on} / -${data.off} · ${data.onBoard} a bordo` }); break;
-      case 'bus:doors': if (data.open === false) break; send('sound', 'doorOpen'); if (data.offStop) break; sendOverlay('toast', { title: '🚪 Puertas abiertas', body: `${data.alighting} bajan · ${data.waiting} esperando${data.name ? ` · ${data.name}` : ''}` }); break;
+      case 'bus:stop': if (data.doors) send('sound', 'doorClose'); toast(data.name ? `Parada ${data.stop}: ${data.name}` : `Parada ${data.stop}`, `Suben ${data.on} · bajan ${data.off} · a bordo ${data.onBoard}${data.left ? ` · ${data.left} se quedan en tierra` : ''}${data.tip >= 1 ? ` · propinas ${Math.round(data.tip)}` : ''}`); sendOverlay('toast', { title: `🚏 ${data.name || `Parada ${data.stop}`}`, body: `+${data.on} / -${data.off} · ${data.onBoard} a bordo` }); break;
+      case 'bus:doors': if (data.open === false) break; send('sound', 'doorOpen'); if (data.offStop) break; sendOverlay('toast', { title: '🚪 Puertas abiertas', body: `${data.alighting} bajan · ${data.waiting} esperando${data.name ? ` · ${data.name}` : ''}` });
+        if (data.delay !== null && data.delay !== undefined) {
+          if (data.delay <= Tracker.ON_TIME) toast('⏱ Puntual', data.delay < -60 ? `Llegas ${Math.round(-data.delay / 60)} min antes · cobras el extra de puntualidad` : 'Cobras el extra de puntualidad', 'money');
+          else toast('⏱ Llegas tarde', `${Math.round(data.delay / 60)} min de retraso${data.delay > Tracker.VERY_LATE ? ': parte de la gente se ha cansado de esperar' : ''}`, 'warn');
+        }
+        break;
       case 'bus:stopPos':
         if (data.mine) { store.set('busRoutes', (store.get('busRoutes') || []).map((r) => (r.id === data.routeId ? { ...r, stopPos: [...(r.stopPos || []).filter((x) => !(x.name === data.pos.name && x.g === data.pos.g)), data.pos] } : r))); }
         else if (data.routeId && me && me.companyId) cloud.saveStopPos(me.companyId, data.routeId, data.pos).catch((e) => console.warn('parada', e.message));
@@ -504,6 +513,22 @@ function handleProtocolUrl(u) {
   if (q.get('state') !== discordPending.state || !q.get('access_token')) return discordPending.reject(new Error('No se pudo conectar con Discord, inténtalo otra vez'));
   discordPending.resolve(q.get('access_token'));
 }
+// ---------------------------------------------------------------- voz de las paradas (español o inglés)
+const VOICE = {
+  es: { next: (n, last) => `Próxima parada: ${n}.${last ? ' Final de trayecto.' : ''}`, arriving: (n, last) => `${last ? 'Final de trayecto' : 'Parada'}: ${n}.`, end: () => 'Final de trayecto. Gracias por viajar con nosotros.' },
+  en: { next: (n, last) => `Next stop: ${n}.${last ? ' This is the last stop.' : ''}`, arriving: (n, last) => `${last ? 'Last stop' : 'This is'}: ${n}.`, end: () => 'This is the last stop. Thank you for travelling with us.' },
+};
+function voiceLang() {
+  const v = store.get('settings').busVoice || 'auto';
+  if (v === 'off') return '';
+  if (v === 'es' || v === 'en') return v;
+  return langNow() === 'es' ? 'es' : 'en';
+}
+function announceStop(d) {
+  const lang = voiceLang(); if (!lang) return;
+  const V = VOICE[lang]; const text = V[d.kind] && V[d.kind](d.name || '', !!d.last);
+  if (text) send('say', { text, lang, chime: d.kind !== 'arriving' });
+}
 // ---------------------------------------------------------------- grabar una ruta de autobús conduciendo
 let recording = null; // { startedAt, game, points: [{x,z} salida, {x,z} parada 1, …] }
 function notify(title, body) { sendOverlay('toast', { title, body }); send('rec', recording ? publicRec() : null); toast(title, body); }
@@ -544,6 +569,11 @@ function recordKey(k) {
     recording = null;
     send('busRoutes', store.get('busRoutes'));
     return notify('✅ Ruta guardada', `${names.length} paradas. Ponle nombre en Rutero → Autobús → Mis rutas`);
+  }
+  // durante una ruta (sin grabar), Mayús+F2 = «la parada está aquí»: corrige dónde está la próxima parada
+  if (!recording && k === 'F2' && tracker && tracker.bus) {
+    const name = tracker.relocateStop();
+    return name ? notify('📍 Parada movida aquí', name) : null;
   }
   if (!recording) return; // F2 y F3 solo cuentan mientras se graba
   if (k === 'F2') {
@@ -621,6 +651,7 @@ function registerIpc() {
   h('bus:start', (o) => { if (!busAllowed()) throw new Error('Tu empresa tiene que activar el servicio de autobuses'); tracker.startBus(o); return tracker.bus; });
   h('bus:end', () => tracker.endBus());
   h('bus:doors', () => tracker.toggleDoors());
+  h('bus:relocate', () => { const n = tracker.relocateStop(); if (!n) throw new Error('No hay ninguna parada que mover'); return tracker.bus; });
   h('bus:routes', () => store.get('busRoutes') || []);
   h('bus:rec', () => (recording ? publicRec() : null));
   h('bus:recCancel', () => { recording = null; send('rec', null); return null; });
@@ -827,7 +858,7 @@ app.whenReady().then(async () => {
   // busca actualizaciones al arrancar y cada 6 horas
   setTimeout(() => updater.check(), 8000);
   // anuncia en Discord la versión nueva (lo hace la primera app que la ve, sea de quien sea)
-  const announce = () => { if (cloud.uid) announceRelease(cloud, ROOT).catch(() => {}); };
+  const announce = () => { if (cloud.uid) { announceRelease(cloud, ROOT).catch(() => {}); announceBusWeek(cloud).catch(() => {}); } };
   setTimeout(announce, 60_000);
   setInterval(announce, 3 * 3600_000);
   setInterval(() => updater.check(), 6 * 3600_000);

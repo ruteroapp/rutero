@@ -380,7 +380,15 @@ function tripModal(j) {
     <h3 style="margin-top:18px">Velocidad durante el viaje</h3>${speedChart(samples)}
     <div class="grid g2" style="margin-top:14px">
       <div class="card flat"><h3>Dinero</h3>
-        <div class="row between"><span class="muted">Pago del trabajo</span><b class="mono">${money(j.gameRevenue || j.revenue || 0, j.game)}</b></div>
+        ${j.type === 'bus' && j.tickets !== undefined ? `
+        <div class="row between"><span class="muted">Billetes</span><b class="mono">${money(j.tickets, j.game)}</b></div>
+        <div class="row between" style="margin-top:6px"><span class="muted">Pago por km</span><b class="mono">${money(j.kmPay || 0, j.game)}</b></div>
+        ${j.tips ? `<div class="row between" style="margin-top:6px"><span class="muted">Propinas</span><b class="mono pos">${money(j.tips, j.game)}</b></div>` : ''}
+        ${j.punctualPay ? `<div class="row between" style="margin-top:6px"><span class="muted">Extra por puntualidad</span><b class="mono pos">${money(j.punctualPay, j.game)}</b></div>` : ''}
+        ${j.routeBonus ? `<div class="row between" style="margin-top:6px"><span class="muted">Pago extra de la ruta</span><b class="mono pos">${money(j.routeBonus, j.game)}</b></div>` : ''}
+        ${j.costs ? `<div class="row between" style="margin-top:6px"><span class="muted">Combustible y desgaste del bus</span><b class="mono neg">${money(-j.costs, j.game)}</b></div>` : ''}
+        <div class="row between" style="margin-top:6px"><span class="muted">Pago de la ruta</span><b class="mono">${money(j.revenue || 0, j.game)}</b></div>`
+        : `<div class="row between"><span class="muted">Pago del trabajo</span><b class="mono">${money(j.gameRevenue || j.revenue || 0, j.game)}</b></div>`}
         ${j.share ? `<div class="row between" style="margin-top:6px"><span class="muted">Tu parte (economía realista) · ${Math.round(j.share * 100)}%</span><b class="mono neg">${money(-((j.gameRevenue || 0) - Math.round((j.gameRevenue || 0) * j.share)), j.game)}</b></div>` : ''}
         ${j.busBoost ? `<div class="row between" style="margin-top:6px"><span class="muted">Servicio de autobuses de la empresa (×1,5)</span><b class="mono pos">${money(j.busBoost, j.game)}</b></div>` : ''}
         ${j.foreignFee ? `<div class="row between" style="margin-top:6px"><span class="muted">Vehículo que no es de la empresa · ${j.foreignPct || (j.type === 'bus' ? 15 : 5)}%</span><b class="mono neg">${money(-j.foreignFee, j.game)}</b></div>` : ''}
@@ -395,6 +403,9 @@ function tripModal(j) {
         <div class="row between" style="margin-top:6px"><span class="muted">XP ganada</span><b>${nf(j.xpGained || j.xp || 0)}</b></div>
         <div class="row between" style="margin-top:6px"><span class="muted">Autoaparcado</span><b>${j.autopark ? 'Sí' : 'No'}</b></div>
         ${j.type === 'bus' ? `<div class="row between" style="margin-top:6px"><span class="muted">Paradas / pasajeros</span><b>${j.stops} / ${j.passengers}</b></div>` : ''}
+        ${j.type === 'bus' && j.satisfaction !== undefined ? `<div class="row between" style="margin-top:6px"><span class="muted">Satisfacción</span><b>${starsTxt(j.stars)} ${j.satisfaction}%</b></div>
+        ${j.timed ? `<div class="row between" style="margin-top:6px"><span class="muted">Paradas a su hora</span><b>${j.punctual} / ${j.timed}</b></div>` : ''}
+        ${j.satEv && (j.satEv.brake || j.satEv.turn) ? `<div class="row between" style="margin-top:6px"><span class="muted">Frenazos / curvas bruscas</span><b>${j.satEv.brake || 0} / ${j.satEv.turn || 0}</b></div>` : ''}` : ''}
         <div class="row between" style="margin-top:6px"><span class="muted">Fecha</span><b>${dateStr(j.finishedAt)}</b></div></div>
     </div>
     <h3 style="margin-top:16px">Multas y gastos del viaje</h3>
@@ -724,12 +735,12 @@ const PAGE_BUS = {
       <div class="grid g4" id="bus-live"></div>
       ${b.stopNames && b.stopNames.length ? `<div class="route-line live" id="bus-stops"></div>` : ''}
       <div class="notice" style="margin-top:14px">🚪 En cada parada, para el autobús y pulsa <b class="kbd">${esc(key)}</b> en el juego para abrir las puertas: primero bajan y luego suben pasajeros. Vuelve a pulsar <b class="kbd">${esc(key)}</b> para cerrar y seguir.${b.bonus ? ` Si haces las ${b.stopNames.length} paradas cobras ${money(b.bonus)} extra.` : ''}</div>
-      <div class="row" style="margin-top:16px"><button class="btn" id="bus-door">🚪 ${b.doors ? 'Cerrar' : 'Abrir'} puertas</button><button class="btn primary" id="bus-end">Terminar ruta y cobrar</button><button class="btn danger" id="bus-cancel">Cancelar</button></div></div>`
+      <div class="row" style="margin-top:16px"><button class="btn" id="bus-door">🚪 ${b.doors ? 'Cerrar' : 'Abrir'} puertas</button>${b.next ? '<button class="btn" id="bus-here" title="Si la flecha te lleva a un sitio equivocado: para en la parada correcta y púlsalo (o Shift+F2 en el juego)">📍 La parada está aquí</button>' : ''}<button class="btn primary" id="bus-end">Terminar ruta y cobrar</button><button class="btn danger" id="bus-cancel">Cancelar</button></div></div>`
     : `${routes.length ? `<div class="card" style="margin-bottom:16px"><h2>Rutas de tu empresa</h2><div class="grid g3">${routes.map((r) => `<button class="route-pick" data-pickroute="${r.id}" style="--rc:${esc(r.color || '#FF9F1C')}"><span class="route-code">${esc(r.code || '🚌')}</span><span style="flex:1;min-width:0;text-align:left"><b>${esc(r.name)}</b><span class="muted" style="display:block;font-size:12px">${esc(r.stops[0])} → ${esc(r.stops[r.stops.length - 1])} · ${r.stops.length} paradas · ${money(r.fare)}</span></span><span>▶</span></button>`).join('')}</div></div>` : ''}
     <div class="card" style="margin-bottom:16px"><div class="card-title"><h2>Mis rutas</h2>${S.data.canRoutes ? '<button class="btn primary sm" id="my-route-new">＋ Crear ruta con paradas</button>' : '<span class="muted" style="font-size:12px">🔒 Tu rol no puede crear rutas</span>'}</div>
       ${S.myRoutes.length ? `<div class="grid g2">${S.myRoutes.map((r) => `<div class="card route-card" style="--rc:${esc(r.color || '#4C8DFF')};margin:0">
         <div class="row between" style="align-items:flex-start"><div class="row" style="gap:10px;flex-wrap:nowrap;min-width:0"><span class="route-code">${esc(r.code || '🚌')}</span>
-          <div style="min-width:0"><h2 style="margin:0">${esc(r.name)}</h2><div class="muted" style="font-size:12px">${r.stops.length} paradas · billete ${nf(r.fare, 2)} ${cur()} · ${nf(r.perKm, 2)} ${cur()}/km · ${r.capacity} plazas</div></div></div></div>
+          <div style="min-width:0"><h2 style="margin:0">${esc(r.name)}</h2><div class="muted" style="font-size:12px">${r.stops.length} paradas · billete ${nf(r.fare, 2)} ${cur()} · ${nf(r.perKm, 2)} ${cur()}/km · ${r.capacity} plazas${r.runs ? ` · <span style="color:#FFC83D">${starsTxt(Math.round((r.rating ?? 80) / 20))}</span>` : ''}</div></div></div></div>
         <div class="route-line">${r.stops.map((x, i) => `<div class="rstop ${i === 0 || i === r.stops.length - 1 ? 'end' : ''}"><i></i><span>${esc(x)}</span></div>`).join('')}</div>
         <div class="row"><button class="btn primary sm" data-mydrive="${r.id}">▶ Conducir</button><button class="btn sm" data-myedit="${r.id}">Editar</button><button class="btn sm ghost" data-mydel="${r.id}">Borrar</button></div></div>`).join('')}</div>`
       : '<div class="empty"><div class="big">🗺️</div>Crea tu propia línea con todas sus paradas: salida, paradas intermedias y destino.</div>'}</div>
@@ -747,12 +758,22 @@ const PAGE_BUS = {
         <div class="kk"><b class="kbd">Shift + F1</b><div><b>Empezar y terminar</b><span>Púlsala en la salida para empezar a grabar. Al llegar al destino vuelve a pulsarla: ese sitio queda como destino y la ruta se guarda.</span></div></div>
         <div class="kk"><b class="kbd">Shift + F2</b><div><b>Marcar parada</b><span>Mientras grabas, pulsa Shift+F2 en cada parada. Se numeran solas y puedes poner todas las que quieras.</span></div></div>
         <div class="kk"><b class="kbd">Shift + F3</b><div><b>Deshacer</b><span>Borra la última parada marcada si te has equivocado.</span></div></div>
+        <div class="kk"><b class="kbd">Shift + F2</b><div><b>Durante una ruta: «la parada está aquí»</b><span>Si una parada quedó mal colocada, para en el sitio correcto y púlsala: la próxima parada se mueve ahí (sin grabar la ruta otra vez).</span></div></div>
         <div class="kk"><b class="kbd">🧭</b><div><b>Guía en el overlay</b><span>Cuando conduces una ruta con paradas guardadas, el overlay muestra una flecha, «gira a la derecha / sigue recto» y los metros que faltan.</span></div></div>
       </div>
       <div class="muted" style="font-size:12px;margin-top:10px">Las rutas grabadas aparecen en «Mis rutas» como «Ruta grabada…»: pulsa Editar para ponerles nombre a la línea y a cada parada.</div></div>
+    <div class="card" style="margin-top:16px"><div class="card-title"><h2>🔊 Voz de las paradas</h2>
+        <div class="row" style="gap:8px;flex-wrap:nowrap"><select id="bus-voice" style="width:auto">${[['auto', 'Automática (idioma de la app)'], ['es', 'Español'], ['en', 'English'], ['off', 'Desactivada']].map(([k, n]) => `<option value="${k}" ${(S.data.settings.busVoice || 'auto') === k ? 'selected' : ''}>${n}</option>`).join('')}</select><button class="btn sm" id="bus-voice-test">▶ Probar</button></div></div>
+      <div class="muted">Anuncia «Próxima parada…» al cerrar las puertas y el nombre de la parada al llegar, como en un autobús de verdad.</div>
+      <div class="keys-grid" style="margin-top:14px">
+        <div class="kk"><b class="kbd">😊</b><div><b>Satisfacción</b><span>Frenazos, curvas rápidas y exceso de velocidad la bajan. Con buena nota dejan propina.</span></div></div>
+        <div class="kk"><b class="kbd">⏱</b><div><b>Horario</b><span>Cada parada tiene una hora prevista. Llegar a tiempo da un extra; muy tarde, parte de la gente se va.</span></div></div>
+        <div class="kk"><b class="kbd">🕗</b><div><b>Hora punta</b><span>Más gente de 7 a 9 y de 17 a 19 (hora del juego) y en ciudades grandes; menos de noche y en paradas de carretera.</span></div></div>
+        <div class="kk"><b class="kbd">⛽</b><div><b>Gastos</b><span>El combustible gastado y el desgaste del bus se restan de lo ganado.</span></div></div>
+      </div></div>
     <div class="card" style="margin-top:16px"><h2>Historial de rutas</h2>${!trips.length ? '<div class="empty"><div class="big">🚏</div>Aún no has hecho rutas</div>' : `
-      <table><thead><tr><th>Fecha</th><th>Línea</th><th>Ruta</th><th class="num">Paradas</th><th class="num">Pasajeros</th><th class="num">Distancia</th><th class="num">Ganado</th><th class="num">Puntos</th></tr></thead>
-      <tbody>${trips.map((j, i) => `<tr class="click" data-trip="${i}"><td class="muted">${dateStr(j.finishedAt)}</td><td>${esc(j.line)}</td><td>${esc(j.from)} → ${esc(j.to)}</td><td class="num">${j.stops}</td><td class="num">${j.passengers}</td><td class="num">${dist(j.km)}</td><td class="num pos">${money(j.net ?? j.revenue)}</td><td class="num">${j.score}</td></tr>`).join('')}</tbody></table>`}</div>`;
+      <table><thead><tr><th>Fecha</th><th>Línea</th><th>Ruta</th><th class="num">Paradas</th><th class="num">Pasajeros</th><th class="num">Distancia</th><th class="num">Ganado</th><th class="num">Nota</th><th class="num">Puntos</th></tr></thead>
+      <tbody>${trips.map((j, i) => `<tr class="click" data-trip="${i}"><td class="muted">${dateStr(j.finishedAt)}</td><td>${esc(j.line)}</td><td>${esc(j.from)} → ${esc(j.to)}</td><td class="num">${j.stops}</td><td class="num">${j.passengers}</td><td class="num">${dist(j.km)}</td><td class="num pos">${money(j.net ?? j.revenue)}</td><td class="num" style="color:#FFC83D">${j.stars ? starsTxt(j.stars) : '—'}</td><td class="num">${j.score}</td></tr>`).join('')}</tbody></table>`}</div>`;
   },
   mount(root) {
     const gc = $('#bus-go-co'); if (gc) gc.onclick = () => { if (S.profile.online && S.profile.online.companyId) S.companyTab = 'busroutes'; go('company'); };
@@ -765,6 +786,9 @@ const PAGE_BUS = {
     $$('[data-pickroute]', root).forEach((b) => b.onclick = () => act(b, () => startCompanyRoute(S.busRoutes.find((r) => r.id === b.dataset.pickroute))));
     const hk = $('#bus-hk'); if (hk) hk.onchange = async () => { await K.call('settings:set', { busHotkeys: hk.checked }); await refreshState(); };
     const rc = $('#rec-cancel'); if (rc) rc.onclick = async () => { await K.call('bus:recCancel'); render(); };
+    const bh = $('#bus-here'); if (bh) bh.onclick = () => act(bh, async () => { S.bus = await K.call('bus:relocate'); toast({ title: '📍 Parada movida aquí', body: S.bus.next || '' }); updateBus(); });
+    const vs = $('#bus-voice'); if (vs) vs.onchange = async () => { await K.call('settings:set', { busVoice: vs.value }); await refreshState(); };
+    const vt = $('#bus-voice-test'); if (vt) vt.onclick = () => { const v = vs ? vs.value : 'auto'; const lang = v === 'auto' ? (S.data.lang === 'es' ? 'es' : 'en') : v; if (v === 'off') return; say({ text: lang === 'es' ? 'Próxima parada: Estación central.' : 'Next stop: Central station.', lang, chime: true }); };
     const dr = $('#bus-door');
     if (dr) dr.onclick = () => act(dr, async () => { S.bus = await K.call('bus:doors'); render(); });
     const myForm = (r = {}) => formModal(r.id ? 'Editar ruta' : 'Nueva ruta con paradas', `
@@ -782,7 +806,7 @@ const PAGE_BUS = {
     $$('[data-mydel]', root).forEach((b) => b.onclick = () => act(b, async () => { if (!confirm('¿Borrar esta ruta?')) return; S.myRoutes = await K.call('bus:routeDel', b.dataset.mydel); render(); }));
     $$('[data-mydrive]', root).forEach((b) => b.onclick = () => act(b, async () => {
       const r = S.myRoutes.find((x) => x.id === b.dataset.mydrive); if (!r) return;
-      S.bus = await K.call('bus:start', { line: `${r.code ? r.code + ' · ' : ''}${r.name}`, from: r.stops[0], to: r.stops[r.stops.length - 1], fare: r.fare, perKm: r.perKm, capacity: r.capacity, routeId: r.id, stopNames: r.stops, color: r.color, mine: true, stopPos: r.stopPos || [] });
+      S.bus = await K.call('bus:start', { line: `${r.code ? r.code + ' · ' : ''}${r.name}`, from: r.stops[0], to: r.stops[r.stops.length - 1], fare: r.fare, perKm: r.perKm, capacity: r.capacity, routeId: r.id, stopNames: r.stops, color: r.color, mine: true, stopPos: r.stopPos || [], reputation: r.rating ?? 80 });
       toast({ title: 'Ruta empezada 🚌', body: `${r.name} · ${r.stops.length} paradas` }); render();
     }));
     const bb = $('#bus-banner');
@@ -793,20 +817,23 @@ const PAGE_BUS = {
     updateBus();
   },
 };
+const starsTxt = (n) => `${'★'.repeat(Math.max(0, Math.min(5, n || 0)))}${'☆'.repeat(5 - Math.max(0, Math.min(5, n || 0)))}`;
+const etaTxt = (b) => { if (!b || !b.eta || b.eta.stop !== b.stops) return ''; const left = Math.round((b.eta.due - Date.now()) / 1000); const mm = (x) => `${Math.floor(Math.abs(x) / 60)}:${String(Math.abs(x) % 60).padStart(2, '0')}`; return left >= 0 ? `⏱ ${mm(left)}` : `⏱ +${mm(left)}`; };
 const navText = (n) => { const a = Math.abs(n.rel), side = n.rel > 0 ? 'derecha' : 'izquierda'; return a <= 22 ? 'Sigue recto' : a <= 70 ? `Ligeramente a la ${side}` : a <= 140 ? `Gira a la ${side}` : 'La parada está detrás'; };
 function updateBus() {
   const el = $('#bus-live'); if (!el || !S.bus) return;
   const b = S.bus;
   const key = (S.data.settings.busDoorKey || 'U').toUpperCase();
   el.innerHTML = [['Paradas', `${b.stops}${b.stopNames && b.stopNames.length ? ` / ${b.stopNames.length}` : ''}`], ['A bordo', `${b.onBoard} / ${b.capacity || 55}`], ['Pasajeros totales', b.passengers], ['Distancia', dist(b.km, 1)],
-    ['Billetes', money(b.ticketMoney ?? b.passengers * b.fare)], ['Por km', money((b.km || 0) * (b.perKm ?? 0))], ['Tiempo', dur((Date.now() - b.startedAt) / 60000)], ['Exceso velocidad', `${Math.round(b.speedingSec)} s`]]
+    ['Billetes', money(b.ticketMoney ?? b.passengers * b.fare)], ['Por km', money((b.km || 0) * (b.perKm ?? 0))], ['Tiempo', dur((Date.now() - b.startedAt) / 60000)], ['Exceso velocidad', `${Math.round(b.speedingSec)} s`],
+    ['Satisfacción', `${Math.round(b.sat ?? 100)}%`], ['Puntualidad', b.timed ? `${b.punctual} / ${b.timed}` : '—'], ['Propinas y extras', money((b.tips || 0) + (b.punctualPay || 0))], ['Combustible', `${nf(b.fuelUsed || 0, 1)} L`]]
     .map(([k, v]) => `<div class="stat"><span class="k">${k}</span><span class="v mono" style="font-size:26px">${esc(v)}</span></div>`).join('');
   const db = $('#bus-doorbar');
   if (db) {
     db.classList.toggle('open', !!b.doors);
     db.innerHTML = b.doors
       ? `<span class="dk">🚪</span><div style="flex:1"><b>Puertas abiertas${b.stopName ? ` · ${esc(b.stopName)}` : ''}</b><div class="muted">${b.alighting ? `Bajando… quedan ${b.alighting}` : b.waiting ? `Subiendo… ${b.waiting} esperando` : 'Ya han subido todos'} · ↓ ${b.stopOff} · ↑ ${b.stopOn}</div></div><span class="muted">Pulsa <b class="kbd">${esc(key)}</b> para cerrar</span>`
-      : `<span class="dk nav-arrow" style="transform:rotate(${b.nav && b.nav.known && b.nav.dist >= 35 ? b.nav.rel : 0}deg)">${b.nav && b.nav.known ? '⬆️' : '🚌'}</span><div style="flex:1"><b>${b.next ? `Próxima parada: ${esc(b.next)}` : b.stopNames && b.stopNames.length ? 'Ruta completada: termina para cobrar' : `Parada ${b.stops + 1}`}</b><div class="muted">${b.nav && b.nav.known ? (b.nav.dist < 35 ? 'Has llegado: abre las puertas' : `${navText(b.nav)} · ${b.nav.dist < 1000 ? `${Math.round(b.nav.dist / 10) * 10} m` : `${nf(b.nav.dist / 1000, 1)} km`}`) : b.nav ? 'Parada sin ubicar: se guardará al abrir las puertas allí' : 'Para el autobús y pulsa'} ${b.nav && b.nav.known ? '' : `<b class="kbd">${esc(key)}</b> para abrir las puertas`}</div></div>`;
+      : `<span class="dk nav-arrow" style="transform:rotate(${b.nav && b.nav.known && b.nav.dist >= 35 ? b.nav.rel : 0}deg)">${b.nav && b.nav.known ? '⬆️' : '🚌'}</span><div style="flex:1"><b>${b.next ? `Próxima parada: ${esc(b.next)}` : b.stopNames && b.stopNames.length ? 'Ruta completada: termina para cobrar' : `Parada ${b.stops + 1}`}</b><div class="muted">${b.nav && b.nav.known ? (b.nav.dist < 35 ? 'Has llegado: abre las puertas' : `${navText(b.nav)} · ${b.nav.dist < 1000 ? `${Math.round(b.nav.dist / 10) * 10} m` : `${nf(b.nav.dist / 1000, 1)} km`}${etaTxt(b) ? ` · ${etaTxt(b)}` : ''}`) : b.nav ? 'Parada sin ubicar: se guardará al abrir las puertas allí' : 'Para el autobús y pulsa'} ${b.nav && b.nav.known ? '' : `<b class="kbd">${esc(key)}</b> para abrir las puertas`}</div></div>`;
     const btn = $('#bus-door'); if (btn) btn.innerHTML = `🚪 ${b.doors ? 'Cerrar' : 'Abrir'} puertas`;
   }
   const st = $('#bus-stops');
@@ -1186,9 +1213,26 @@ const SFX = (() => {
       [[392, 0.35], [523.25, 0.5], [659.25, 0.62], [783.99, 0.8]].forEach(([f, d], i) => { tone(c, t + 0.35 + i * 0.11, f, d + 0.6, 0.11); tone(c, t + 0.35 + i * 0.11, f * 2, d, 0.03); });
       const o = c.createOscillator(); o.type = 'sine'; o.frequency.setValueAtTime(55, t); o.frequency.exponentialRampToValueAtTime(110, t + 1.2);
       const g = c.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.18, t + 0.5); g.gain.exponentialRampToValueAtTime(0.0001, t + 1.6); o.connect(g).connect(c.destination); o.start(t); o.stop(t + 1.7); },
+    chime() { const c = ac(), t = c.currentTime + 0.02; tone(c, t, 880, 0.7, 0.16); tone(c, t + 0.32, 698.46, 0.9, 0.15); },
     doorClose() { const c = ac(), t = c.currentTime + 0.02; [0, 0.22, 0.44].forEach((d) => tone(c, t + d, 1050, 0.14, 0.14, 'square')); hiss(c, t + 0.6, 0.9, 900, 2400, 0.3); thunk(c, t + 1.45); },
   };
 })();
+// voz de las paradas (la del sistema: en Windows suele haber voz en español y en inglés)
+function say({ text, lang, chime }) {
+  try {
+    if (!window.speechSynthesis || !text) return;
+    if (chime) SFX.chime();
+    const voices = speechSynthesis.getVoices();
+    const want = lang === 'es' ? ['es-ES', 'es'] : ['en-GB', 'en-US', 'en'];
+    const v = want.map((w) => voices.find((x) => x.lang === w || x.lang.replace('_', '-').startsWith(w))).find(Boolean);
+    const u = new SpeechSynthesisUtterance(text);
+    if (v) u.voice = v;
+    u.lang = v ? v.lang : (lang === 'es' ? 'es-ES' : 'en-GB'); u.rate = 0.95; u.volume = 1;
+    setTimeout(() => speechSynthesis.speak(u), chime ? 1100 : 0);
+  } catch (e) { console.warn('voz', e); }
+}
+if (window.speechSynthesis) speechSynthesis.getVoices();
+K.on('say', say);
 K.on('sound', (k) => { try { if (SFX[k]) SFX[k](); } catch (e) { console.warn('sonido', e); } });
 K.on('profile', (p) => { S.profile = p; renderSide(); });
 K.on('bus', (b) => { S.bus = b; if (S.page === 'bus') updateBus(); });

@@ -8,7 +8,7 @@
 //  - anuncia las nuevas versiones de Rutero en #actualizaciones
 const fs = require('fs');
 const path = require('path');
-const { levelFromXp } = require('./progress');
+const { levelFromXp, weekKey } = require('./progress');
 
 const API = 'https://discord.com/api/v10';
 const GUILD = '1563305086074093690';
@@ -71,6 +71,7 @@ const CHANNELS = [
   { key: 'bugs', cat: 'rutero', name: '🐞┃ᴇʀʀᴏʀᴇꜱ', m: /ᴇʀʀᴏʀᴇꜱ|errores/i, topic: 'Cuenta qué falla, en qué versión y, si puedes, añade una captura.' },
   { key: 'register', cat: 'news', name: '📝┃ʀᴇɢɪꜱᴛʀᴏ-ᴅᴇ-ᴇᴍᴘʀᴇꜱᴀꜱ', m: /ʀᴇɢɪꜱᴛʀᴏ|registro/i, lock: true, topic: 'Empresas registradas desde la app. Cada una recibe su sede privada.' },
   { key: 'promo', cat: 'news', name: '📢┃ᴘʀᴏᴍᴏᴄɪᴏɴᴀ-ᴛᴜ-ᴇᴍᴘʀᴇꜱᴀ', m: /ᴘʀᴏᴍᴏᴄɪᴏɴᴀ|promociona/i, lock: true, topic: 'Promociones de empresas con foto y estrellas. Se publican desde Rutero (Mi empresa → Discord).' },
+  { key: 'busRank', cat: 'news', name: '🏆┃ʀᴀɴᴋɪɴɢ-ᴅᴇ-ʙᴜꜱᴇꜱ', m: /ʀᴀɴᴋɪɴɢ-ᴅᴇ-ʙᴜꜱᴇꜱ|ranking-de-buses/i, lock: true, topic: 'Cada lunes, los mejores conductores de autobús de la semana: pasajeros, satisfacción y puntualidad.' },
   { key: 'lookCompany', cat: 'companies', name: '🔎┃ʙᴜꜱᴄᴏ-ᴇᴍᴘʀᴇꜱᴀ', m: /ʙᴜꜱᴄᴏ-ᴇᴍᴘʀᴇꜱᴀ|busco-empresa/i, verified: true, slow: 600, topic: 'Preséntate: juego, horario, km y qué buscas. Un mensaje cada 10 minutos.' },
   { key: 'lookDrivers', cat: 'companies', name: '🧑‍✈️┃ʙᴜꜱᴄᴏ-ᴄᴏɴᴅᴜᴄᴛᴏʀᴇꜱ', m: /ʙᴜꜱᴄᴏ-ᴄᴏɴᴅᴜᴄᴛᴏʀᴇꜱ|busco-conductores/i, verified: true, slow: 600, topic: 'Empresas que buscan conductores. Un mensaje cada 10 minutos.' },
   { key: 'convoys', cat: 'companies', name: '🚛┃ᴄᴏɴᴠᴏʏᴇꜱ-ʏ-ᴇᴠᴇɴᴛᴏꜱ', m: /ᴄᴏɴᴠᴏʏᴇꜱ|convoyes/i, verified: true, topic: 'Organiza convoyes y eventos: servidor, hora, salida y destino.' },
@@ -84,6 +85,7 @@ const CHANNELS = [
   { key: 'updatesEn', cat: 'newsEn', name: '🆕┃ᴜᴘᴅᴀᴛᴇꜱ', m: /ᴜᴘᴅᴀᴛᴇꜱ|updates/i, lock: true, topic: 'The bot posts every new Rutero version here.' },
   { key: 'registerEn', cat: 'newsEn', name: '📝┃ᴄᴏᴍᴘᴀɴʏ-ʀᴇɢɪꜱᴛʀʏ', m: /ʀᴇɢɪꜱᴛʀʏ|registry/i, lock: true, topic: 'Companies registered from the app. Each one gets its own private HQ.' },
   { key: 'promoEn', cat: 'newsEn', name: '📢┃ᴘʀᴏᴍᴏᴛᴇ-ʏᴏᴜʀ-ᴄᴏᴍᴘᴀɴʏ', m: /ᴘʀᴏᴍᴏᴛᴇ|promote/i, lock: true, topic: 'Company promotions with photo and stars. Posted from Rutero (My company → Discord).' },
+  { key: 'busRankEn', cat: 'newsEn', name: '🏆┃ʙᴜꜱ-ʀᴀɴᴋɪɴɢ', m: /ʙᴜꜱ-ʀᴀɴᴋɪɴɢ|bus-ranking/i, lock: true, topic: 'Every Monday, the best bus drivers of the week: passengers, satisfaction and punctuality.' },
   { key: 'generalEn', cat: 'communityEn', name: '💬┃ɢᴇɴᴇʀᴀʟ', m: /ɢᴇɴᴇʀᴀʟ|^general$/i, verified: true, slow: 3, topic: 'General chat about trucks, routes and TruckersMP. Good vibes only!' },
   { key: 'shotsEn', cat: 'communityEn', name: '📸┃ꜱᴄʀᴇᴇɴꜱʜᴏᴛꜱ', m: /ꜱᴄʀᴇᴇɴꜱʜᴏᴛꜱ|screenshots/i, verified: true, slow: 10, topic: 'Your best ETS2 & ATS screenshots.' },
   { key: 'clipsEn', cat: 'communityEn', name: '🎬┃ᴄʟɪᴘꜱ', m: /ᴄʟɪᴘꜱ|clips/i, verified: true, slow: 10, topic: 'Videos, epic moments and road fails.' },
@@ -531,7 +533,7 @@ class DiscordBot {
   }
   // enlaces de publicación (webhooks) para que las apps de todos publiquen sin el token del bot
   async ensureHooks(ids) {
-    const want = { register: ids.register, promo: ids.promo, updates: ids.updates, registerEn: ids.registerEn, promoEn: ids.promoEn, updatesEn: ids.updatesEn };
+    const want = { register: ids.register, promo: ids.promo, updates: ids.updates, registerEn: ids.registerEn, promoEn: ids.promoEn, updatesEn: ids.updatesEn, busRank: ids.busRank, busRankEn: ids.busRankEn };
     const hooks = {};
     const avatar = `data:image/png;base64,${fs.readFileSync(path.join(this.root, 'build', 'icon-256.png')).toString('base64')}`;
     for (const [k, chId] of Object.entries(want)) {
@@ -716,4 +718,30 @@ async function announceRelease(cloud, root) {
   return done;
 }
 
-module.exports = { DiscordBot, GUILD, RANK_ROLES, buildRegister, buildPromo, postWebhook, announceRelease };
+// cada lunes: ranking de autobús de la semana pasada (lo publica la primera app que lo ve)
+async function announceBusWeek(cloud) {
+  const cfg = await cloud.discordConfig().catch(() => null);
+  const hooks = (cfg && cfg.hooks) || {};
+  if (!hooks.busRank && !hooks.busRankEn) return false;
+  const wk = weekKey(new Date(Date.now() - 7 * 86400e3));
+  const list = (await cloud.busWeek(wk)).filter((d) => (d.busPassengers || 0) > 0);
+  if (!list.length) return false;
+  const medal = (i) => ['🥇', '🥈', '🥉'][i] || `**${i + 1}.**`;
+  const line = (d, i, en) => {
+    const runs = d.busRuns || 1; const st = (d.busSatSum || 0) / runs / 20;
+    const punct = d.busTimed ? Math.round((d.busPunctual || 0) / d.busTimed * 100) : null;
+    const n = (x) => Math.round(x).toLocaleString(en ? 'en-GB' : 'es-ES');
+    return `${medal(i)} **${String(d.name || '—').slice(0, 40)}**${d.companyTag ? ` [${String(d.companyTag).slice(0, 8)}]` : ''} — ${n(d.busPassengers)} ${en ? 'passengers' : 'pasajeros'} · ${n(d.busStops || 0)} ${en ? 'stops' : 'paradas'} · ⭐ ${st.toFixed(1).replace('.', en ? '.' : ',')}${punct !== null ? ` · ⏱ ${punct}% ${en ? 'on time' : 'puntual'}` : ''}`;
+  };
+  let done = false;
+  for (const [key, en] of [['busRank', false], ['busRankEn', true]]) {
+    if (!hooks[key] || !(await cloud.claimRelease(`bus-${wk}${en ? '-en' : ''}`))) continue;
+    await postWebhook(hooks[key], { embeds: [{ color: AMBER, title: en ? `🏆 Bus ranking · week ${wk.split('-W')[1]}` : `🏆 Ranking de autobús · semana ${wk.split('-W')[1]}`,
+      description: `${list.map((d, i) => line(d, i, en)).join('\n')}\n\n${en ? 'Drive bus routes in Rutero to appear here next Monday. Smooth driving and arriving on time count!' : 'Haz rutas de autobús en Rutero para salir aquí el próximo lunes. ¡Conducir suave y llegar a tiempo cuenta!'}`,
+      footer: { text: en ? 'Rutero · bus mode' : 'Rutero · modo autobús' }, timestamp: new Date().toISOString() }] });
+    done = true;
+  }
+  return done;
+}
+
+module.exports = { DiscordBot, GUILD, RANK_ROLES, buildRegister, buildPromo, postWebhook, announceRelease, announceBusWeek };

@@ -166,6 +166,7 @@ class Cloud {
       avgSpeed: trip.avgSpeed || 0, maxSpeed: Math.round(trip.maxSpeed || 0), durationMin: trip.durationMin || 0,
       fuelUsed: Math.round(trip.fuelUsed || 0), fineCount: trip.fineCount || 0, fines: Math.round(trip.fines || 0), tolls: Math.round(trip.tolls || 0),
       speedingSec: Math.round(trip.speedingSec || 0), cruiseSec: Math.round(trip.cruiseSec || 0),
+      ...(isBus ? { line: trip.line || '', satisfaction: Math.round(trip.satisfaction ?? 0), stars: trip.stars || 0, tips: Math.round(trip.tips || 0), punctual: trip.punctual || 0, timed: trip.timed || 0, costs: Math.round(trip.costs || 0) } : {}),
       samples: (trip.samples || []).map((x) => x.join(',')).join(';').slice(0, 20000),
       driverUid: this.uid, driverName: me.name || '', driverPhoto: '', finishedAt: new Date(trip.finishedAt || Date.now()),
     };
@@ -174,7 +175,9 @@ class Cloud {
     if (delivered) userT.push(inc(isBus ? 'busTrips' : 'jobs', 1));
     writes.push(this.upd(`users/${this.uid}`, { lastActivity: new Date() }, userT));
     writes.push(this.upd(`weekly/${wk}/drivers/${this.uid}`, { name: me.name || '', companyTag: me.companyTag || '', photo: me.photo || '' },
-      [inc('km', km, true), inc('money', Math.max(split.net + salary, 0)), inc('jobs', delivered ? 1 : 0)]));
+      [inc('km', km, true), inc('money', Math.max(split.net + salary, 0)), inc('jobs', delivered ? 1 : 0),
+        // ranking semanal de autobús (lo publica el bot en Discord los lunes)
+        ...(isBus && delivered ? [inc('busPassengers', trip.passengers || 0), inc('busStops', trip.stops || 0), inc('busRuns', 1), inc('busSatSum', Math.round(trip.satisfaction ?? 0)), inc('busPunctual', trip.punctual || 0), inc('busTimed', trip.timed || 0)] : [])]));
     if (me.companyId) {
       const c = me.companyId;
       writes.push(this.create(`companies/${c}/jobs/${id}`, doc));
@@ -790,6 +793,10 @@ class Cloud {
   // la primera app que «reclama» una versión es la que la anuncia en Discord
   async claimRelease(tag) {
     try { await this.commit([this.create(`discordReleases/${String(tag).replace(/[^\w.-]/g, '_')}`, { by: this.uid, at: new Date() })]); return true; } catch { return false; }
+  }
+  // ranking de autobús de una semana (para el anuncio de Discord)
+  async busWeek(wk) {
+    return this.query(`weekly/${wk}`, { from: [{ collectionId: 'drivers' }], orderBy: [{ field: { fieldPath: 'busPassengers' }, direction: 'DESCENDING' }], limit: 10 }).catch(() => []);
   }
   // --- solo para el administrador del bot ---
   async discordQueue() { return this.query('', { from: [{ collectionId: 'discordQueue' }], orderBy: [{ field: { fieldPath: 'at' }, direction: 'ASCENDING' }], limit: 10 }); }
