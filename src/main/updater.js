@@ -34,8 +34,8 @@ function setupUpdater(send, { onReady } = {}) {
     state: () => ({ ...state }),
     check: async () => { if (!autoUpdater) return state; try { await autoUpdater.checkForUpdates(); } catch (e) { emit({ status: 'error', error: friendly(e) }); } return state; },
     download: async () => { if (!autoUpdater) return state; emit({ status: 'downloading', progress: 0 }); try { await autoUpdater.downloadUpdate(); } catch (e) { emit({ status: 'error', error: friendly(e) }); } return state; },
-    // silent: se instala sin ventanas y Rutero se vuelve a abrir solo
-    install: (silent = false) => { if (autoUpdater) { app.isQuitting = true; autoUpdater.quitAndInstall(!!silent, true); } },
+    // siempre en silencio: sin el asistente de instalación, y Rutero se vuelve a abrir solo
+    install: () => { if (autoUpdater) { app.isQuitting = true; autoUpdater.quitAndInstall(true, true); } },
   };
 }
 
